@@ -1,0 +1,21 @@
+diff --git a/src/libcamera/camera_sensor_properties.cpp b/src/libcamera/camera_sensor_properties.cpp
+index 7a349012..39435ea1 100644
+--- a/src/libcamera/camera_sensor_properties.cpp
++++ b/src/libcamera/camera_sensor_properties.cpp
+@@ -70,6 +70,16 @@ const CameraSensorProperties *CameraSensorProperties::get(const std::string &sen
+ 				 */
+ 			},
+ 		} },
++		{ "mira220", {
++                        .unitCellSize = { 1600, 1400 },
++                        .testPatternModes = {
++                                { controls::draft::TestPatternModeOff, 0 },
++                                { controls::draft::TestPatternModeColorBars, 1 },
++                                { controls::draft::TestPatternModeSolidColor, 2 },
++                                { controls::draft::TestPatternModeColorBarsFadeToGray, 3 },
++                                { controls::draft::TestPatternModePn9, 4 },
++                        },
++                } },
+ 		{ "imx219", {
+ 			.unitCellSize = { 1120, 1120 },
+ 			.testPatternModes = {
