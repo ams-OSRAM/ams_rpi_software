@@ -11,4 +11,5 @@ Compilation:
 Tests:
 - Capture a JPG image file `test01.jpg` and a RAW image file `test01.dng` with the command `mira220/script/pmic_reset.sh && libcamera-still --immediate -r -o test01.jpg`. The JPG file can be viewed directly, while the DNG file can be covnerted into a PPM file by `dcraw test01.dng`, which generates a `test01.ppm` that can be viewed by software like GIMP.
 - Capture a video and open a window to display it with a provided script at `mira220/script/gst_test.sh`.
+- [Optional] Integration test with OpenCV video capture in C++. Performing this test requires a one-time compilation of OpenCV, which takes 2 hours. This test case can be obtained from [this external github repo](https://github.com/Qengineering/Libcamera-OpenCV-RPi-Bullseye-32OS). Please refer to the github repo for instructions. Note: each time this test is executed, first reset the Mira220 sensor using `mira220/script/pmic_reset.sh`.
 
