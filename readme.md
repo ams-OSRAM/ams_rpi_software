@@ -3,6 +3,7 @@ Prerequisites:
 - Raspberry Pi OS Bullseye 32bit or 64bit.
 - Mira220 sensor board V3.0
 - Mira220 driver (provided in a separate repo) installed on RPI.
+- Raspberry Pi has the required tools to compile libcamera. Refer to [Raspberry Pi doc](https://www.raspberrypi.com/documentation/accessories/camera.html#building-libcamera-and-libcamera-apps) on the required tools. It is recommended to test that all required tools are installed by compiling the standard libcamera as mentioned in the Raspberry Pi doc.
 
 Compilation (performed on RPI):
 - Log on to the RPI, clone or unpack the repo `ams_rpi_software`.
