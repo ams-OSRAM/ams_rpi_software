@@ -1,3 +1,8 @@
+# Version v0.1.2
+
+New features:
+- Add example and script for 12-bit per pixel mode.
+
 # Version v0.1.1
 
 New features:
