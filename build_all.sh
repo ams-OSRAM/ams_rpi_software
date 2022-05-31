@@ -20,6 +20,11 @@ echo "Applying patches to libcamera source"
 (cd $PWD/mira220/patch && ./apply_patch.sh)
 echo "Copying source files to libcamera source"
 (cd $PWD/mira220/src && ./apply_src.sh)
+echo "Applying patches to libcamera source"
+(cd $PWD/mira050/patch && ./apply_patch.sh)
+echo "Copying source files to libcamera source"
+(cd $PWD/mira050/src && ./apply_src.sh)
+
 
 # config, build, and install libcamera
 echo "Inside libcamera dir, configure the build with meson"
