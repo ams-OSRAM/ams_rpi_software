@@ -30,7 +30,8 @@ echo "Copying source files to libcamera source"
 echo "Inside libcamera dir, configure the build with meson"
 (cd $PWD/libcamera && meson build)
 echo "Inside libcamera dir, build and install with ninja"
-(cd $PWD/libcamera && sudo ninja -C build install)
+(cd $PWD/libcamera && ninja -C build -j 2 )
+(cd $PWD/libcamera && sudo ninja -C build install )
 echo "Post-installation update"
 sudo ldconfig
 

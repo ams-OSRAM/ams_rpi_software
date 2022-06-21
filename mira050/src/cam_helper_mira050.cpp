@@ -27,13 +27,12 @@ using namespace RPiController;
  * We care about one gain register and a pair of exposure registers. Their I2C
  * addresses from the mira050 datasheet:
  */
-constexpr uint32_t gainReg = 0x400A;
-constexpr uint32_t expHiReg = 0x1013;
-constexpr uint32_t expLoReg = 0x1012;
-constexpr uint32_t frameLengthHiReg = 0x1013;
-constexpr uint32_t frameLengthLoReg = 0x1012;
+constexpr uint32_t gainReg = 0x0024;
+constexpr uint32_t expReg = 0x000E;
+// constexpr uint32_t frameLengthHiReg = 0x1013;
+// constexpr uint32_t frameLengthLoReg = 0x1012;
 constexpr std::initializer_list<uint32_t> registerList [[maybe_unused]]
-	= { expHiReg, expLoReg, gainReg, frameLengthHiReg, frameLengthLoReg };
+	= { expReg, gainReg };
 
 class CamHelperMira050 : public CamHelper
 {
@@ -94,9 +93,8 @@ void CamHelperMira050::PopulateMetadata(const MdParser::RegisterMap &registers,
 {
 	DeviceStatus deviceStatus;
 
-	deviceStatus.shutter_speed = Exposure(registers.at(expHiReg) * 256 + registers.at(expLoReg));
+	deviceStatus.shutter_speed = Exposure(registers.at(expReg));
 	deviceStatus.analogue_gain = Gain(registers.at(gainReg));
-	deviceStatus.frame_length = registers.at(frameLengthHiReg) * 256 + registers.at(frameLengthLoReg);
 
 	metadata.Set("device.status", deviceStatus);
 }
