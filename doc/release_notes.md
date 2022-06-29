@@ -1,3 +1,13 @@
+# Version v0.1.4
+
+New features:
+- Add Mira050 support. Update readme for it.
+
+# Version v0.1.3
+
+New features:
+- Use scripts, rather than the standard patch command, to apply patches.
+
 # Version v0.1.2
 
 New features:

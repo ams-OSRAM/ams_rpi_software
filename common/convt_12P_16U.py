@@ -48,22 +48,29 @@ def convert(input, output, w, h, bpp):
     print(f"Output converted image to file {output}.");
 
 
-
 if __name__ == "__main__":
     # Argument handling
     ap = argparse.ArgumentParser(description='Convert 12 bit pack RAW to 16 bit PGM.')
     ap.add_argument('-input', type=str, required=True, help='input: input image file.')
+    ap.add_argument('-width', type=int, required=True, help='width: width of input image.')
+    ap.add_argument('-height', type=int, required=True, help='height: height of input image.')
+ 
     args = vars(ap.parse_args())
     # Process -input
     arg_input = args['input'] 
     if not os.path.exists(arg_input) :
         print(f"ERROR: -input does not exist ({arg_input})")
         exit(-1)
+    # Process -width
+    arg_width = args['width']
+    # Process -height
+    arg_height = args['height']
 
     input = arg_input
     output = arg_input+".pgm"
-    w = 1600
-    h = 1400
+    w = arg_width
+    h = arg_height
     bpp = 12
     assert(bpp == 12), f"Only 12 bits per pixel input is supported."
     convert(input, output, w, h, bpp)
+
