@@ -7,7 +7,7 @@
 - Raspberry Pi has the required tools to compile libcamera. Refer to [Raspberry Pi doc](https://www.raspberrypi.com/documentation/accessories/camera.html#building-libcamera-and-libcamera-apps) on the required tools. It is recommended to test that all required tools are installed by compiling the standard libcamera as mentioned in the Raspberry Pi doc.
 
 ## Configure RPI:
-- In the RPI, add a new line to `/boot/config.txt`, either specifying `dtoverlay=mira220` or `dtoverlay=mira050` (but not both!), depending on whether Mira220 or Mira050 is conencted. If a standard RPI camera (such as SONY IMX219 or OVT OV5647) is connected instead, comment out or remove `dtoverlay=mira220/050` to avoid conflicts.
+- In the RPI, add a new line to `/boot/config.txt`, either specifying `dtoverlay=mira220` for Mira220 mono, or `dtoverlay=mira220color` for Mira220 color, or `dtoverlay=mira050` for Mira050 mono (pick one and only one!), depending on whether Mira220 mono or Mira220 color or Mira050 mono is conencted. If a standard RPI camera (such as SONY IMX219 or OVT OV5647) is connected instead, comment out or remove `dtoverlay=mira...` to avoid conflicts.
 
 ## Installing prerequisite tools on RPI:
 ```

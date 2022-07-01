@@ -8,7 +8,7 @@ echo "${PWD}"
 # clone libcamera source, and checkout a proved commit
 # The tested commit is on 2022 April 4th.
 COMMIT=302731cd
-if [[ ! -d $PWD/libcamera-${COMMIT} ]]
+if [[ ! -d $PWD/libcamera ]]
 then
 	echo "Clone libcamera source and checkout commit id ${COMMIT}"
 	git clone https://git.libcamera.org/libcamera/libcamera.git

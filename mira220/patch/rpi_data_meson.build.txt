@@ -1,1 +1,2 @@
     'mira220.json',
+    'mira220color.json',
