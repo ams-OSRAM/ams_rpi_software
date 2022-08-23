@@ -16,9 +16,9 @@
  */
 #define ENABLE_EMBEDDED_DATA 0
 
-#include "cam_helper.hpp"
+#include "cam_helper.h"
 #if ENABLE_EMBEDDED_DATA
-#include "md_parser.hpp"
+#include "md_parser.h"
 #endif
 
 using namespace RPiController;
@@ -39,10 +39,10 @@ class CamHelperMira220 : public CamHelper
 {
 public:
 	CamHelperMira220();
-	uint32_t GainCode(double gain) const override;
-	double Gain(uint32_t gain_code) const override;
-	unsigned int MistrustFramesModeSwitch() const override;
-	bool SensorEmbeddedDataPresent() const override;
+	uint32_t gainCode(double gain) const override;
+	double gain(uint32_t gain_code) const override;
+	unsigned int mistrustFramesModeSwitch() const override;
+	bool sensorEmbeddedDataPresent() const override;
 
 private:
 	/*
@@ -51,7 +51,7 @@ private:
 	 */
 	static constexpr int frameIntegrationDiff = 4;
 
-	void PopulateMetadata(const MdParser::RegisterMap &registers,
+	void populateMetadata(const MdParser::RegisterMap &registers,
 			      Metadata &metadata) const override;
 };
 
@@ -64,17 +64,17 @@ CamHelperMira220::CamHelperMira220()
 {
 }
 
-uint32_t CamHelperMira220::GainCode(double gain) const
+uint32_t CamHelperMira220::gainCode(double gain) const
 {
 	return (uint32_t)(256 - 256 / gain);
 }
 
-double CamHelperMira220::Gain(uint32_t gain_code) const
+double CamHelperMira220::gain(uint32_t gainCode) const
 {
-	return 256.0 / (256 - gain_code);
+	return 256.0 / (256 - gainCode);
 }
 
-unsigned int CamHelperMira220::MistrustFramesModeSwitch() const
+unsigned int CamHelperMira220::mistrustFramesModeSwitch() const
 {
 	/*
 	 * For reasons unknown, we do occasionally get a bogus metadata frame
@@ -84,26 +84,27 @@ unsigned int CamHelperMira220::MistrustFramesModeSwitch() const
 	return 1;
 }
 
-bool CamHelperMira220::SensorEmbeddedDataPresent() const
+bool CamHelperMira220::sensorEmbeddedDataPresent() const
 {
 	return ENABLE_EMBEDDED_DATA;
 }
 
-void CamHelperMira220::PopulateMetadata(const MdParser::RegisterMap &registers,
+void CamHelperMira220::populateMetadata(const MdParser::RegisterMap &registers,
 				       Metadata &metadata) const
 {
 	DeviceStatus deviceStatus;
 
-	deviceStatus.shutter_speed = Exposure(registers.at(expHiReg) * 256 + registers.at(expLoReg));
-	deviceStatus.analogue_gain = Gain(registers.at(gainReg));
-	deviceStatus.frame_length = registers.at(frameLengthHiReg) * 256 + registers.at(frameLengthLoReg);
+	deviceStatus.shutterSpeed = exposure(registers.at(expHiReg) * 256 + registers.at(expLoReg));
+	deviceStatus.analogueGain = gain(registers.at(gainReg));
+	deviceStatus.frameLength = registers.at(frameLengthHiReg) * 256 + registers.at(frameLengthLoReg);
 
-	metadata.Set("device.status", deviceStatus);
+	metadata.set("device.status", deviceStatus);
 }
 
-static CamHelper *Create()
+static CamHelper *create()
 {
 	return new CamHelperMira220();
 }
 
-static RegisterCamHelper reg("mira220", &Create);
+static RegisterCamHelper reg("mira220", &create);
+
