@@ -49,6 +49,31 @@ sudo apt-get install libgstreamer1.0-dev \
 sudo apt-get install gstreamer1.0-qt5
 # install if you want to work with audio
 sudo apt-get install gstreamer1.0-pulseaudio
+
+#################################
+# libcamera-apps prerequisites
+# [ref](https://www.raspberrypi.com/documentation/accessories/camera.html)
+#################################
+sudo apt install -y cmake libboost-program-options-dev libdrm-dev libexif-dev
+
+#################################
+# picamera prerequisites
+# [ref](https://github.com/raspberrypi/picamera2)
+#################################
+sudo apt install -y python3-libcamera python3-kms++
+sudo apt install -y python3-pyqt5 python3-prctl libatlas-base-dev ffmpeg python3-pip
+pip3 install numpy --upgrade
+pip3 install picamera2
+
+#################################
+# libcamera optional components
+# [ref](https://libcamera.org/getting-started.html)
+#################################
+# install dependencies for if Dcam=enabled
+sudo apt install libevent-dev
+# install dependencies for Dqcam=enabled
+sudo apt install qtbase5-dev libqt5core5a libqt5gui5 libqt5widgets5 qttools5-dev-tools libtiff-dev
+
 ```
 
 # Compilation (performed on RPI):

@@ -37,7 +37,7 @@ echo "Inside libcamera dir, configure the build with meson"
 # Meson build options are only configured if this scripts runs on RPI
 if [[ "$UNAME_MACHINE" == "armv7l" || "$UNAME_MACHINE" == "armv8" || "$UNAME_MACHINE" == "aarch64" ]]
 then
-	(cd $PWD/libcamera && meson build --buildtype=release -Dpipelines=raspberrypi -Dipas=raspberrypi -Dv4l2=true -Dgstreamer=enabled -Dtest=false -Dlc-compliance=disabled -Dcam=enabled -Dqcam=enabled -Ddocumentation=disabled)
+	(cd $PWD/libcamera && meson build --buildtype=release -Dpipelines=raspberrypi -Dipas=raspberrypi -Dv4l2=true -Dgstreamer=enabled -Dtest=false -Dlc-compliance=disabled -Dcam=disabled -Dqcam=disabled -Ddocumentation=disabled)
 else
 	(cd $PWD/libcamera && meson build)
 fi
