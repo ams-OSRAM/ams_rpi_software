@@ -8,8 +8,10 @@ echo "${PWD}"
 UNAME_MACHINE=`uname -m`
 
 # clone libcamera source, and checkout a proved commit
-# Latest tested commit is on 2022 August 21st.
-LIBCAMERA_COMMIT=6c6289ee184d79
+# Latest tested commit is on 2022 August 30th
+LIBCAMERA_COMMIT=fc9783acc6083a59fae8bca1ce49635e59afa355
+# Previous tested commit is on 2022 August 21st.
+# LIBCAMERA_COMMIT=6c6289ee184d79
 # Previous tested commit is on 2022 April 4th.
 # LIBCAMERA_COMMIT=302731cd
 if [[ ! -d $PWD/libcamera ]]
@@ -58,8 +60,10 @@ else
 fi
 
 # clone libcamera-apps source, and checkout a proved commit
-# Latest tested commit is on 2022 August 10th.
-LIBCAMERA_APPS_COMMIT=e1beb45
+# Latest tested commit is on 2022 August 30th.
+LIBCAMERA_APPS_COMMIT=1bf0cca
+# Previous tested commit is on 2022 August 10th.
+# LIBCAMERA_APPS_COMMIT=e1beb45
 if [[ ! -d $PWD/libcamera-apps ]]
 then
         echo "Clone libcamera-apps source and checkout commit id ${LIBCAMERA_APPS_COMMIT}"
@@ -77,8 +81,10 @@ echo "Inside libcamera-apps/build dir, build and install"
 (cd $PWD/libcamera-apps/build && sudo ldconfig) # this is only necessary on the first build
 
 # clone picamera2 source, and checkout a proved commit
-# Latest tested commit is on 2022 August 22th.
-PICAMERA2_COMMIT=18cda82
+# Latest tested commit is on 2022 August 31st, tag v0.3.3
+PICAMERA2_COMMIT=017cbd7
+# Previous tested commit is on 2022 August 22th.
+# PICAMERA2_COMMIT=18cda82
 if [[ ! -d $PWD/picamera2 ]]
 then
         echo "Clone picamera2 source and checkout commit id ${PICAMERA2_COMMIT}"
@@ -91,5 +97,10 @@ fi
 sudo apt install -y python3-libcamera python3-kms++
 sudo apt install -y python3-pyqt5 python3-prctl libatlas-base-dev ffmpeg python3-pip
 pip3 install numpy --upgrade
-pip3 install picamera2
+
+# Disable apt way of installation
+# pip3 install picamera2
+
+# Use pip to install instead
+(cd $PWD/picamera2 && pip3 install --user .)
 
