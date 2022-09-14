@@ -1,3 +1,9 @@
+# Version v0.1.5
+
+New features:
+- Build with libcamera-apps, picamera2.
+- Support mira220color and mira050color.
+
 # Version v0.1.4
 
 New features:
