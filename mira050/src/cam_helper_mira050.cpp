@@ -9,6 +9,8 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <algorithm>
+#include <cmath>
 
 /*
  * We have observed that the mira050 embedded data stream randomly returns junk
@@ -22,6 +24,8 @@
 #endif
 
 using namespace RPiController;
+using libcamera::utils::Duration;
+using namespace std::literals::chrono_literals;
 
 /*
  * We care about one gain register and a pair of exposure registers. Their I2C
@@ -40,6 +44,8 @@ public:
 	CamHelperMira050();
 	uint32_t gainCode(double gain) const override;
 	double gain(uint32_t code) const override;
+	uint32_t exposureLines(Duration exposure) const override;
+	Duration exposure(uint32_t exposureLines) const override;
 	unsigned int mistrustFramesModeSwitch() const override;
 	bool sensorEmbeddedDataPresent() const override;
 
@@ -49,6 +55,8 @@ private:
 	 * in units of lines.
 	 */
 	static constexpr int frameIntegrationDiff = 4;
+	/* ROW_LENGTH is microseconds is (ROW_LENGTH * 8 / MIRA_DATA_RATE) */
+	static constexpr Duration timePerLine = (2417.0 * 8.0 / 1000.0) / 1.0e6 * 1.0s;
 
 	void populateMetadata(const MdParser::RegisterMap &registers,
 			      Metadata &metadata) const override;
@@ -65,13 +73,24 @@ CamHelperMira050::CamHelperMira050()
 
 uint32_t CamHelperMira050::gainCode(double gain) const
 {
-	return (uint32_t)(256 - 256 / gain);
+	return (uint32_t)(gain);
 }
 
 double CamHelperMira050::gain(uint32_t gainCode) const
 {
-	return 256.0 / (256 - gainCode);
+	return (double)(gainCode);
 }
+
+uint32_t CamHelperMira050::exposureLines(Duration exposure) const
+{
+	return (uint32_t)(exposure / timePerLine);
+}
+
+Duration CamHelperMira050::exposure(uint32_t exposureLines) const
+{
+	return (exposureLines * timePerLine);
+}
+
 
 unsigned int CamHelperMira050::mistrustFramesModeSwitch() const
 {
