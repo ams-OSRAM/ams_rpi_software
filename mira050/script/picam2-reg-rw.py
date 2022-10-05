@@ -30,7 +30,6 @@ class CameraStreamInput:
         picam2.preview_configuration.controls.Brightness = brightness
         picam2.preview_configuration.align()
         picam2.configure("preview")
-        picam2.start()
         self._index = 0
 
     def __iter__(self):
@@ -48,13 +47,25 @@ class CameraStreamInput:
         self._index += 1
         return (frame, self._index)
 
-class fastIOCTL:
+    def start(self):
+        picam2.start()
 
+class v4l2Ctrl:
+    # Most significant Byte is flag, and most significant bit is unused.
+    AMS_CAMERA_CID_MIRA050_REG_FLAG_FOR_READ = 0b00000001
+    AMS_CAMERA_CID_MIRA050_REG_FLAG_USE_BANK = 0b00000010
+    AMS_CAMERA_CID_MIRA050_REG_FLAG_BANK     = 0b00000100
+    AMS_CAMERA_CID_MIRA050_REG_FLAG_CONTEXT  = 0b00001000
+    # When sleep bit is set, the other 3 Bytes is sleep values in us.
+    AMS_CAMERA_CID_MIRA050_REG_FLAG_SLEEP_US = 0b00010000
+    # Bit 6&7 of flag are combined to specify I2C dev (default is Mira)
+    AMS_CAMERA_CID_MIRA050_REG_FLAG_I2C_SEL  = 0b01100000
+    AMS_CAMERA_CID_MIRA050_REG_FLAG_I2C_MIRA = 0b00000000
+    AMS_CAMERA_CID_MIRA050_REG_FLAG_I2C_PMIC = 0b00100000
+    AMS_CAMERA_CID_MIRA050_REG_FLAG_I2C_UC   = 0b01000000
+    AMS_CAMERA_CID_MIRA050_REG_FLAG_I2C_TBD  = 0b01100000
+ 
     def __init__(self, printFunc):
-        self.__AMS_CAMERA_CID_MIRA050_REG_FLAG_FOR_READ = 0x01
-        self.__AMS_CAMERA_CID_MIRA050_REG_FLAG_USE_BANK = 0x02
-        self.__AMS_CAMERA_CID_MIRA050_REG_FLAG_BANK = 0x04
-        self.__AMS_CAMERA_CID_MIRA050_REG_FLAG_CONTEXT = 0x08
         self.fname = "/dev/v4l-subdev0"
         self.pr = printFunc
         try:
@@ -68,18 +79,18 @@ class fastIOCTL:
         os.close(self.f)
         return (0)
 
-    def execI2C(self, addr, value, rw, print_en=True):
+    def rwReg(self, addr, value, rw, flag=0, print_en=True):
         try:
             if rw > 0:
                 # Write register
-                reg_flag = 0 & 0xFF
+                reg_flag = ((~ self.AMS_CAMERA_CID_MIRA050_REG_FLAG_FOR_READ) & flag) & 0xFF
                 reg_addr = addr & 0xFFFF
                 reg_val = value & 0xFF
                 value = (reg_flag << 24) | (reg_addr << 8) | (reg_val);
                 subprocess.Popen('v4l2-ctl -d  /dev/v4l-subdev0 --set-ctrl {}=0x{:08x}'.format("mira050_reg_w", value), shell=True)
             else:
                 # Dummy write with FLAG_FOR_READ, to cache reg addr for read later
-                reg_flag = (self.__AMS_CAMERA_CID_MIRA050_REG_FLAG_FOR_READ | self.__AMS_CAMERA_CID_MIRA050_REG_FLAG_USE_BANK | self.__AMS_CAMERA_CID_MIRA050_REG_FLAG_BANK ) & 0xFF
+                reg_flag = (self.AMS_CAMERA_CID_MIRA050_REG_FLAG_FOR_READ | flag ) & 0xFF
                 reg_addr = addr & 0xFFFF
                 reg_val = value & 0xFF
                 value = (reg_flag << 24) | (reg_addr << 8) | (reg_val);
@@ -98,13 +109,30 @@ class fastIOCTL:
             raise IOError(txt)
         return int(reg_val)
 
-input_camera_stream = CameraStreamInput(brightness=0.0)
-i2c = fastIOCTL(print)
+if __name__ == "__main__":
 
-for frame, frame_idx in input_camera_stream:
-    exp_val = i2c.execI2C(0x0011, 0x00, 0)
-    print("LSB exp: {}".format(exp_val))
-    cv2.imshow('output', frame)
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        sys.exit(0)
+    # Initialize classes
+    input_camera_stream = CameraStreamInput(brightness=0.0)
+    i2c = v4l2Ctrl(print)
+
+    # Before stream on, upload register sequence
+    # Test by uploading a list of values for LSB of exposure reg
+    for reg_val in range(1,10):
+        exp_val = i2c.rwReg(addr=0x0011, value=reg_val, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_USE_BANK | i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_BANK)
+
+    input_camera_stream.start()
+
+    # Test by reading VERSION_ID
+    VERSION_ID = i2c.rwReg(addr=0x011B, value=0, rw=0, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_USE_BANK)
+    print("VERSION_ID: {}".format(VERSION_ID))
+
+    # Per-frame operation
+    for frame, frame_idx in input_camera_stream:
+        # Test by reading CURRENT_ACTIVE_CONTEXT, NEXT_ACTIVE_CONTEXT
+        CURRENT_ACTIVE_CONTEXT = i2c.rwReg(addr=0x4002, value=0, rw=0, flag=0)
+        print("CURRENT_ACTIVE_CONTEXT: {}".format(CURRENT_ACTIVE_CONTEXT))
+        # GUI element
+        cv2.imshow('output', frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            sys.exit(0)
 
