@@ -1,3 +1,8 @@
+# Version v0.1.6
+
+Bug fixes:
+- Fix over exposure bug of Mira220, and strange exposure behavior of Mira050.
+
 # Version v0.1.5
 
 New features:

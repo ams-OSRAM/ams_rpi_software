@@ -31,3 +31,15 @@
 - Obtaining compressed 8-bit-per-pixel video. Issue the command `libcamera-vid -t 2000 --framerate 5 --codec h264 -o video01.h264 --save-pts video01_timestamp.txt` to capture 2000 milliseconds of video. The command generates a `video01.h264` video file and a time stamp record file `video01_timestamp.txt`. Since the h264 file does not contain timing information, it is recommended to convert it into a video format that has timing info, such as the mkv file format. As an example, first install the mkv video tools by the command `sudo apt install mkvtoolnix-gui`, followed by the command `mkvmerge -o video01.mkv --timecodes 0:video01_timestamp.txt video01.h264` that merges the h264 video file and the time stamp file to generate a mkv video file that contains timing information.
 - Obtaining compressed 8-bit-per-pixel image sequence. Issue the command `libcamera-vid -t 2000 --framerate 5 --segment 1 --codec mjpeg -o test%04d.jpeg` to capture 2 seconds of video, and dump each frame into a JPEG file.
 
+# Release workflow
+Two repositories, `ams_rpi_kernel` and `ams_rpi_software`, are released. Assumption is that, both repositories have a git tag for the release version, such as `v0.1.2`. Below are commands that create a specific release from the tag.
+```
+# Export the release tag version, for example, v0.1.2
+export RELEASE_TAG=v0.1.2
+# Create release pacakge ams_rpi_kernel_${RELEASE_TAG}.tar.gz
+cd ams_rpi_kernel
+git archive --prefix=ams_rpi_kernel/ -o ams_rpi_kernel_${RELEASE_TAG}.tar.gz ${RELEASE_TAG}
+# Create release for ams_rpi_software_${RELEASE_TAG}.tar.gz
+cd ams_rpi_software
+git archive --prefix=ams_rpi_software/ -o ams_rpi_software_${RELEASE_TAG}.tar.gz ${RELEASE_TAG}
+```
