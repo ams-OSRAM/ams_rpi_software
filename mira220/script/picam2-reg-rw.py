@@ -15,7 +15,7 @@ from driver_access import v4l2Ctrl
 if __name__ == "__main__":
 
     # Initialize classes
-    input_camera_stream = CameraStreamInput(AeEnable=True)
+    input_camera_stream = CameraStreamInput(width=960, height=720, AeEnable=True)
     i2c = v4l2Ctrl(sensor="mira220", printFunc=print)
 
     # Before stream on, upload register sequence

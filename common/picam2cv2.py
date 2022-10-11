@@ -17,11 +17,11 @@ class CameraStreamInput:
     """
     Initializes a camera stream and returns it as an iterable object
     """
-    def __init__(self, video=None, AeEnable=False):
-        picam2.preview_configuration.main.size = (572, 768)
+    def __init__(self, width=320, height=240, AeEnable=True, FrameRate = 200.0):
+        picam2.preview_configuration.main.size = (width, height)
         picam2.preview_configuration.main.format = "RGB888"
-        picam2.preview_configuration.controls.FrameRate = 100.0
         picam2.preview_configuration.controls.AeEnable = AeEnable
+        picam2.preview_configuration.controls.FrameRate = FrameRate
         picam2.preview_configuration.align()
         picam2.configure("preview")
         self._index = 0
