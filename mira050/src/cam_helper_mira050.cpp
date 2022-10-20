@@ -73,12 +73,12 @@ CamHelperMira050::CamHelperMira050()
 
 uint32_t CamHelperMira050::gainCode(double gain) const
 {
-	return (uint32_t)(gain);
+	return std::log2(gain);
 }
 
 double CamHelperMira050::gain(uint32_t gainCode) const
 {
-	return (double)(gainCode);
+	return std::exp2(gainCode);
 }
 
 uint32_t CamHelperMira050::exposureLines(Duration exposure) const
