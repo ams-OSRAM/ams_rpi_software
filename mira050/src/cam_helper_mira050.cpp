@@ -178,6 +178,9 @@ uint32_t CamHelperMira050::gainCode(double gain) const
 		if (gain <= gainLut8bit[0]) {
 			return 0;
 		}
+		if (gain >= gainLut8bit[sizeLut - 1]) {
+			return (sizeLut - 1);
+		}
 		while (i < sizeLut - 1) {
 			if (gain > gainLut8bit[i] && gain < gainLut8bit[i+1]) {
 				break;
