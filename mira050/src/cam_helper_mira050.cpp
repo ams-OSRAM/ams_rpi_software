@@ -12,6 +12,8 @@
 #include <algorithm>
 #include <cmath>
 
+#include <libcamera/base/log.h>
+
 /*
  * We have observed that the mira050 embedded data stream randomly returns junk
  * register values. Do not rely on embedded data until this has been resolved.
@@ -24,8 +26,13 @@
 #endif
 
 using namespace RPiController;
+using namespace libcamera;
 using libcamera::utils::Duration;
 using namespace std::literals::chrono_literals;
+
+namespace libcamera {
+LOG_DECLARE_CATEGORY(IPARPI)
+}
 
 /*
  * We care about one gain register and a pair of exposure registers. Their I2C
@@ -174,20 +181,21 @@ uint32_t CamHelperMira050::gainCode(double gain) const
 		return std::log2(gain);
 	} else if (mode_.bitdepth == 8) {
 		uint32_t sizeLut = sizeof(gainLut8bit) / sizeof(gainLut8bit[0]);
-		uint32_t i = 0;
+		uint32_t gainCode = 0;
 		if (gain <= gainLut8bit[0]) {
-			return 0;
-		}
-		if (gain >= gainLut8bit[sizeLut - 1]) {
-			return (sizeLut - 1);
-		}
-		while (i < sizeLut - 1) {
-			if (gain > gainLut8bit[i] && gain < gainLut8bit[i+1]) {
-				break;
+			gainCode = 0;
+		} else if (gain >= gainLut8bit[sizeLut - 1]) {
+			gainCode = (sizeLut - 1);
+		} else {
+			while (gainCode < sizeLut - 1) {
+				if (gain >= gainLut8bit[gainCode] && gain < gainLut8bit[gainCode+1]) {
+					break;
+				}
+				gainCode++;
 			}
-			i++;
 		}
-		return (uint32_t)(i);
+		LOG(IPARPI, Debug) << "gain: " << gain << " gainCode: " << gainCode;
+		return gainCode;
 	} else {
 		return (uint32_t)(gain);
 	}
