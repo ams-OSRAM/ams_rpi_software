@@ -1,3 +1,9 @@
+# Version v0.1.7
+
+New features:
+- Support 8/10/12 bit modes and analog gain control for Mira050.
+- Add demo Python scripts of Mira050 event detection.
+
 # Version v0.1.6
 
 Bug fixes:
