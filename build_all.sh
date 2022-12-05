@@ -5,8 +5,6 @@ cd "$( dirname "${BASH_SOURCE[0]}" )"
 
 echo "${PWD}"
 
-UNAME_MACHINE=`uname -m`
-
 # clone libcamera source, and checkout a proved commit
 # Latest tested commit is on 2022 August 30th
 LIBCAMERA_COMMIT=ea8ae5afff226f9373c82c1a3185e532d5d6eda0
@@ -36,35 +34,18 @@ echo "Copying source files to libcamera source"
 echo "Inside libcamera dir, configure the build with meson"
 # The meson build options are from raspberry pi doc on libcamera
 # ref https://www.raspberrypi.com/documentation/accessories/camera.html
-# Meson build options are only configured if this scripts runs on RPI
-if [[ "$UNAME_MACHINE" == "armv7l" || "$UNAME_MACHINE" == "armv8" || "$UNAME_MACHINE" == "aarch64" ]]
-then
-	(cd $PWD/libcamera && meson build --buildtype=release -Dpipelines=raspberrypi -Dipas=raspberrypi -Dv4l2=true -Dgstreamer=enabled -Dtest=false -Dlc-compliance=disabled -Dcam=disabled -Dqcam=disabled -Ddocumentation=disabled)
-else
-	(cd $PWD/libcamera && meson build)
-fi
+(cd $PWD/libcamera && meson build --buildtype=release -Dpipelines=raspberrypi -Dipas=raspberrypi -Dv4l2=true -Dgstreamer=enabled -Dtest=false -Dlc-compliance=disabled -Dcam=disabled -Dqcam=disabled -Ddocumentation=disabled)
 echo "Inside libcamera dir, build and install with ninja"
 (cd $PWD/libcamera && ninja -C build -j 2 )
 (cd $PWD/libcamera && sudo ninja -C build install )
 echo "Post-installation update"
 sudo ldconfig
 
-# Only continue to build libcamera-apps and picamera2 if this scripts runs on RPI
-# When this script runs on onther hosts, for example, x86_64 that runs Jenkins, skip libcamera-apps and picamera2.
-if [[ "$UNAME_MACHINE" == "armv7l" || "$UNAME_MACHINE" == "armv8" || "$UNAME_MACHINE" == "aarch64" ]]
-then
-        echo "This script runs on ${UNAME_MACHINE} machine, assuming a Raspberry Pi. Continue with libcamerae-apps and picamera2."
-else
-        echo "This script runs on ${UNAME_MACHINE} machine, assuming not a Raspberry Pi. Skip libcamerae-apps and picamera2."
-        exit 0
-fi
-
-
 if [[ ! -d $PWD/libepoxy ]]
 then
         echo "Clone libcamera-apps source and checkout commit id ${LIBCAMERA_APPS_COMMIT}"
         git clone https://github.com/anholt/libepoxy.git
-	fi
+fi
 
 echo "Inside libcamera-apps dir, create a build dir"
 (cd $PWD/libepoxy && mkdir -p _build)

@@ -1,3 +1,12 @@
+# Version v0.1.8
+
+New features:
+- Bump to new libcamera, libcamera-apps version.
+
+Bug fixes:
+- Install libepoxy manually to fix preview window problem.
+
+
 # Version v0.1.7
 
 New features:
