@@ -9,8 +9,8 @@ UNAME_MACHINE=`uname -m`
 
 # clone libcamera source, and checkout a proved commit
 # Latest tested commit is on 2022 August 30th
-LIBCAMERA_COMMIT=fc9783acc6083a59fae8bca1ce49635e59afa355
-# Previous tested commit is on 2022 August 21st.
+LIBCAMERA_COMMIT=ea8ae5afff226f9373c82c1a3185e532d5d6eda0
+#Previous tested commit is on 2022 August 21st.
 # LIBCAMERA_COMMIT=6c6289ee184d79
 # Previous tested commit is on 2022 April 4th.
 # LIBCAMERA_COMMIT=302731cd
@@ -59,6 +59,21 @@ else
         exit 0
 fi
 
+
+if [[ ! -d $PWD/libepoxy ]]
+then
+        echo "Clone libcamera-apps source and checkout commit id ${LIBCAMERA_APPS_COMMIT}"
+        git clone https://github.com/anholt/libepoxy.git
+	fi
+
+echo "Inside libcamera-apps dir, create a build dir"
+(cd $PWD/libepoxy && mkdir -p _build)
+echo "Inside libcamera-apps/build dir, use cmake to configure the build"
+echo "Inside libcamera-apps/build dir, build and install"
+(cd $PWD/libepoxy/_build && meson)  # use -j1 on Raspberry Pi 3 or earlier devices
+(cd $PWD/libepoxy/_build && ninja)
+(cd $PWD/libepoxy/_build && sudo ninja install) # this is only necessary on the first build
+
 # clone libcamera-apps source, and checkout a proved commit
 # Latest tested commit is on 2022 August 30th.
 LIBCAMERA_APPS_COMMIT=1bf0cca
@@ -82,7 +97,7 @@ echo "Inside libcamera-apps/build dir, build and install"
 
 # clone picamera2 source, and checkout a proved commit
 # Latest tested commit is on 2022 August 31st, tag v0.3.3
-PICAMERA2_COMMIT=017cbd7
+PICAMERA2_COMMIT=78738cf
 # Previous tested commit is on 2022 August 22th.
 # PICAMERA2_COMMIT=18cda82
 if [[ ! -d $PWD/picamera2 ]]
