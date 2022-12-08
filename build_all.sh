@@ -5,6 +5,9 @@ cd "$( dirname "${BASH_SOURCE[0]}" )"
 
 echo "${PWD}"
 
+echo "Install requirements using install_requirements.sh"
+sh $PWD/install_requirements.sh
+
 # clone libcamera source, and checkout a proved commit
 # Latest tested commit is on 2022 August 30th
 LIBCAMERA_COMMIT=fc9783acc6083a59fae8bca1ce49635e59afa355
@@ -34,12 +37,14 @@ echo "Copying source files to libcamera source"
 echo "Inside libcamera dir, configure the build with meson"
 # The meson build options are from raspberry pi doc on libcamera
 # ref https://www.raspberrypi.com/documentation/accessories/camera.html
-(cd $PWD/libcamera && meson build --buildtype=release -Dpipelines=raspberrypi -Dipas=raspberrypi -Dv4l2=true -Dgstreamer=enabled -Dtest=false -Dlc-compliance=disabled -Dcam=disabled -Dqcam=disabled -Ddocumentation=disabled)
+(cd $PWD/libcamera && meson build --buildtype=release -Dpipelines=raspberrypi -Dipas=raspberrypi -Dv4l2=true -Dgstreamer=enabled -Dtest=false -Dlc-compliance=disabled -Dcam=disabled -Dqcam=disabled -Ddocumentation=disabled -Dpycamera=enabled)
 echo "Inside libcamera dir, build and install with ninja"
 (cd $PWD/libcamera && ninja -C build -j 2 )
 (cd $PWD/libcamera && sudo ninja -C build install )
 echo "Post-installation update"
 sudo ldconfig
+echo "Create symbolic link /usr/local/lib/python3.9/dist-packages/libcamera"
+sudo ln -sf /usr/local/lib/aarch64-linux-gnu/python3.9/site-packages/libcamera /usr/local/lib/python3.9/dist-packages/libcamera
 
 if [[ ! -d $PWD/libepoxy ]]
 then
@@ -87,15 +92,6 @@ then
 	(cd $PWD/picamera2 && git checkout $PICAMERA2_COMMIT)
 fi
 
-# Installation commands are from the readme of picamera2 repo
-# Picamera2 source code is not needed for installation, but the picamera2/examples codes are useful for testing
-sudo apt install -y python3-libcamera python3-kms++
-sudo apt install -y python3-pyqt5 python3-prctl libatlas-base-dev ffmpeg python3-pip
-pip3 install numpy --upgrade
-
-# Disable apt way of installation
-# pip3 install picamera2
-
-# Use pip to install instead
-(cd $PWD/picamera2 && pip3 install --user .)
+# Use pip to install instead, install for all user
+(cd $PWD/picamera2 && sudo pip3 install .)
 
