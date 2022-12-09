@@ -14,6 +14,8 @@ sudo pip3 install --upgrade meson
 sudo apt install -y libglib2.0-dev libgstreamer-plugins-base1.0-dev
 # python3-dev needed for python binding of pycamera
 sudo apt install -y python3-dev
+# opencv is needed for some mira sensor scripts
+sudo apt install -y python3-opencv
 
 ###############################
 # Linux kernel prerequisites
