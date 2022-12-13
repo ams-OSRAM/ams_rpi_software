@@ -12,6 +12,10 @@ sudo apt install -y meson
 sudo pip3 install pyyaml ply
 sudo pip3 install --upgrade meson
 sudo apt install -y libglib2.0-dev libgstreamer-plugins-base1.0-dev
+# python3-dev needed for python binding of pycamera
+sudo apt install -y python3-dev
+# opencv is needed for some mira sensor scripts
+sudo apt install -y python3-opencv
 
 ###############################
 # Linux kernel prerequisites
@@ -49,11 +53,11 @@ sudo apt install -y libegl1-mesa-dev
 #################################
 # picamera prerequisites
 # [ref](https://github.com/raspberrypi/picamera2)
+# Note: skip python3-libcamera, use self-built one
 #################################
-sudo apt install -y python3-libcamera python3-kms++
+sudo apt install -y python3-kms++
 sudo apt install -y python3-pyqt5 python3-prctl libatlas-base-dev ffmpeg python3-pip
 pip3 install numpy --upgrade
-pip3 install picamera2
 
 #################################
 # libcamera optional components
@@ -64,4 +68,10 @@ sudo apt install -y libevent-dev
 # install dependencies for Dqcam=enabled
 sudo apt install -y qtbase5-dev libqt5core5a libqt5gui5 libqt5widgets5 qttools5-dev-tools libtiff-dev
 
+################################
+# Uninstall apt and pip packages
+# Use self-built ones instead
+################################
+sudo apt remove -y libcamera-apps libcamera-dev libcamera-tools libcamera0 python3-libcamera
+sudo pip uninstall picamera2
 

@@ -5,9 +5,12 @@ cd "$( dirname "${BASH_SOURCE[0]}" )"
 
 echo "${PWD}"
 
+echo "Install requirements using install_requirements.sh"
+sh $PWD/install_requirements.sh
+
 # clone libcamera source, and checkout a proved commit
 # Latest tested commit is on 2022 August 30th
-LIBCAMERA_COMMIT=ea8ae5afff226f9373c82c1a3185e532d5d6eda0
+LIBCAMERA_COMMIT=fc9783acc6083a59fae8bca1ce49635e59afa355
 #Previous tested commit is on 2022 August 21st.
 # LIBCAMERA_COMMIT=6c6289ee184d79
 # Previous tested commit is on 2022 April 4th.
@@ -34,12 +37,14 @@ echo "Copying source files to libcamera source"
 echo "Inside libcamera dir, configure the build with meson"
 # The meson build options are from raspberry pi doc on libcamera
 # ref https://www.raspberrypi.com/documentation/accessories/camera.html
-(cd $PWD/libcamera && meson build --buildtype=release -Dpipelines=raspberrypi -Dipas=raspberrypi -Dv4l2=true -Dgstreamer=enabled -Dtest=false -Dlc-compliance=disabled -Dcam=disabled -Dqcam=disabled -Ddocumentation=disabled)
+(cd $PWD/libcamera && meson build --buildtype=release -Dpipelines=raspberrypi -Dipas=raspberrypi -Dv4l2=true -Dgstreamer=enabled -Dtest=false -Dlc-compliance=disabled -Dcam=disabled -Dqcam=disabled -Ddocumentation=disabled -Dpycamera=enabled)
 echo "Inside libcamera dir, build and install with ninja"
 (cd $PWD/libcamera && ninja -C build -j 2 )
 (cd $PWD/libcamera && sudo ninja -C build install )
 echo "Post-installation update"
 sudo ldconfig
+echo "Create symbolic link /usr/local/lib/python3.9/dist-packages/libcamera"
+sudo ln -sf /usr/local/lib/aarch64-linux-gnu/python3.9/site-packages/libcamera /usr/local/lib/python3.9/dist-packages/libcamera
 
 if [[ ! -d $PWD/libepoxy ]]
 then
@@ -47,12 +52,11 @@ then
         git clone https://github.com/anholt/libepoxy.git
 fi
 
-echo "Inside libcamera-apps dir, create a build dir"
+echo "Inside libepoxy dir, create a _build dir"
 (cd $PWD/libepoxy && mkdir -p _build)
-echo "Inside libcamera-apps/build dir, use cmake to configure the build"
-echo "Inside libcamera-apps/build dir, build and install"
+echo "Inside libepoxy/_build dir, build and install"
 (cd $PWD/libepoxy/_build && meson)  # use -j1 on Raspberry Pi 3 or earlier devices
-(cd $PWD/libepoxy/_build && ninja)
+(cd $PWD/libepoxy/_build && ninja -j 2)
 (cd $PWD/libepoxy/_build && sudo ninja install) # this is only necessary on the first build
 
 # clone libcamera-apps source, and checkout a proved commit
@@ -72,13 +76,13 @@ echo "Inside libcamera-apps dir, create a build dir"
 echo "Inside libcamera-apps/build dir, use cmake to configure the build"
 (cd $PWD/libcamera-apps/build && cmake .. -DENABLE_DRM=1 -DENABLE_X11=1 -DENABLE_QT=1 -DENABLE_OPENCV=0 -DENABLE_TFLITE=0)
 echo "Inside libcamera-apps/build dir, build and install"
-(cd $PWD/libcamera-apps/build && make -j4)  # use -j1 on Raspberry Pi 3 or earlier devices
+(cd $PWD/libcamera-apps/build && make -j2)  # use -j1 on Raspberry Pi 3 or earlier devices
 (cd $PWD/libcamera-apps/build && sudo make install)
 (cd $PWD/libcamera-apps/build && sudo ldconfig) # this is only necessary on the first build
 
 # clone picamera2 source, and checkout a proved commit
 # Latest tested commit is on 2022 August 31st, tag v0.3.3
-PICAMERA2_COMMIT=78738cf
+PICAMERA2_COMMIT=017cbd7
 # Previous tested commit is on 2022 August 22th.
 # PICAMERA2_COMMIT=18cda82
 if [[ ! -d $PWD/picamera2 ]]
@@ -88,15 +92,6 @@ then
 	(cd $PWD/picamera2 && git checkout $PICAMERA2_COMMIT)
 fi
 
-# Installation commands are from the readme of picamera2 repo
-# Picamera2 source code is not needed for installation, but the picamera2/examples codes are useful for testing
-sudo apt install -y python3-libcamera python3-kms++
-sudo apt install -y python3-pyqt5 python3-prctl libatlas-base-dev ffmpeg python3-pip
-pip3 install numpy --upgrade
-
-# Disable apt way of installation
-# pip3 install picamera2
-
-# Use pip to install instead
-(cd $PWD/picamera2 && pip3 install --user .)
+# Use pip to install instead, install for all user
+(cd $PWD/picamera2 && sudo pip3 install .)
 
