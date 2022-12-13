@@ -57,7 +57,7 @@ sudo apt install -y libegl1-mesa-dev
 #################################
 sudo apt install -y python3-kms++
 sudo apt install -y python3-pyqt5 python3-prctl libatlas-base-dev ffmpeg python3-pip
-pip3 install numpy --upgrade
+pip3 install -y numpy --upgrade
 
 #################################
 # libcamera optional components
@@ -73,5 +73,5 @@ sudo apt install -y qtbase5-dev libqt5core5a libqt5gui5 libqt5widgets5 qttools5-
 # Use self-built ones instead
 ################################
 sudo apt remove -y libcamera-apps libcamera-dev libcamera-tools libcamera0 python3-libcamera
-sudo pip uninstall picamera2
+sudo pip uninstall -y picamera2
 
