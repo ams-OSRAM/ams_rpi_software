@@ -41,8 +41,6 @@ public:
 	CamHelperMira220();
 	uint32_t gainCode(double gain) const override;
 	double gain(uint32_t gain_code) const override;
-	void getDelays(int &exposureDelay, int &gainDelay,
-		       int &vblankDelay) const override;
 	unsigned int mistrustFramesModeSwitch() const override;
 	bool sensorEmbeddedDataPresent() const override;
 
@@ -76,19 +74,6 @@ double CamHelperMira220::gain(uint32_t gainCode) const
 	return (double)(gainCode);
 }
 
-void CamHelperMira220::getDelays(int &exposureDelay, int &gainDelay,
-				int &vblankDelay) const
-{
-	/*
-	 * We run this sensor in a mode where the gain delay is bumped up to
-	 * 2. It seems to be the only way to make the delays "predictable".
-	 */
-	exposureDelay = 2;
-	gainDelay = 2;
-	vblankDelay = 2;
-}
-
-
 unsigned int CamHelperMira220::mistrustFramesModeSwitch() const
 {
 	/*
@@ -109,7 +94,7 @@ void CamHelperMira220::populateMetadata(const MdParser::RegisterMap &registers,
 {
 	DeviceStatus deviceStatus;
 
-	deviceStatus.shutterSpeed = exposure(registers.at(expHiReg) * 256 + registers.at(expLoReg));
+	deviceStatus.shutterSpeed = exposure(registers.at(expHiReg) * 256 + registers.at(expLoReg), deviceStatus.lineLength);
 	deviceStatus.analogueGain = gain(registers.at(gainReg));
 	deviceStatus.frameLength = registers.at(frameLengthHiReg) * 256 + registers.at(frameLengthLoReg);
 

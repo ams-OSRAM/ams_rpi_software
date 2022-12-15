@@ -51,12 +51,13 @@ public:
 	CamHelperMira050();
 	uint32_t gainCode(double gain) const override;
 	double gain(uint32_t code) const override;
-	uint32_t exposureLines(Duration exposure) const override;
-	Duration exposure(uint32_t exposureLines) const override;
+	uint32_t exposureLines(const Duration exposure, const Duration lineLength) const override;
+	Duration exposure(uint32_t exposureLines, const Duration lineLength) const override;
 	unsigned int mistrustFramesModeSwitch() const override;
 	bool sensorEmbeddedDataPresent() const override;
 
 private:
+	static constexpr uint32_t minExposureLines = 1;
 	/*
 	 * Smallest difference between the frame length and integration time,
 	 * in units of lines.
@@ -288,14 +289,17 @@ double CamHelperMira050::gain(uint32_t gainCode) const
 	}
 }
 
-uint32_t CamHelperMira050::exposureLines(Duration exposure) const
+uint32_t CamHelperMira050::exposureLines(const Duration exposure,
+					[[maybe_unused]] const Duration lineLength) const
 {
-	return (uint32_t)(exposure / timePerLine);
+	return std::max<uint32_t>(minExposureLines, exposure / timePerLine);
 }
 
-Duration CamHelperMira050::exposure(uint32_t exposureLines) const
+
+Duration CamHelperMira050::exposure(uint32_t exposureLines,
+				   [[maybe_unused]] const Duration lineLength) const
 {
-	return (exposureLines * timePerLine);
+	return std::max<uint32_t>(minExposureLines, exposureLines) * timePerLine;
 }
 
 
@@ -319,7 +323,7 @@ void CamHelperMira050::populateMetadata(const MdParser::RegisterMap &registers,
 {
 	DeviceStatus deviceStatus;
 
-	deviceStatus.shutterSpeed = exposure(registers.at(expReg));
+	deviceStatus.shutterSpeed = exposure(registers.at(expReg), deviceStatus.lineLength);
 	deviceStatus.analogueGain = gain(registers.at(gainReg));
 
 	metadata.set("device.status", deviceStatus);

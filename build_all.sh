@@ -9,9 +9,11 @@ echo "Install requirements using install_requirements.sh"
 sh $PWD/install_requirements.sh
 
 # clone libcamera source, and checkout a proved commit
-# Latest tested commit is on 2022 August 30th
-LIBCAMERA_COMMIT=fc9783acc6083a59fae8bca1ce49635e59afa355
-#Previous tested commit is on 2022 August 21st.
+# Latest tested commit is on 2022 Nov 18th
+LIBCAMERA_COMMIT=v0.0.2
+# Previous tested commit is on 2022 August 30th
+# LIBCAMERA_COMMIT=fc9783acc6083a59fae8bca1ce49635e59afa355
+# Previous tested commit is on 2022 August 21st.
 # LIBCAMERA_COMMIT=6c6289ee184d79
 # Previous tested commit is on 2022 April 4th.
 # LIBCAMERA_COMMIT=302731cd
@@ -37,6 +39,7 @@ echo "Copying source files to libcamera source"
 echo "Inside libcamera dir, configure the build with meson"
 # The meson build options are from raspberry pi doc on libcamera
 # ref https://www.raspberrypi.com/documentation/accessories/camera.html
+# Optional: use --libdir="lib" to change install dir from the default "lib/aarch64-linux-gnu" 
 (cd $PWD/libcamera && meson build --buildtype=release -Dpipelines=raspberrypi -Dipas=raspberrypi -Dv4l2=true -Dgstreamer=enabled -Dtest=false -Dlc-compliance=disabled -Dcam=disabled -Dqcam=disabled -Ddocumentation=disabled -Dpycamera=enabled)
 echo "Inside libcamera dir, build and install with ninja"
 (cd $PWD/libcamera && ninja -C build -j 2 )
@@ -60,8 +63,10 @@ echo "Inside libepoxy/_build dir, build and install"
 (cd $PWD/libepoxy/_build && sudo ninja install) # this is only necessary on the first build
 
 # clone libcamera-apps source, and checkout a proved commit
-# Latest tested commit is on 2022 August 30th.
-LIBCAMERA_APPS_COMMIT=1bf0cca
+# Latest tested commit is on 2022 Dec 1st.
+LIBCAMERA_APPS_COMMIT=v1.0.2
+# Previous tested commit is on 2022 August 30th.
+# LIBCAMERA_APPS_COMMIT=1bf0cca
 # Previous tested commit is on 2022 August 10th.
 # LIBCAMERA_APPS_COMMIT=e1beb45
 if [[ ! -d $PWD/libcamera-apps ]]
@@ -81,8 +86,10 @@ echo "Inside libcamera-apps/build dir, build and install"
 (cd $PWD/libcamera-apps/build && sudo ldconfig) # this is only necessary on the first build
 
 # clone picamera2 source, and checkout a proved commit
-# Latest tested commit is on 2022 August 31st, tag v0.3.3
-PICAMERA2_COMMIT=017cbd7
+# Latest tested commit is on 2022 Dec 1st
+PICAMERA2_COMMIT=v0.3.7
+# Previous tested commit is on 2022 August 31st, tag v0.3.3
+# PICAMERA2_COMMIT=017cbd7
 # Previous tested commit is on 2022 August 22th.
 # PICAMERA2_COMMIT=18cda82
 if [[ ! -d $PWD/picamera2 ]]
