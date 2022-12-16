@@ -1,11 +1,19 @@
-# Version v0.1.8
+# Version v0.1.9
 
 New features:
-- Bump to new libcamera, libcamera-apps version.
+- Use libcamera v0.0.2, libcamera-apps v1.0.2, picamera2 v0.3.7
+
+Limitations:
+- `ams_rpi_software` v0.1.9 is not backward compatible with libcamera v0.0.1.
+
+Bug fixes:
+- Change cam helpers according to recent API changes in libcamera.
+- Make build script more robust.
+
+# Version v0.1.8
 
 Bug fixes:
 - Install libepoxy manually to fix preview window problem.
-
 
 # Version v0.1.7
 
