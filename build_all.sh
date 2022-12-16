@@ -65,20 +65,21 @@ sudo ln -sf /usr/local/lib/aarch64-linux-gnu/python3.9/site-packages/libcamera /
 
 ################################
 # Build libepoxy from source
-# No longer necessary.
-# Instead, done via apt install
+# Apt install gives problems
 ################################
-#if [[ ! -d $PWD/libepoxy ]]
-#then
-#        echo "Clone libcamera-apps source and checkout commit id ${LIBCAMERA_APPS_COMMIT}"
-#        git clone https://github.com/anholt/libepoxy.git
-#fi
-#echo "Inside libepoxy dir, create a _build dir"
-#(cd $PWD/libepoxy && mkdir -p _build)
-#echo "Inside libepoxy/_build dir, build and install"
-#(cd $PWD/libepoxy/_build && meson)  # use -j1 on Raspberry Pi 3 or earlier devices
-#(cd $PWD/libepoxy/_build && ninja -j 2)
-#(cd $PWD/libepoxy/_build && sudo ninja install) # this is only necessary on the first build
+LIBEPOXY_COMMIT=1.5.10
+if [[ ! -d $PWD/libepoxy ]]
+then
+	echo "Clone libepoxy source and checkout commit id ${LIBEPOXY_COMMIT}"
+	git clone https://github.com/anholt/libepoxy.git
+	(cd $PWD/libepoxy && git checkout $LIBEPOXY_COMMIT)
+fi
+echo "Inside libepoxy dir, create a _build dir"
+(cd $PWD/libepoxy && mkdir -p _build)
+echo "Inside libepoxy/_build dir, build and install"
+(cd $PWD/libepoxy/_build && meson)  # use -j1 on Raspberry Pi 3 or earlier devices
+(cd $PWD/libepoxy/_build && ninja -j 2)
+(cd $PWD/libepoxy/_build && sudo ninja install) # this is only necessary on the first build
 
 # clone libcamera-apps source, and checkout a proved commit
 # Latest tested commit is on 2022 Dec 1st.
