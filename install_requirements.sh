@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #################################
 # libcamera prerequisites
-# [ref](https://www.raspberrypi.com/documentation/accessories/camera.html)
+# [ref](https://www.raspberrypi.com/documentation/computers/camera_software.html)
 #################################
 sudo apt install -y python3-pip git
 sudo pip3 install jinja2
@@ -44,11 +44,14 @@ sudo apt-get install -y gstreamer1.0-pulseaudio
 
 #################################
 # libcamera-apps prerequisites
-# [ref](https://www.raspberrypi.com/documentation/accessories/camera.html)
+# [ref](https://www.raspberrypi.com/documentation/computers/camera_software.html)
 #################################
 sudo apt install -y cmake libboost-program-options-dev libdrm-dev libexif-dev
-#requirements for libepoxy
+# requirements for libepoxy
 sudo apt install -y libegl1-mesa-dev
+# Add libav support in libcamera-vid
+sudo apt install -y libavcodec-dev libavdevice-dev libavformat-dev libswresample-dev
+
 
 #################################
 # picamera prerequisites
@@ -74,4 +77,5 @@ sudo apt install -y qtbase5-dev libqt5core5a libqt5gui5 libqt5widgets5 qttools5-
 ################################
 sudo apt remove -y libcamera-apps libcamera-dev libcamera-tools libcamera0 python3-libcamera
 sudo pip uninstall -y picamera2
+sudo apt remove -y libepoxy-dev
 

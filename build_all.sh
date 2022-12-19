@@ -9,19 +9,33 @@ echo "Install requirements using install_requirements.sh"
 sh $PWD/install_requirements.sh
 
 # clone libcamera source, and checkout a proved commit
-# Latest tested commit is on 2022 Nov 18th
-LIBCAMERA_COMMIT=v0.0.2
+
+#########################################
+# New way: RPI down-stream libcamera
+# https://github.com/raspberrypi/libcamera.git
+#########################################
+# Latest commit, Raspberry Pi ONLY, fixed app_full.py
+LIBCAMERA_COMMIT=0684c3735eb5392d79b9919b62d8b04ac9b50cc1
+
+#########################################
+# Old way: official up-stream libcamera
+# https://git.libcamera.org/libcamera/libcamera.git
+#########################################
+# Previous tested commit is on 2022 Nov 18th
+# LIBCAMERA_COMMIT=v0.0.2
 # Previous tested commit is on 2022 August 30th
 # LIBCAMERA_COMMIT=fc9783acc6083a59fae8bca1ce49635e59afa355
 # Previous tested commit is on 2022 August 21st.
 # LIBCAMERA_COMMIT=6c6289ee184d79
 # Previous tested commit is on 2022 April 4th.
 # LIBCAMERA_COMMIT=302731cd
+
+
 if [[ ! -d $PWD/libcamera ]]
 then
 	echo "Clone libcamera source and checkout commit id ${LIBCAMERA_COMMIT}"
-	git clone https://git.libcamera.org/libcamera/libcamera.git
-    (cd $PWD/libcamera && git checkout $LIBCAMERA_COMMIT)
+	git clone https://github.com/raspberrypi/libcamera.git
+	(cd $PWD/libcamera && git checkout $LIBCAMERA_COMMIT)
 fi
 
 # apply patches and sources
@@ -49,12 +63,17 @@ sudo ldconfig
 echo "Create symbolic link /usr/local/lib/python3.9/dist-packages/libcamera"
 sudo ln -sf /usr/local/lib/aarch64-linux-gnu/python3.9/site-packages/libcamera /usr/local/lib/python3.9/dist-packages/libcamera
 
+################################
+# Build libepoxy from source
+# Apt install gives problems
+################################
+LIBEPOXY_COMMIT=1.5.10
 if [[ ! -d $PWD/libepoxy ]]
 then
-        echo "Clone libcamera-apps source and checkout commit id ${LIBCAMERA_APPS_COMMIT}"
-        git clone https://github.com/anholt/libepoxy.git
+	echo "Clone libepoxy source and checkout commit id ${LIBEPOXY_COMMIT}"
+	git clone https://github.com/anholt/libepoxy.git
+	(cd $PWD/libepoxy && git checkout $LIBEPOXY_COMMIT)
 fi
-
 echo "Inside libepoxy dir, create a _build dir"
 (cd $PWD/libepoxy && mkdir -p _build)
 echo "Inside libepoxy/_build dir, build and install"
