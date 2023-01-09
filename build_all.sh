@@ -4,9 +4,10 @@ set -e
 cd "$( dirname "${BASH_SOURCE[0]}" )"
 
 echo "${PWD}"
-
 echo "Install requirements using install_requirements.sh"
 sh $PWD/install_requirements.sh
+
+
 
 # clone libcamera source, and checkout a proved commit
 
@@ -121,3 +122,22 @@ fi
 # Use pip to install instead, install for all user
 (cd $PWD/picamera2 && sudo pip3 install .)
 
+if [ -d "~/Desktop/ams_rpi_gui.desktop" ]
+then
+	rm ~/Desktop/ams_rpi_gui.desktop
+fi
+	
+echo "Create GUI Desktop Icon"
+echo "[Desktop Entry]" > ~/Desktop/ams_rpi_gui.desktop
+echo "Version=1.0" >> ~/Desktop/ams_rpi_gui.desktop
+echo "Type=Application" >> ~/Desktop/ams_rpi_gui.desktop
+echo "Terminal=true" >> ~/Desktop/ams_rpi_gui.desktop
+echo "Exec=/usr/bin/python $PWD/picamera2/apps/app_full.py" >> ~/Desktop/ams_rpi_gui.desktop
+echo "Name=ams_osram_jetcis" >> ~/Desktop/ams_rpi_gui.desktop
+echo "Comment=ams_osram_jetcis" >> ~/Desktop/ams_rpi_gui.desktop
+echo "Icon=$PWD/desktop/aperture.png" >> ~/Desktop/ams_rpi_gui.desktop
+echo "Set the script rights accordingly"
+gio set ~/Desktop/ams_rpi_gui.desktop "metadata::trusted" yes
+sudo chmod a+rwx ~/Desktop/ams_rpi_gui.desktop
+# sudo chmod a+rwx ~/ams/gui.sh
+exit 0
