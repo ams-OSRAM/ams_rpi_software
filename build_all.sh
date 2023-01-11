@@ -133,6 +133,12 @@ then
 	rm -f /home/${FIRST_USER_NAME}/Desktop/ams_rpi_gui.desktop
 fi
 
+# If Desktop folder does not exist, create it.
+if [ ! -d "/home/${FIRST_USER_NAME}/Desktop" ]
+then
+	mkdir -p /home/${FIRST_USER_NAME}/Desktop
+fi
+
 echo "Create GUI Desktop Icon"
 echo "[Desktop Entry]" > /home/${FIRST_USER_NAME}/Desktop/ams_rpi_gui.desktop
 echo "Version=1.0" >> /home/${FIRST_USER_NAME}/Desktop/ams_rpi_gui.desktop
