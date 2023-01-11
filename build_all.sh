@@ -4,9 +4,10 @@ set -e
 cd "$( dirname "${BASH_SOURCE[0]}" )"
 
 echo "${PWD}"
-
 echo "Install requirements using install_requirements.sh"
 sh $PWD/install_requirements.sh
+
+
 
 # clone libcamera source, and checkout a proved commit
 
@@ -120,4 +121,39 @@ fi
 
 # Use pip to install instead, install for all user
 (cd $PWD/picamera2 && sudo pip3 install .)
+
+# Create Desktop shorcut for default user
+# The OS image creation script sets $FIRST_USER_NAME to pi
+# If this script is run without $FIRST_USER_NAME, default is pi
+FIRST_USER_NAME=${FIRST_USER_NAME:=pi}
+
+# If shortcut file already exists, remove it.
+if [ -f "/home/${FIRST_USER_NAME}/Desktop/ams_rpi_gui.desktop" ]
+then
+	rm -f /home/${FIRST_USER_NAME}/Desktop/ams_rpi_gui.desktop
+fi
+
+# If Desktop folder does not exist, create it.
+if [ ! -d "/home/${FIRST_USER_NAME}/Desktop" ]
+then
+	mkdir -p /home/${FIRST_USER_NAME}/Desktop
+fi
+
+echo "Create GUI Desktop Icon"
+echo "[Desktop Entry]" > /home/${FIRST_USER_NAME}/Desktop/ams_rpi_gui.desktop
+echo "Version=1.0" >> /home/${FIRST_USER_NAME}/Desktop/ams_rpi_gui.desktop
+echo "Type=Application" >> /home/${FIRST_USER_NAME}/Desktop/ams_rpi_gui.desktop
+echo "Terminal=true" >> /home/${FIRST_USER_NAME}/Desktop/ams_rpi_gui.desktop
+echo "Exec=/usr/bin/python $PWD/picamera2/apps/app_full.py" >> /home/${FIRST_USER_NAME}/Desktop/ams_rpi_gui.desktop
+echo "Name=ams_osram_jetcis" >> /home/${FIRST_USER_NAME}/Desktop/ams_rpi_gui.desktop
+echo "Comment=ams_osram_jetcis" >> /home/${FIRST_USER_NAME}/Desktop/ams_rpi_gui.desktop
+echo "Icon=$PWD/desktop/aperture.png" >> /home/${FIRST_USER_NAME}/Desktop/ams_rpi_gui.desktop
+echo "Set the script rights accordingly"
+# TODO: gio command may fail at OS image creation (pi user not logged in)
+# QUICKFIX: skip gio setting for now.
+# gio set /home/${FIRST_USER_NAME}/Desktop/ams_rpi_gui.desktop "metadata::trusted" yes
+sudo chmod a+rwx /home/${FIRST_USER_NAME}/Desktop/ams_rpi_gui.desktop
+sudo chown ${FIRST_USER_NAME}:${FIRST_USER_NAME} /home/${FIRST_USER_NAME}/Desktop/ams_rpi_gui.desktop
+
+exit 0
 

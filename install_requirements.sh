@@ -60,7 +60,7 @@ sudo apt install -y libavcodec-dev libavdevice-dev libavformat-dev libswresample
 #################################
 sudo apt install -y python3-kms++
 sudo apt install -y python3-pyqt5 python3-prctl libatlas-base-dev ffmpeg python3-pip
-pip3 install -y numpy --upgrade
+pip3 install numpy --upgrade
 
 #################################
 # libcamera optional components
