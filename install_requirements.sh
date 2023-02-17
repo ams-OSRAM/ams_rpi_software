@@ -70,7 +70,11 @@ pip3 install numpy --upgrade
 sudo apt install -y libevent-dev
 # install dependencies for Dqcam=enabled
 sudo apt install -y qtbase5-dev libqt5core5a libqt5gui5 libqt5widgets5 qttools5-dev-tools libtiff-dev
-
+###############################
+# Picamera2 ams app components
+##############################
+pip3 install rawpy
+pip3 install imageio
 ################################
 # Uninstall apt and pip packages
 # Use self-built ones instead

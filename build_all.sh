@@ -144,7 +144,7 @@ echo "[Desktop Entry]" > /home/${FIRST_USER_NAME}/Desktop/ams_rpi_gui.desktop
 echo "Version=1.0" >> /home/${FIRST_USER_NAME}/Desktop/ams_rpi_gui.desktop
 echo "Type=Application" >> /home/${FIRST_USER_NAME}/Desktop/ams_rpi_gui.desktop
 echo "Terminal=true" >> /home/${FIRST_USER_NAME}/Desktop/ams_rpi_gui.desktop
-echo "Exec=/usr/bin/python $PWD/picamera2/apps/app_full.py" >> /home/${FIRST_USER_NAME}/Desktop/ams_rpi_gui.desktop
+echo "Exec=/usr/bin/python $PWD/common/app_full_ams.py" >> /home/${FIRST_USER_NAME}/Desktop/ams_rpi_gui.desktop
 echo "Name=ams_osram_jetcis" >> /home/${FIRST_USER_NAME}/Desktop/ams_rpi_gui.desktop
 echo "Comment=ams_osram_jetcis" >> /home/${FIRST_USER_NAME}/Desktop/ams_rpi_gui.desktop
 echo "Icon=$PWD/desktop/aperture.png" >> /home/${FIRST_USER_NAME}/Desktop/ams_rpi_gui.desktop
