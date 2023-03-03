@@ -16,7 +16,7 @@ sh $PWD/install_requirements.sh
 # https://github.com/raspberrypi/libcamera.git
 #########################################
 # Latest commit, Raspberry Pi ONLY, fixed app_full.py
-LIBCAMERA_COMMIT=36aeab5166a43fcf4fe25d9603b9010e49a14076
+LIBCAMERA_COMMIT=923f5d707bb760bd3e724b3373568fa88c68454f
 
 #########################################
 # Old way: official up-stream libcamera
