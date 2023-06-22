@@ -64,7 +64,7 @@ private:
 	 */
 	static constexpr int frameIntegrationDiff = 4;
 	/* ROW_LENGTH is microseconds is (ROW_LENGTH * 8 / MIRA_DATA_RATE) */
-	static constexpr Duration timePerLine = (696.0 * 8.0 / 1200.0) / 1.0e6 * 1.0s;
+	static constexpr Duration timePerLine = (696.0 * 8.0 / 1000.0) / 1.0e6 * 1.0s;
 	static constexpr float gainLut8bit[] = {
 	1,
 	1.018,
