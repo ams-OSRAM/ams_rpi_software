@@ -1,3 +1,16 @@
+# Version v0.1.11
+
+No change from v0.1.11. Bump the tag version to sync with `ams_rpi_kernel` tag.
+
+# Version v0.1.10
+
+New features:
+- Enable picamera2 full GUI app, add Desktop shortup, wallpaper.
+- Update Mira050 color correction matrix json.
+
+Bug fixes:
+- Use newer commit id in Raspberry Pi downstream libcamera repo. Old one invalid.
+
 # Version v0.1.9
 
 New features:
