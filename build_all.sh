@@ -155,5 +155,8 @@ echo "Set the script rights accordingly"
 sudo chmod a+rwx /home/${FIRST_USER_NAME}/Desktop/ams_rpi_gui.desktop
 sudo chown ${FIRST_USER_NAME}:${FIRST_USER_NAME} /home/${FIRST_USER_NAME}/Desktop/ams_rpi_gui.desktop
 
+# Explicitly set environemtn variable if not exist
+grep -q '^export GST_PLUGIN_PATH' /home/${FIRST_USER_NAME}/.bashrc || echo "export GST_PLUGIN_PATH=/home/${FIRST_USER_NAME}/ams_rpi_software/libcamera/build/src/gstreamer" >> /home/${FIRST_USER_NAME}/.bashrc
+
 exit 0
 
