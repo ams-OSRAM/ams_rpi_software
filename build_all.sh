@@ -48,6 +48,10 @@ echo "Applying patches to libcamera source"
 (cd $PWD/mira050/patch && ./apply_patch.sh)
 echo "Copying source files to libcamera source"
 (cd $PWD/mira050/src && ./apply_src.sh)
+echo "Applying patches to libcamera source"
+(cd $PWD/mira016/patch && ./apply_patch.sh)
+echo "Copying source files to libcamera source"
+(cd $PWD/mira016/src && ./apply_src.sh)
 
 
 # config, build, and install libcamera
@@ -130,7 +134,7 @@ FIRST_USER_NAME=${FIRST_USER_NAME:=pi}
 # If shortcut file already exists, remove it.
 if [ -f "/home/${FIRST_USER_NAME}/Desktop/ams_rpi_gui.desktop" ]
 then
-	rm -f /home/${FIRST_USER_NAME}/Desktop/ams_rpi_gui.desktop
+	sudo rm -f /home/${FIRST_USER_NAME}/Desktop/ams_rpi_gui.desktop
 fi
 
 # If Desktop folder does not exist, create it.
