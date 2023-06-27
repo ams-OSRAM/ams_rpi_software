@@ -22,6 +22,11 @@ PAGE = """\
 <body>
 <h1>ams MIRA web view</h1>
 <img src="stream.mjpg" width="400" height="400" />
+  <form name="myform" action="none" method="post">
+  <button name="left">short exp</button>
+  <button name="right">long exp</button>
+  </form>
+
 </body>
 </html>
 """
@@ -39,6 +44,20 @@ class StreamingOutput(io.BufferedIOBase):
 
 
 class StreamingHandler(server.BaseHTTPRequestHandler):
+    def do_POST(self):
+        content_length = int(self.headers['Content-Length'])
+        body = self.rfile.read(content_length)
+        self.send_response(204) # 204 is no content so we stay on page
+        self.end_headers()
+        response = io.BytesIO()
+        response.write(body)
+        button = str(response.getvalue().decode('UTF-8'))
+        if "left" in button:
+            print('long exp')
+            picam2.set_controls({"ExposureTime": 1000, "AnalogueGain": 1.0})
+        if "right" in button:
+            picam2.set_controls({"ExposureTime": 100, "AnalogueGain": 1.0})
+          
     def do_GET(self):
         if self.path == '/':
             self.send_response(301)
