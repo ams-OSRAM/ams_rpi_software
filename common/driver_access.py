@@ -25,11 +25,25 @@ class v4l2Ctrl:
     # When sleep bit is set, the other 3 Bytes is sleep values in us.
     AMS_CAMERA_CID_MIRA050_REG_FLAG_SLEEP_US = 0b00010000
     # Bit 6&7 of flag are combined to specify I2C dev (default is Mira)
-    AMS_CAMERA_CID_MIRA050_REG_FLAG_I2C_SEL  = 0b01100000
-    AMS_CAMERA_CID_MIRA050_REG_FLAG_I2C_MIRA = 0b00000000
-    AMS_CAMERA_CID_MIRA050_REG_FLAG_I2C_PMIC = 0b00100000
-    AMS_CAMERA_CID_MIRA050_REG_FLAG_I2C_UC   = 0b01000000
-    AMS_CAMERA_CID_MIRA050_REG_FLAG_I2C_TBD  = 0b01100000
+    AMS_CAMERA_CID_MIRA050_REG_FLAG_I2C_SEL     = 0b01100000
+    AMS_CAMERA_CID_MIRA050_REG_FLAG_I2C_MIRA    = 0b00000000
+    AMS_CAMERA_CID_MIRA050_REG_FLAG_I2C_TBD     = 0b00100000
+    AMS_CAMERA_CID_MIRA050_REG_FLAG_I2C_SET_TBD = 0b01000000
+    #########################
+    # Mira160 8-bit flags
+    #########################
+    # Most significant Byte is flag, and most significant bit is unused.
+    AMS_CAMERA_CID_MIRA016_REG_FLAG_FOR_READ = 0b00000001
+    AMS_CAMERA_CID_MIRA016_REG_FLAG_USE_BANK = 0b00000010
+    AMS_CAMERA_CID_MIRA016_REG_FLAG_BANK     = 0b00000100
+    AMS_CAMERA_CID_MIRA016_REG_FLAG_CONTEXT  = 0b00001000
+    # When sleep bit is set, the other 3 Bytes is sleep values in us.
+    AMS_CAMERA_CID_MIRA016_REG_FLAG_SLEEP_US = 0b00010000
+    # Bit 6&7 of flag are combined to specify I2C dev (default is Mira)
+    AMS_CAMERA_CID_MIRA016_REG_FLAG_I2C_SEL     = 0b01100000
+    AMS_CAMERA_CID_MIRA016_REG_FLAG_I2C_MIRA    = 0b00000000
+    AMS_CAMERA_CID_MIRA016_REG_FLAG_I2C_TBD     = 0b00100000
+    AMS_CAMERA_CID_MIRA016_REG_FLAG_I2C_SET_TBD = 0b01000000
     #########################
     # Mira220 8-bit flags
     #########################
@@ -37,12 +51,12 @@ class v4l2Ctrl:
     AMS_CAMERA_CID_MIRA220_REG_FLAG_FOR_READ = 0b00000001
     # When sleep bit is set, the other 3 Bytes is sleep values in us.
     AMS_CAMERA_CID_MIRA220_REG_FLAG_SLEEP_US = 0b00000010
-    # Bit 3&4 of flag are combined to specify I2C dev (default is Mira)
-    AMS_CAMERA_CID_MIRA220_REG_FLAG_I2C_SEL  = 0b00001100
-    AMS_CAMERA_CID_MIRA220_REG_FLAG_I2C_MIRA = 0b00000000
-    AMS_CAMERA_CID_MIRA220_REG_FLAG_I2C_PMIC = 0b00000100
-    AMS_CAMERA_CID_MIRA220_REG_FLAG_I2C_TBD  = 0b00001000
- 
+    # Bit 6&7 of flag are combined to specify I2C dev (default is Mira)
+    AMS_CAMERA_CID_MIRA220_REG_FLAG_I2C_SEL     = 0b01100000
+    AMS_CAMERA_CID_MIRA220_REG_FLAG_I2C_MIRA    = 0b00000000
+    AMS_CAMERA_CID_MIRA220_REG_FLAG_I2C_TBD     = 0b00100000
+    AMS_CAMERA_CID_MIRA220_REG_FLAG_I2C_SET_TBD = 0b01000000
+
     def __init__(self, sensor, printFunc=print):
         self.fname = "/dev/v4l-subdev0"
         self.sensor = sensor
