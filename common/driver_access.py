@@ -59,14 +59,18 @@ class v4l2Ctrl:
 
     def __init__(self, sensor, printFunc=print):
         self.fname = "/dev/v4l-subdev0"
+        self.pr = printFunc
         self.sensor = sensor
         if self.sensor == "mira220":
             self.reg_flag_for_read = self.AMS_CAMERA_CID_MIRA220_REG_FLAG_FOR_READ
         elif self.sensor == "mira050":
             self.reg_flag_for_read = self.AMS_CAMERA_CID_MIRA050_REG_FLAG_FOR_READ
+        elif self.sensor == "mira016":
+            self.reg_flag_for_read = self.AMS_CAMERA_CID_MIRA016_REG_FLAG_FOR_READ
         else:
-            sys.exit('sensor argument is not "mira050" or "mira220"')
-        self.pr = printFunc
+            txt = "WARNING: sensor={} is not supported, falls back to mira050 v4l2 cmd".format(sensor)
+            self.pr(txt)
+            self.reg_flag_for_read = self.AMS_CAMERA_CID_MIRA050_REG_FLAG_FOR_READ
         try:
             self.f = os.open(self.fname, os.O_RDWR)
         except:
