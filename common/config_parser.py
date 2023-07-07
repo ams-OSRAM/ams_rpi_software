@@ -19,11 +19,14 @@ class ConfigParser:
                             # Parse: write val to addr
                             val_index = write_index + 1
                             addr_index = write_index + 3
-                            if 'x' in values[addr_index]:
+                            if ('x' in values[addr_index]) or ('X' in values[addr_index]):
                                 addr =  (int(values[addr_index],16))
                             else:
                                 addr = (int(values[addr_index],10))
-                            val =  (int(values[val_index],10))
+                            if ('x' in values[addr_index]) or ('X' in values[addr_index]):
+                                val =  (int(values[val_index],16))
+                            else:
+                                val =  (int(values[val_index],10))
                             reg_seq.append((addr, val))
                 except IndexError as e:
                     print(e)
