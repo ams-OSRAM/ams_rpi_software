@@ -23,8 +23,14 @@ if __name__ == "__main__":
 
     # Create a v4l2Ctrl class for register read/write over i2c.
     i2c = v4l2Ctrl(sensor="mira016", printFunc=print)
+    # Disable base register sequence upload (overwriting skip-reg-upload in dtoverlay )
+    i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA016_REG_FLAG_REG_UP_OFF)
+    # Upload register sequence from txt file
+    print(f"Writing {len(reg_seq)} registers to sensor via V4L2 interface.")
     for reg in reg_seq:
         exp_val = i2c.rwReg(addr=reg[0], value=reg[1], rw=1, flag=0)
+    # Disable reset during stream on or off
+    i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA016_REG_FLAG_RESET_OFF)
 
     # Initialize camera stream according to width, height, bit depth etc. from register sequence
     input_camera_stream = CameraStreamInput(width=400, height=400, AeEnable=True, FrameRate=50.0, bit_depth=10)
