@@ -15,7 +15,10 @@ num_frames = 6
 framerate = 100
 # Configure an unpacked raw format as these are easier to add.
 picam2 = Picamera2()
-raw_format = SensorFormat(picam2.sensor_format)
+# raw_format = SensorFormat(picam2.sensor_format)
+
+raw_format = SensorFormat('SGRBG10_CSI2P')
+print(raw_format)
 raw_format.packing = None
 config = picam2.create_still_configuration(raw={"format": raw_format.format}, buffer_count=3)
 picam2.configure(config)
@@ -33,6 +36,9 @@ for i in range(num_frames):
     old = new
     print(metadata['SensorTimestamp'])
     print(diff/1000)
+
+print(images[0].shape)
+print(images[0])
 
 # accumulated = images.pop(0).astype(int)
 # for image in images:
