@@ -4,12 +4,12 @@ from picamera2.sensor_format import SensorFormat
 import random
 import time
 from Pyro5.api import expose, Daemon, locate_ns
-import Pyro5
+import Pyro5.socketutil
 from driver_access import v4l2Ctrl
 # from picam2cv2 import CameraStreamInput
 # from driver_access import v4l2Ctrl
 # from config_parser import ConfigParser
-HOST_IP=Pyro5.socketutil.get_ip_address('raspberrypi.local')
+HOST_IP=Pyro5.socketutil.get_ip_address('raspberrypi.local',version=4)
 
 
 #`HOST_IP = "192.168.137.67"    # Set accordingly (i.e. "192.168.1.99")
@@ -52,7 +52,8 @@ class RaspberryServer():
         images = []
         for i in range(num_frames):
             images.append(self.picam2.capture_array("raw").view(np.uint16))
-            metadata = self.picam2.capture_metadata()
+            print(f'capture img {i}')
+            #metadata = self.picam2.capture_metadata()
         return images    
     
     def write_reg_16_8(self, i2c_addr, reg_addr, reg_value):
