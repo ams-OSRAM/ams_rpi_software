@@ -33,6 +33,7 @@ if __name__ == "__main__":
     i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_RESET_OFF)
 
     # Initialize camera stream according to width, height, bit depth etc. from register sequence
+    # Set AeEnable to False to avoid over-writing exposure and analog gain related registers
     input_camera_stream = CameraStreamInput(width=572, height=768, AeEnable=True, FrameRate=50.0, bit_depth=10)
 
     # Start streaming. Upload long register sequence before this step.
