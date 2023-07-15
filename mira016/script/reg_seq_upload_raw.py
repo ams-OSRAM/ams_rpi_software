@@ -24,7 +24,7 @@ if __name__ == "__main__":
     # Create a v4l2Ctrl class for register read/write over i2c.
     i2c = v4l2Ctrl(sensor="mira016", printFunc=print)
     # Manually power on the sensor
-    i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA016_REG_FLAG_POWER_ON)
+    # i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA016_REG_FLAG_POWER_ON)
     # Disable base register sequence upload (overwriting skip-reg-upload in dtoverlay )
     i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA016_REG_FLAG_REG_UP_OFF)
     # Upload register sequence from txt file
@@ -51,8 +51,8 @@ if __name__ == "__main__":
         print(f"frame_idx: {frame_idx}, frame.shape: {frame.shape}, fps: {fps}, output: capture_{frame_idx}.raw")
         frame.astype(np.uint8).tofile(f"capture_{frame_idx}.raw")
         if frame_idx >= 5:
-            print(f"Manually power off the sensor via V4L2 interface.")
-            i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA016_REG_FLAG_POWER_OFF)
+            # print(f"Manually power off the sensor via V4L2 interface.")
+            # i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA016_REG_FLAG_POWER_OFF)
             sys.exit(0)
         last_time = current_time
 

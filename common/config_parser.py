@@ -23,7 +23,7 @@ class ConfigParser:
                                 addr =  (int(values[addr_index],16))
                             else:
                                 addr = (int(values[addr_index],10))
-                            if ('x' in values[addr_index]) or ('X' in values[addr_index]):
+                            if ('x' in values[val_index]) or ('X' in values[val_index]):
                                 val =  (int(values[val_index],16))
                             else:
                                 val =  (int(values[val_index],10))

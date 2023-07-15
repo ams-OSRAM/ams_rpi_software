@@ -680,4 +680,13 @@ Write 0 to 0x0008
 Write 0 to 0x0009
 Write 65 to 0x000A
 Write 27 to 0x000B
+Write 1 to 0x0335
+Write 43 to 0x0324
+Write 1 to 0x01D9
+Write 15 to 0x00EB
+Write 1 to 0x01DD
+Write 20 to 0x01ED
+Write 1 to 0x01DF
+Write 4 to 0x00EE
+Write 0 to 57344
 
