@@ -35,8 +35,7 @@ if __name__ == "__main__":
     i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_RESET_OFF)
 
     # Initialize camera stream according to width, height, bit depth etc. from register sequence
-    # Set AeEnable to False to avoid over-writing exposure and analog gain related registers
-    input_camera_stream = CameraStreamInput(width=572, height=768, AeEnable=True, FrameRate=50.0, bit_depth=10)
+    input_camera_stream = CameraStreamInput(width=572, height=768, AeEnable=False, FrameRate=50.0, bit_depth=10)
 
     # Start streaming. Upload long register sequence before this step.
     input_camera_stream.start()
@@ -46,7 +45,7 @@ if __name__ == "__main__":
     print("VERSION_ID: {}".format(VERSION_ID))
 
     last_time = time.time()
-
+    it = 0
     # Per-frame operation
     for frame, frame_idx in input_camera_stream:
         # GUI element
@@ -60,4 +59,12 @@ if __name__ == "__main__":
             # i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_POWER_OFF)
             sys.exit(0)
         last_time = current_time
+        exp_val = i2c.rwReg(addr=0xE000, value=1, rw=1, flag=0)
+        exp_val = i2c.rwReg(addr=0x0010, value=it, rw=1, flag=0)
+        exp_val = i2c.rwReg(addr=0x00E, value=0, rw=1, flag=0)
+        exp_val = i2c.rwReg(addr=0x00F, value=0, rw=1, flag=0)
+
+
+        it+=1
+
 
