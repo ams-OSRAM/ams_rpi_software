@@ -25,7 +25,7 @@
 
 ### Use cases:
 - Obtaining 12-bit-per-pixel raw images. Issue the command `libcamera-still --immediate -r -o test01.jpg` in which the `-r` option generates a RAW image file `test01.dng`. The DNG file can be converted into a PGM file by the command `dcraw -D -4 test01.dng` in which the `-D` option disables any Bayer and color processing, the `-4` option uses 16-bit container for each 12-bit pixel. The result is a `test01.pgm` that can be viewed by software like GIMP.
-- Obtaining 12-bit-per-pixel raw image sequence. For Mira220, issue the command `libcamera-raw -t 2000 --mode 1600:1400:12:P --segment 1 -o video%05d.raw`; For Mira050, issue the command `libcamera-raw -t 2000 --mode 576:768:12:P --segment 1 -o video%05d.raw`. The `--mode` option specifies the width, height, bits-per-pixel, and Packed/Unpacked format for the frame. The raw image frames are in 12-bit packed format, which requires a conversion for viewing or post-processing. An example script is provided to convert this 12-bit packed format into 16-bit unpacked format. The script can be executed, for example, for Mira220 as `python common/convt_12P_16U.py -input video00000.raw -width 1600 -height 1400`; for Mira050 as `python common/convt_12P_16U.py -input video00000.raw -width 576 -height 768`. The script converts a `test00000.raw` into a `test00000.raw.pgm`, the latter storing each 12-bit pixel into a 16-bit container.
+- Obtaining 12-bit-per-pixel raw image sequence. For Mira220, issue the command `libcamera-raw -t 2000 --mode 1600:1400:12:P --segment 1 -o video%05d.raw`; For Mira050, issue the command `libcamera-raw -t 2000 --mode 576:768:12:P --segment 1 -o video%05d.raw`. The `--mode` option specifies the width, height, bits-per-pixel, and Packed/Unpacked format for the frame. The raw image frames are in 12-bit packed format, which requires a conversion for viewing or post-processing. An example script is provided to convert this 12-bit packed format into 16-bit unpacked format. The script can be executed, for example, for Mira220 as `python common/convt_raw_pgm.py -input video00000.raw -width 1600 -height 1400 -bpp 12`; for Mira050 as `python common/convt_raw_pgm.py -input video00000.raw -width 576 -height 768 -bpp 12`. The script converts a `test00000.raw` into a `test00000.raw.pgm`, the latter storing each 12-bit pixel into a 16-bit container.
 - Mira050 8-bit mode. By default, Mira050 driver uses 12-bit mode. In libcamera, users can force the driver to use 8-bit mode via the `--mode` and `--viewfinder-mode` argument. For example, streaming videos in 8-bit mode can be done via the command `libcamera-vid --qt-preview --mode 576:768:8:P --viewfinder-mode 576:768:8:P`.
 - Mira050 10-bit mode. Similar to 8-bit mode, but instead use the string `576:768:10:P` for mode-related arguments.
 
@@ -33,6 +33,13 @@
 - A basic OpenCV GUI using Picamera2 for streaming is at `common/picam2cv2.py`. This GUI works for both mira220 and mira050.
 - For mira220, a demo that shows register sequence upload (before streaming) and register read/write (during streaming) is at `mira220/script/picam2-reg-rw.py`.
 - For mira050, a similar demo, with additional feature of event detection, is at `mira050/script/eventdetection.py`.
+
+### USB functionality:
+using the windows script, it is now possible to access the pi remotely. (see inside the windows folder)
+make sure the latest software is installed.
+check if the service is running:
+systemctl status ams_server.service
+
 
 ### Use cases supported on Mira220, but not yet on Mira050:
 - Obtaining compressed 8-bit-per-pixel video. Issue the command `libcamera-vid -t 2000 --framerate 5 --codec h264 -o video01.h264 --save-pts video01_timestamp.txt` to capture 2000 milliseconds of video. The command generates a `video01.h264` video file and a time stamp record file `video01_timestamp.txt`. Since the h264 file does not contain timing information, it is recommended to convert it into a video format that has timing info, such as the mkv file format. As an example, first install the mkv video tools by the command `sudo apt install mkvtoolnix-gui`, followed by the command `mkvmerge -o video01.mkv --timecodes 0:video01_timestamp.txt video01.h264` that merges the h264 video file and the time stamp file to generate a mkv video file that contains timing information.

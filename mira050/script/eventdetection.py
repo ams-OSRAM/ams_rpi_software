@@ -23,6 +23,16 @@ if __name__ == "__main__":
     # for reg_val in range(1,10):
     #    exp_val = i2c.rwReg(addr=0x0011, value=reg_val, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_USE_BANK | i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_BANK)
 
+    # Example: Controlling LED driver chip (LM2759) via I2C
+    # Set the I2C device address to 0x53 for LM2759
+    i2c.rwReg(addr=0x00, value=0x53, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_I2C_SET_TBD)
+    # Optionally, set torch current to max
+    # i2c.rwReg(addr=0xA0, value=0x0F, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_I2C_TBD)
+    # Turn on torch
+    # i2c.rwReg(addr=0x10, value=1, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_I2C_TBD)
+    # Turn off torch
+    i2c.rwReg(addr=0x10, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_I2C_TBD)
+
     # Configure sensitivity of event detection between 0 (insensitive) and 3 (very sensitive)
     # TILE_THRESHOLD (0x0142), 0: 50%, 1: 25%, 2: 12.5%, 3: 6.25%
     i2c.rwReg(addr=0x0142, value=1, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_USE_BANK)

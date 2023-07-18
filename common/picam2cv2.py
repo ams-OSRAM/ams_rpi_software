@@ -14,6 +14,7 @@ from picamera2.controls import Controls
 picam2 = Picamera2()
 
 class CameraStreamInput:
+    capture_array = "main"
     """
     Initializes a camera stream and returns it as an iterable object
     """
@@ -23,9 +24,10 @@ class CameraStreamInput:
         picam2.preview_configuration.enable_raw()
         for index, mode in enumerate(sensor_modes):
             if bit_depth == mode['bit_depth']:
-                picam2.preview_configuration.raw.format = mode['unpacked']
+                picam2.preview_configuration.raw.format = str(mode['format'])
         picam2.preview_configuration.main.size = (width, height)
         picam2.preview_configuration.main.format = "RGB888"
+        picam2.preview_configuration.raw.size = (width, height)
         picam2.preview_configuration.controls.AeEnable = AeEnable
         picam2.preview_configuration.controls.FrameRate = FrameRate
         picam2.preview_configuration.align()
@@ -43,7 +45,12 @@ class CameraStreamInput:
         """
         @return tuple containing current image and meta data if available, otherwise None
         """
-        frame = picam2.capture_array("main")
+        if self.capture_array == "lores":
+            frame = picam2.capture_array("lores")
+        elif self.capture_array == "raw":
+            frame = picam2.capture_array("raw")
+        else:
+            frame = picam2.capture_array("main")
         self._index += 1
         return (frame, self._index)
 

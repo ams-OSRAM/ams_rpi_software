@@ -18,41 +18,83 @@ class v4l2Ctrl:
     # Mira050 8-bit flags
     #########################
     # Most significant Byte is flag, and most significant bit is unused.
-    AMS_CAMERA_CID_MIRA050_REG_FLAG_FOR_READ = 0b00000001
-    AMS_CAMERA_CID_MIRA050_REG_FLAG_USE_BANK = 0b00000010
-    AMS_CAMERA_CID_MIRA050_REG_FLAG_BANK     = 0b00000100
-    AMS_CAMERA_CID_MIRA050_REG_FLAG_CONTEXT  = 0b00001000
+    AMS_CAMERA_CID_MIRA050_REG_FLAG_FOR_READ    = 0b00000001
+    AMS_CAMERA_CID_MIRA050_REG_FLAG_USE_BANK    = 0b00000010
+    AMS_CAMERA_CID_MIRA050_REG_FLAG_BANK        = 0b00000100
+    AMS_CAMERA_CID_MIRA050_REG_FLAG_CONTEXT     = 0b00001000
+    # Use bit 5 to indicate spacial command, bit 2,3,4 for command.
+    AMS_CAMERA_CID_MIRA050_REG_FLAG_CMD_SEL     = 0b00010000
     # When sleep bit is set, the other 3 Bytes is sleep values in us.
-    AMS_CAMERA_CID_MIRA050_REG_FLAG_SLEEP_US = 0b00010000
+    AMS_CAMERA_CID_MIRA050_REG_FLAG_SLEEP_US    = 0b00010000
+    AMS_CAMERA_CID_MIRA050_REG_FLAG_RESET_ON    = 0b00010010
+    AMS_CAMERA_CID_MIRA050_REG_FLAG_RESET_OFF   = 0b00010100
+    AMS_CAMERA_CID_MIRA050_REG_FLAG_REG_UP_ON   = 0b00010110
+    AMS_CAMERA_CID_MIRA050_REG_FLAG_REG_UP_OFF  = 0b00011000
+    AMS_CAMERA_CID_MIRA050_REG_FLAG_POWER_ON    = 0b00011010
+    AMS_CAMERA_CID_MIRA050_REG_FLAG_POWER_OFF   = 0b00011100
     # Bit 6&7 of flag are combined to specify I2C dev (default is Mira)
-    AMS_CAMERA_CID_MIRA050_REG_FLAG_I2C_SEL  = 0b01100000
-    AMS_CAMERA_CID_MIRA050_REG_FLAG_I2C_MIRA = 0b00000000
-    AMS_CAMERA_CID_MIRA050_REG_FLAG_I2C_PMIC = 0b00100000
-    AMS_CAMERA_CID_MIRA050_REG_FLAG_I2C_UC   = 0b01000000
-    AMS_CAMERA_CID_MIRA050_REG_FLAG_I2C_TBD  = 0b01100000
+    AMS_CAMERA_CID_MIRA050_REG_FLAG_I2C_SEL     = 0b01100000
+    AMS_CAMERA_CID_MIRA050_REG_FLAG_I2C_MIRA    = 0b00000000
+    AMS_CAMERA_CID_MIRA050_REG_FLAG_I2C_TBD     = 0b00100000
+    AMS_CAMERA_CID_MIRA050_REG_FLAG_I2C_SET_TBD = 0b01000000
+    #########################
+    # Mira160 8-bit flags
+    #########################
+    # Most significant Byte is flag, and most significant bit is unused.
+    AMS_CAMERA_CID_MIRA016_REG_FLAG_FOR_READ    = 0b00000001
+    AMS_CAMERA_CID_MIRA016_REG_FLAG_USE_BANK    = 0b00000010
+    AMS_CAMERA_CID_MIRA016_REG_FLAG_BANK        = 0b00000100
+    AMS_CAMERA_CID_MIRA016_REG_FLAG_CONTEXT     = 0b00001000
+    # Use bit 5 to indicate spacial command, bit 2,3,4 for command.
+    AMS_CAMERA_CID_MIRA016_REG_FLAG_CMD_SEL     = 0b00010000
+    # When sleep bit is set, the other 3 Bytes is sleep values in us.
+    AMS_CAMERA_CID_MIRA016_REG_FLAG_SLEEP_US    = 0b00010000
+    AMS_CAMERA_CID_MIRA016_REG_FLAG_RESET_ON    = 0b00010010
+    AMS_CAMERA_CID_MIRA016_REG_FLAG_RESET_OFF   = 0b00010100
+    AMS_CAMERA_CID_MIRA016_REG_FLAG_REG_UP_ON   = 0b00010110
+    AMS_CAMERA_CID_MIRA016_REG_FLAG_REG_UP_OFF  = 0b00011000
+    AMS_CAMERA_CID_MIRA016_REG_FLAG_POWER_ON    = 0b00011010
+    AMS_CAMERA_CID_MIRA016_REG_FLAG_POWER_OFF   = 0b00011100
+    # Bit 6&7 of flag are combined to specify I2C dev (default is Mira)
+    AMS_CAMERA_CID_MIRA016_REG_FLAG_I2C_SEL     = 0b01100000
+    AMS_CAMERA_CID_MIRA016_REG_FLAG_I2C_MIRA    = 0b00000000
+    AMS_CAMERA_CID_MIRA016_REG_FLAG_I2C_TBD     = 0b00100000
+    AMS_CAMERA_CID_MIRA016_REG_FLAG_I2C_SET_TBD = 0b01000000
     #########################
     # Mira220 8-bit flags
     #########################
     # Most significant Byte is flag, and most significant bit is unused.
-    AMS_CAMERA_CID_MIRA220_REG_FLAG_FOR_READ = 0b00000001
+    AMS_CAMERA_CID_MIRA220_REG_FLAG_FOR_READ    = 0b00000001
+    # Use bit 5 to indicate spacial command, bit 2,3,4 for command.
+    AMS_CAMERA_CID_MIRA220_REG_FLAG_CMD_SEL     = 0b00010000
     # When sleep bit is set, the other 3 Bytes is sleep values in us.
-    AMS_CAMERA_CID_MIRA220_REG_FLAG_SLEEP_US = 0b00000010
-    # Bit 3&4 of flag are combined to specify I2C dev (default is Mira)
-    AMS_CAMERA_CID_MIRA220_REG_FLAG_I2C_SEL  = 0b00001100
-    AMS_CAMERA_CID_MIRA220_REG_FLAG_I2C_MIRA = 0b00000000
-    AMS_CAMERA_CID_MIRA220_REG_FLAG_I2C_PMIC = 0b00000100
-    AMS_CAMERA_CID_MIRA220_REG_FLAG_I2C_TBD  = 0b00001000
- 
+    AMS_CAMERA_CID_MIRA220_REG_FLAG_SLEEP_US    = 0b00010000
+    AMS_CAMERA_CID_MIRA220_REG_FLAG_RESET_ON    = 0b00010010
+    AMS_CAMERA_CID_MIRA220_REG_FLAG_RESET_OFF   = 0b00010100
+    AMS_CAMERA_CID_MIRA220_REG_FLAG_REG_UP_ON   = 0b00010110
+    AMS_CAMERA_CID_MIRA220_REG_FLAG_REG_UP_OFF  = 0b00011000
+    AMS_CAMERA_CID_MIRA220_REG_FLAG_POWER_ON    = 0b00011010
+    AMS_CAMERA_CID_MIRA220_REG_FLAG_POWER_OFF   = 0b00011100
+    # Bit 6&7 of flag are combined to specify I2C dev (default is Mira)
+    AMS_CAMERA_CID_MIRA220_REG_FLAG_I2C_SEL     = 0b01100000
+    AMS_CAMERA_CID_MIRA220_REG_FLAG_I2C_MIRA    = 0b00000000
+    AMS_CAMERA_CID_MIRA220_REG_FLAG_I2C_TBD     = 0b00100000
+    AMS_CAMERA_CID_MIRA220_REG_FLAG_I2C_SET_TBD = 0b01000000
+
     def __init__(self, sensor, printFunc=print):
         self.fname = "/dev/v4l-subdev0"
+        self.pr = printFunc
         self.sensor = sensor
         if self.sensor == "mira220":
             self.reg_flag_for_read = self.AMS_CAMERA_CID_MIRA220_REG_FLAG_FOR_READ
         elif self.sensor == "mira050":
             self.reg_flag_for_read = self.AMS_CAMERA_CID_MIRA050_REG_FLAG_FOR_READ
+        elif self.sensor == "mira016":
+            self.reg_flag_for_read = self.AMS_CAMERA_CID_MIRA016_REG_FLAG_FOR_READ
         else:
-            sys.exit('sensor argument is not "mira050" or "mira220"')
-        self.pr = printFunc
+            txt = "WARNING: sensor={} is not supported, falls back to mira050 v4l2 cmd".format(sensor)
+            self.pr(txt)
+            self.reg_flag_for_read = self.AMS_CAMERA_CID_MIRA050_REG_FLAG_FOR_READ
         try:
             self.f = os.open(self.fname, os.O_RDWR)
         except:

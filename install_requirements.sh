@@ -82,4 +82,8 @@ pip3 install imageio
 sudo apt remove -y libcamera-apps libcamera-dev libcamera-tools libcamera0 python3-libcamera
 sudo pip uninstall -y picamera2
 sudo apt remove -y libepoxy-dev
-
+################################
+# USB and WEB functionality
+#
+################################
+pip3 install pyro5
