@@ -23,8 +23,8 @@ PAGE = """\
 <h1>ams MIRA web view</h1>
 <img src="stream.mjpg" width="400" height="400" />
 <form name="myform" action="none" method="post">
- <button name="left">short exp</button>
- <button name="right">long exp</button>
+ <button name="left">stop video</button>
+ <button name="right">start video</button>
 <div class="slidecontainer">
   <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
 </div>
@@ -60,8 +60,12 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
         if "left" in button:
             print('long exp')
             picam2.set_controls({"ExposureTime": 1000, "AnalogueGain": 1.0})
+            picam2.stop_recording()
+            picam2.close()
         if "right" in button:
+            picam2.__init__()
             picam2.set_controls({"ExposureTime": 5000, "AnalogueGain": 1.0})
+            picam2.start_recording(JpegEncoder(), FileOutput(output))
         #self.path='/'
         self.send_response(303)        
         self.send_header('Content-type', 'text/html')
@@ -116,7 +120,8 @@ picam2 = Picamera2()
 picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}))
 output = StreamingOutput()
 picam2.start_recording(JpegEncoder(), FileOutput(output))
-
+picam2.stop_recording()
+picam2.close()
 try:
     address = ('', 8000)
     server = StreamingServer(address, StreamingHandler)
