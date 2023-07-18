@@ -37,6 +37,9 @@ print(f"Parsed {len(reg_seq)} register writes from file.")
 
 # Create a v4l2Ctrl class for register read/write over i2c.
 i2c = v4l2Ctrl(sensor="mira050", printFunc=print)
+
+i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_POWER_ON)
+
 # Disable base register sequence upload (overwriting skip-reg-upload in dtoverlay )
 i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_REG_UP_OFF)
 # Upload register sequence from txt file
@@ -82,4 +85,5 @@ print(images[0])
 # Test by reading VERSION_ID
 VERSION_ID = i2c.rwReg(addr=0x011B, value=0, rw=0, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_USE_BANK)
 print("VERSION_ID: {}".format(VERSION_ID))
+i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_POWER_OFF)
 
