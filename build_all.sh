@@ -162,6 +162,6 @@ sudo chown ${FIRST_USER_NAME}:${FIRST_USER_NAME} /home/${FIRST_USER_NAME}/Deskto
 # Explicitly set environemtn variable if not exist
 grep -q '^export GST_PLUGIN_PATH' /home/${FIRST_USER_NAME}/.bashrc || echo "export GST_PLUGIN_PATH=/home/${FIRST_USER_NAME}/ams_rpi_software/libcamera/build/src/gstreamer" >> /home/${FIRST_USER_NAME}/.bashrc
 
-(cd $PWD && sudo install_extra.sh )
+(cd $PWD && ./install_extra.sh)
 exit 0
 
