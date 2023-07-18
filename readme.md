@@ -34,6 +34,13 @@
 - For mira220, a demo that shows register sequence upload (before streaming) and register read/write (during streaming) is at `mira220/script/picam2-reg-rw.py`.
 - For mira050, a similar demo, with additional feature of event detection, is at `mira050/script/eventdetection.py`.
 
+### USB functionality:
+using the windows script, it is now possible to access the pi remotely. (see inside the windows folder)
+make sure the latest software is installed.
+check if the service is running:
+systemctl status ams_server.service
+
+
 ### Use cases supported on Mira220, but not yet on Mira050:
 - Obtaining compressed 8-bit-per-pixel video. Issue the command `libcamera-vid -t 2000 --framerate 5 --codec h264 -o video01.h264 --save-pts video01_timestamp.txt` to capture 2000 milliseconds of video. The command generates a `video01.h264` video file and a time stamp record file `video01_timestamp.txt`. Since the h264 file does not contain timing information, it is recommended to convert it into a video format that has timing info, such as the mkv file format. As an example, first install the mkv video tools by the command `sudo apt install mkvtoolnix-gui`, followed by the command `mkvmerge -o video01.mkv --timecodes 0:video01_timestamp.txt video01.h264` that merges the h264 video file and the time stamp file to generate a mkv video file that contains timing information.
 - Obtaining compressed 8-bit-per-pixel image sequence. Issue the command `libcamera-vid -t 2000 --framerate 5 --segment 1 --codec mjpeg -o test%04d.jpeg` to capture 2 seconds of video, and dump each frame into a JPEG file.

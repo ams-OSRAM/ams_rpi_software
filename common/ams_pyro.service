@@ -1,0 +1,13 @@
+[Unit]
+Description=Raspberry Pyro5 name server
+
+[Service]
+ExecStart=/home/pi/.local/bin/pyro5-ns -n raspberrypi.local -p 9091 --bchost raspberrypi.local
+WorkingDirectory=/home/pi
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=pi
+
+[Install]
+WantedBy=multi-user.target

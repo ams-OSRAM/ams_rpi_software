@@ -24,7 +24,7 @@ if __name__ == "__main__":
     # Create a v4l2Ctrl class for register read/write over i2c.
     i2c = v4l2Ctrl(sensor="mira050", printFunc=print)
     # Manually power on the sensor
-    # i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_POWER_ON)
+    i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_POWER_ON)
     # Disable base register sequence upload (overwriting skip-reg-upload in dtoverlay )
     i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_REG_UP_OFF)
     # Upload register sequence from txt file
@@ -32,11 +32,10 @@ if __name__ == "__main__":
     for reg in reg_seq:
         exp_val = i2c.rwReg(addr=reg[0], value=reg[1], rw=1, flag=0)
     # Disable reset during stream on or off
-    i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_RESET_OFF)
+    i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_RESET_ON)
 
     # Initialize camera stream according to width, height, bit depth etc. from register sequence
-    # Set AeEnable to False to avoid over-writing exposure and analog gain related registers
-    input_camera_stream = CameraStreamInput(width=572, height=768, AeEnable=True, FrameRate=50.0, bit_depth=10)
+    input_camera_stream = CameraStreamInput(width=572, height=768, AeEnable=False, FrameRate=50.0, bit_depth=10)
 
     # Start streaming. Upload long register sequence before this step.
     input_camera_stream.start()
@@ -46,7 +45,7 @@ if __name__ == "__main__":
     print("VERSION_ID: {}".format(VERSION_ID))
 
     last_time = time.time()
-
+    it = 0
     # Per-frame operation
     for frame, frame_idx in input_camera_stream:
         # GUI element
@@ -57,7 +56,15 @@ if __name__ == "__main__":
         cv2.imshow('output', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             # print(f"Manually power off the sensor via V4L2 interface.")
-            # i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_POWER_OFF)
+            i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_POWER_OFF)
             sys.exit(0)
         last_time = current_time
+        exp_val = i2c.rwReg(addr=0xE000, value=1, rw=1, flag=0)
+        exp_val = i2c.rwReg(addr=0x0010, value=it, rw=1, flag=0)
+        exp_val = i2c.rwReg(addr=0x00E, value=0, rw=1, flag=0)
+        exp_val = i2c.rwReg(addr=0x00F, value=0, rw=1, flag=0)
+
+
+        it+=1
+
 
