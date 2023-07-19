@@ -3,7 +3,6 @@
 # Mostly copied from https://picamera.readthedocs.io/en/release-1.13/recipes2.html
 # Run this script, then point a web browser at http:<this-ip-address>:8000
 # Note: needs simplejpeg to be installed (pip3 install simplejpeg).
-
 import io
 import logging
 import socketserver
@@ -20,16 +19,26 @@ PAGE = """\
 <title>ams MIRA</title>
 </head>
 <body>
-<h1>ams MIRA web view</h1>
-<img src="stream.mjpg" width="400" height="400" />
+<h1>ams MIRA web view (experimental)</h1>
+this has only been tested with mira050
+<br/>
+currently no sensor controls / save option is available via this web viewer.
+<br/>
+click start to enable the camera, click stop to disable.
+<br/>
 <form name="myform" action="none" method="post">
  <button name="left">stop video</button>
  <button name="right">start video</button>
+<!--
 <div class="slidecontainer">
   <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+-->
 </div>
 </form>
 
+<br/>
+<img src="stream.mjpg" height="400" />
+<br/>
 </body>
 </html>
 """
@@ -48,23 +57,35 @@ class StreamingOutput(io.BufferedIOBase):
 
 class StreamingHandler(server.BaseHTTPRequestHandler):
     def do_POST(self):
+        # ctype, pdict = cgi.parse_header(self.headers.get('Content-Type'))
+        # print(f'ctype {ctype} pdict {pdict}')
+        # content_len = int(self.headers.get('Content-length'))
+        # pdict['boundary'] = bytes(pdict['boundary'], "utf-8")
+        # pdict['CONTENT-LENGTH'] = content_len
+        # if ctype == 'multipart/form-data':
+        #     fields = cgi.parse_multipart(self.rfile, pdict)
+        #     message_content = fields.get('message')
+        # form = cgi.FieldStorage()
+        # searchterm =  form.getvalue('exposure')
+        # print(f'searchterm {searchterm}')
         print('post req')
         content_length = int(self.headers['Content-Length'])
         body = self.rfile.read(content_length)
-        #self.send_response(204) # 204 is no content so we stay on page
-        #self.end_headers()
+        # self.send_response(204) # 204 is no content so we stay on page
+        # self.end_headers()
         response = io.BytesIO()
         response.write(body)
         button = str(response.getvalue().decode('UTF-8'))
+        print(button)
         print(f'button is {button}')
         if "left" in button:
             print('long exp')
-            picam2.set_controls({"ExposureTime": 1000, "AnalogueGain": 1.0})
             picam2.stop_recording()
             picam2.close()
+
         if "right" in button:
             picam2.__init__()
-            picam2.set_controls({"ExposureTime": 5000, "AnalogueGain": 1.0})
+            picam2.configure(picam2.create_video_configuration(main={"size": (576,768)}))
             picam2.start_recording(JpegEncoder(), FileOutput(output))
         #self.path='/'
         self.send_response(303)        
@@ -117,7 +138,7 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
 
 
 picam2 = Picamera2()
-picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}))
+picam2.configure(picam2.create_video_configuration(main={"size": (576,768)}))
 output = StreamingOutput()
 picam2.start_recording(JpegEncoder(), FileOutput(output))
 picam2.stop_recording()
