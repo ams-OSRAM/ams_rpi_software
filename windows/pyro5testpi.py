@@ -25,13 +25,12 @@ class Viewer(object):
         market.start_server()
         print(market.name)
         exp = 100
-        while True:
-            exp+=100
-            print(market.control(exp,1))  
-            ims = market.images(10)
-            ims = [np.array(im) for im in ims]
-            print(ims[0].mean())
-        
+        exp+=100
+        print(market.control(exp,1))  
+        ims = market.images(1)
+        ims = [np.array(im) for im in ims]
+        print(ims[0].mean())
+        market.stop_server() 
 
 
 def find_uri():
