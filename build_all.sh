@@ -143,6 +143,9 @@ then
 	mkdir -p /home/${FIRST_USER_NAME}/Desktop
 fi
 
+# Make sure the Desktop folder is own by Pi, not root.
+sudo chown ${FIRST_USER_NAME}:${FIRST_USER_NAME} /home/${FIRST_USER_NAME}/Desktop
+
 echo "Create GUI Desktop Icon"
 echo "[Desktop Entry]" > /home/${FIRST_USER_NAME}/Desktop/ams_rpi_gui.desktop
 echo "Version=1.0" >> /home/${FIRST_USER_NAME}/Desktop/ams_rpi_gui.desktop

@@ -4,7 +4,7 @@ Description=Raspberry Pyro5 name server
 [Service]
 ExecStartPre=/bin/sleep 10
 ExecStartPost=/bin/sleep 3
-ExecStart=/home/pi/.local/bin/pyro5-ns -n raspberrypi.local -p 9091 --bchost raspberrypi.local
+ExecStart=/usr/local/bin/pyro5-ns -n raspberrypi.local -p 9091 --bchost raspberrypi.local
 WorkingDirectory=/home/pi
 StandardOutput=inherit
 StandardError=inherit
