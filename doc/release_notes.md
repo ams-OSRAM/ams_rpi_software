@@ -1,3 +1,11 @@
+# Version v0.1.12
+
+New features:
+- Add support for Mira016.
+- Update script to convert 8/10/12-bit raw file to pgm file.
+- Update Python V4L2 interface for new commands, and I2C slave access.
+- Experimental: remote access via Python and web interface.
+
 # Version v0.1.11
 
 No change from v0.1.11. Bump the tag version to sync with `ams_rpi_kernel` tag.
