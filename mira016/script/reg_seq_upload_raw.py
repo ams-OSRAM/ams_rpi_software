@@ -23,18 +23,33 @@ if __name__ == "__main__":
 
     # Create a v4l2Ctrl class for register read/write over i2c.
     i2c = v4l2Ctrl(sensor="mira016", printFunc=print)
-    # Manually power on the sensor
-    # i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA016_REG_FLAG_POWER_ON)
-    # Disable base register sequence upload (overwriting skip-reg-upload in dtoverlay )
-    i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA016_REG_FLAG_REG_UP_OFF)
+
+    #########################################################
+    # Important note for Mira016:
+    # If user wants to manually power on Mira016,
+    # register sequence needs to be uploaded first.
+    # The register sequence will be bufferred in the driver.
+    # The driver writes the sequence at stream "start()".
+    #########################################################
     # Upload register sequence from txt file
     print(f"Writing {len(reg_seq)} registers to sensor via V4L2 interface.")
     for reg in reg_seq:
         exp_val = i2c.rwReg(addr=reg[0], value=reg[1], rw=1, flag=0)
 
+    #########################################################
+    # Important note for Mira016:
+    # The POWER_ON command is optional.
+    # If use POWER_ON, make sure registers are uploaded first.
+    #########################################################
+    # [Optional] Manually power on the sensor
+    print(f"Manually power on the sensor via V4L2 interface.")
+    i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA016_REG_FLAG_POWER_ON)
+
+    # Disable base register sequence upload (overwriting skip-reg-upload in dtoverlay )
+    i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA016_REG_FLAG_REG_UP_OFF)
+
     # Initialize camera stream according to width, height, bit depth etc. from register sequence
-    # Set AeEnable to False to avoid over-writing exposure and analog gain related registers
-    input_camera_stream = CameraStreamInput(width=400, height=400, AeEnable=True, FrameRate=50.0, bit_depth=10)
+    input_camera_stream = CameraStreamInput(width=400, height=400, AeEnable=False, FrameRate=50.0, bit_depth=10)
 
     # Configure to use "raw" (rather than "main")
     input_camera_stream.capture_array = "raw"
@@ -51,8 +66,8 @@ if __name__ == "__main__":
         print(f"frame_idx: {frame_idx}, frame.shape: {frame.shape}, fps: {fps}, output: capture_{frame_idx}.raw")
         frame.astype(np.uint8).tofile(f"capture_{frame_idx}.raw")
         if frame_idx >= 5:
-            # print(f"Manually power off the sensor via V4L2 interface.")
-            # i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA016_REG_FLAG_POWER_OFF)
+            print(f"Manually power off the sensor via V4L2 interface.")
+            i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA016_REG_FLAG_POWER_OFF)
             sys.exit(0)
         last_time = current_time
 
