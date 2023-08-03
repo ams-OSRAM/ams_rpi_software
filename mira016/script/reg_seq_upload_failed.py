@@ -30,6 +30,9 @@ if __name__ == "__main__":
     # If use POWER_ON, make sure registers are uploaded first.
     #########################################################
     # [Optional] Manually power on the sensor
+    print(f"Manually power off the sensor via V4L2 interface.")
+    i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA016_REG_FLAG_POWER_OFF)
+    time.sleep(5)
     print(f"Manually power on the sensor via V4L2 interface.")
     i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA016_REG_FLAG_POWER_ON)
 

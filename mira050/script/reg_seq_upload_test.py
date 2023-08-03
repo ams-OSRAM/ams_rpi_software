@@ -32,7 +32,7 @@ if __name__ == "__main__":
     for reg in reg_seq:
         exp_val = i2c.rwReg(addr=reg[0], value=reg[1], rw=1, flag=0)
     # Disable reset during stream on or off
-    i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_RESET_ON)
+    i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_RESET_OFF)
 
     # Initialize camera stream according to width, height, bit depth etc. from register sequence
     input_camera_stream = CameraStreamInput(width=572, height=768, AeEnable=False, FrameRate=50.0, bit_depth=10)
@@ -56,7 +56,7 @@ if __name__ == "__main__":
         cv2.imshow('output', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             # print(f"Manually power off the sensor via V4L2 interface.")
-            i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_POWER_OFF)
+            #i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_POWER_OFF)
             sys.exit(0)
         last_time = current_time
         exp_val = i2c.rwReg(addr=0xE000, value=1, rw=1, flag=0)

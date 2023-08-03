@@ -31,6 +31,9 @@ if __name__ == "__main__":
     # The register sequence will be bufferred in the driver.
     # The driver writes the sequence at stream "start()".
     #########################################################
+    # [Optional] Manually power on the sensor
+    print(f"Manually power on the sensor via V4L2 interface.")
+    i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA016_REG_FLAG_POWER_OFF)
     # Upload register sequence from txt file
     print(f"Writing {len(reg_seq)} registers to sensor via V4L2 interface.")
     for reg in reg_seq:
@@ -41,12 +44,11 @@ if __name__ == "__main__":
     # The POWER_ON command is optional.
     # If use POWER_ON, make sure registers are uploaded first.
     #########################################################
-    # [Optional] Manually power on the sensor
-    print(f"Manually power on the sensor via V4L2 interface.")
-    i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA016_REG_FLAG_POWER_ON)
+
 
     # Disable base register sequence upload (overwriting skip-reg-upload in dtoverlay )
     i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA016_REG_FLAG_REG_UP_OFF)
+    i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA016_REG_FLAG_RESET_OFF)
     # Initialize camera stream according to width, height, bit depth etc. from register sequence
     input_camera_stream = CameraStreamInput(width=400, height=400, AeEnable=False, FrameRate=50.0, bit_depth=10)
 
