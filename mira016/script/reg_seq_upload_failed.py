@@ -47,11 +47,13 @@ if __name__ == "__main__":
     # (3) Manually power on the sensor
     print(f"Manually power on the sensor via V4L2 interface.")
     i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA016_REG_FLAG_POWER_ON)
+    time.sleep(1)
 
     # (2) Upload register sequence from txt file
     print(f"Writing {len(reg_seq)} registers to sensor via V4L2 interface.")
     for reg in reg_seq:
         exp_val = i2c.rwReg(addr=reg[0], value=reg[1], rw=1, flag=0)
+        time.sleep(0.001)
 
     # Disable base register sequence upload (overwriting skip-reg-upload in dtoverlay )
     i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA016_REG_FLAG_REG_UP_OFF)
