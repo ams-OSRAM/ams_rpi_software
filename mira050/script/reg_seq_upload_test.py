@@ -23,16 +23,34 @@ if __name__ == "__main__":
 
     # Create a v4l2Ctrl class for register read/write over i2c.
     i2c = v4l2Ctrl(sensor="mira050", printFunc=print)
-    # Manually power on the sensor
+
+    #########################################################
+    # Steps to upload reg sequence txt:
+    # (1) manually power off the sensor
+    # (3) manaully power on the sensor
+    # (3) disable base register upload and reset
+    # (4) upload register sequence
+    # (5) power off
+    #########################################################
+
+    # (1) Manually power off the sensor
+    print(f"Manually power off the sensor via V4L2 interface.")
+    i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_POWER_OFF)
+    time.sleep(3)
+
+    # (2) Manually power on the sensor
+    print(f"Manually power on the sensor via V4L2 interface.")
     i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_POWER_ON)
-    # Disable base register sequence upload (overwriting skip-reg-upload in dtoverlay )
+    time.sleep(3)
+
+    # (3) Disable base register sequence upload and reset
     i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_REG_UP_OFF)
-    # Upload register sequence from txt file
+    i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_RESET_OFF)
+
+    # (4) Upload register sequence from txt file
     print(f"Writing {len(reg_seq)} registers to sensor via V4L2 interface.")
     for reg in reg_seq:
         exp_val = i2c.rwReg(addr=reg[0], value=reg[1], rw=1, flag=0)
-    # Disable reset during stream on or off
-    i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_RESET_OFF)
 
     # Initialize camera stream according to width, height, bit depth etc. from register sequence
     input_camera_stream = CameraStreamInput(width=572, height=768, AeEnable=False, FrameRate=50.0, bit_depth=10)
@@ -55,16 +73,16 @@ if __name__ == "__main__":
                 (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
         cv2.imshow('output', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
-            # print(f"Manually power off the sensor via V4L2 interface.")
-            #i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_POWER_OFF)
-            sys.exit(0)
+            break
         last_time = current_time
         exp_val = i2c.rwReg(addr=0xE000, value=1, rw=1, flag=0)
         exp_val = i2c.rwReg(addr=0x0010, value=it, rw=1, flag=0)
         exp_val = i2c.rwReg(addr=0x00E, value=0, rw=1, flag=0)
         exp_val = i2c.rwReg(addr=0x00F, value=0, rw=1, flag=0)
-
-
         it+=1
+    # (5) power off
+    print(f"Manually power off the sensor via V4L2 interface.")
+    i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_POWER_OFF)
+    sys.exit(0)
 
 

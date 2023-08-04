@@ -25,14 +25,12 @@ if __name__ == "__main__":
     i2c = v4l2Ctrl(sensor="mira016", printFunc=print)
 
     #########################################################
-    # Important note for Mira016:
-    # If user wants to upload reg sequence txt:
+    # Steps to upload reg sequence txt:
     # (1) manually power off the sensor
-    # (2) upload register sequence
-    # (3) optionally manaully power on the sensor
-    # Such that the reg seq writes are buffer by driver.
-    # Driver writes the reg seq to sensor after "start()".
-    # Reversing (2) and (3) hangs mira016.
+    # (3) manaully power on the sensor
+    # (3) disable base register upload and reset
+    # (4) upload register sequence
+    # (5) power off
     #########################################################
 
     # (1) Manually power off the sensor
@@ -40,18 +38,21 @@ if __name__ == "__main__":
     i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA016_REG_FLAG_POWER_OFF)
     time.sleep(3)
 
-    # (2) Upload register sequence from txt file
-    print(f"Writing {len(reg_seq)} registers to driver buffer via V4L2 interface.")
-    for reg in reg_seq:
-        exp_val = i2c.rwReg(addr=reg[0], value=reg[1], rw=1, flag=0)
-
-    # (3) Manually power on the sensor
+    # (2) Manually power on the sensor
     print(f"Manually power on the sensor via V4L2 interface.")
     i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA016_REG_FLAG_POWER_ON)
+    time.sleep(1)
 
-    # Disable base register sequence upload (overwriting skip-reg-upload in dtoverlay )
+    # (3) Disable base register sequence upload and sensor reset
     i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA016_REG_FLAG_REG_UP_OFF)
     i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA016_REG_FLAG_RESET_OFF)
+
+    # (4) Upload register sequence from txt file
+    print(f"Writing {len(reg_seq)} registers to sensor via V4L2 interface.")
+    for reg in reg_seq:
+        exp_val = i2c.rwReg(addr=reg[0], value=reg[1], rw=1, flag=0)
+        time.sleep(0.001)
+
     # Initialize camera stream according to width, height, bit depth etc. from register sequence
     input_camera_stream = CameraStreamInput(width=400, height=400, AeEnable=False, FrameRate=50.0, bit_depth=10)
 
@@ -73,8 +74,10 @@ if __name__ == "__main__":
                 (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
         cv2.imshow('output', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
-            print(f"Manually power off the sensor via V4L2 interface.")
-            i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA016_REG_FLAG_POWER_OFF)
-            sys.exit(0)
+            break
         last_time = current_time
+    # (5) power off
+    print(f"Manually power off the sensor via V4L2 interface.")
+    i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA016_REG_FLAG_POWER_OFF)
+    sys.exit(0)
 

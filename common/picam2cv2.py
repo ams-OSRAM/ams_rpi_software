@@ -57,6 +57,10 @@ class CameraStreamInput:
     def start(self):
         picam2.start()
 
+    def stop(self):
+        picam2.stop_preview()
+        picam2.stop()
+
 if __name__ == "__main__":
 
     # Initialize classes
