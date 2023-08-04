@@ -26,25 +26,29 @@ if __name__ == "__main__":
 
     #########################################################
     # Important note for Mira016:
-    # The POWER_ON command is optional.
-    # If use POWER_ON, make sure registers are uploaded first.
+    # If user wants to upload reg sequence txt:
+    # (1) manually power off the sensor
+    # (2) upload register sequence
+    # (3) optionally manaully power on the sensor
+    # Such that the reg seq writes are buffer by driver.
+    # Driver writes the reg seq to sensor after "start()".
+    # Reversing (2) and (3) hangs mira016.
     #########################################################
-    # [Optional] Manually power on the sensor
+
+    #########################################################
+    # This "failed" script reverses (3) and (2) on purpose.
+    #########################################################
+
+    # (1) Manually power off the sensor
     print(f"Manually power off the sensor via V4L2 interface.")
     i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA016_REG_FLAG_POWER_OFF)
-    time.sleep(5)
+    time.sleep(3)
+
+    # (3) Manually power on the sensor
     print(f"Manually power on the sensor via V4L2 interface.")
     i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA016_REG_FLAG_POWER_ON)
 
-
-    #########################################################
-    # Important note for Mira016:
-    # If user wants to manually power on Mira016,
-    # register sequence needs to be uploaded first.
-    # The register sequence will be bufferred in the driver.
-    # The driver writes the sequence at stream "start()".
-    #########################################################
-    # Upload register sequence from txt file
+    # (2) Upload register sequence from txt file
     print(f"Writing {len(reg_seq)} registers to sensor via V4L2 interface.")
     for reg in reg_seq:
         exp_val = i2c.rwReg(addr=reg[0], value=reg[1], rw=1, flag=0)
