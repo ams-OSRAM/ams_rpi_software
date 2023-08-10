@@ -9,6 +9,7 @@ import numpy as np
 from picamera2 import Picamera2
 from picamera2.sensor_format import SensorFormat
 
+from PIL import Image
 
 exposure_time = 600
 num_frames = 6
@@ -39,7 +40,9 @@ for i in range(num_frames):
 
 print(images[0].shape)
 print(images[0])
-
+for index, image in enumerate(images):
+    pilim = Image.fromarray(image)
+    pilim.save(f"imgraw{index}.tiff")
 # accumulated = images.pop(0).astype(int)
 # for image in images:
 #     accumulated += image
