@@ -29,19 +29,29 @@ picam2 = Picamera2()
 raw_format = SensorFormat('SGRBG10_CSI2P')
 print(raw_format)
 
+# Create a v4l2Ctrl class for register read/write over i2c.
+i2c = v4l2Ctrl(sensor="mira050", printFunc=print)
+time.sleep(3)
+
+# Power off
+print(f"Power off the sensor.")
+i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_POWER_OFF)
+time.sleep(3)
+
+# Power on
+print(f"Power on the sensor.")
+i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_POWER_ON)
+time.sleep(3)
+
+# Disable base register sequence upload (overwriting skip-reg-upload in dtoverlay )
+i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_REG_UP_OFF)
+
 # Before stream on, upload register sequence
 # Create a config parse to parse the register sequence txt
 config_parser = ConfigParser()
 reg_seq = config_parser.parse_file('config_files/Mira050_register_sequence_10bhsgain1_test2.txt')
 print(f"Parsed {len(reg_seq)} register writes from file.")
 
-# Create a v4l2Ctrl class for register read/write over i2c.
-i2c = v4l2Ctrl(sensor="mira050", printFunc=print)
-
-i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_POWER_ON)
-
-# Disable base register sequence upload (overwriting skip-reg-upload in dtoverlay )
-i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_REG_UP_OFF)
 # Upload register sequence from txt file
 print(f"Writing {len(reg_seq)} registers to sensor via V4L2 interface.")
 

@@ -34,12 +34,25 @@
 - For mira220, a demo that shows register sequence upload (before streaming) and register read/write (during streaming) is at `mira220/script/picam2-reg-rw.py`.
 - For mira050, a similar demo, with additional feature of event detection, is at `mira050/script/eventdetection.py`.
 
+### (Experimental) Upload customized register sequence txt
+Users can upload a customized register sequence to the sensor, and skip loading the default register sequence used in the driver. For each sensor, there are example scripts to support that. For example, `mira050/script` folder contains the following example scripts.
+- `reg_seq_upload_test.py`: This example uploads register sequence to the sensor, and capture frames to a GUI windows.
+- `reg_seq_upload_multicapture.py`: This example uploads register sequence once, and do multiple captures. Subsequent captures do not need to upload register sequence.
+- `reg_seq_upload_raw.py`: This example uploads register sequence, and captures 5 raw frames. The raw frames can be converted to pgm by the script `convt_raw_pgm.py` mentioned above.
+- (mira050 only) `reg_seq_upload_test_raw.py`: This example uploads register sequence, and captures raw frame without packing (10 bit pixel stored in a 16 container) into an numpy array.
+These scripts can be executed by the following commands.
+```
+cd mira050/script
+python reg_seq_upload_test.py
+```
+
 ### USB functionality:
 using the windows script, it is now possible to access the pi remotely. (see inside the windows folder)
 make sure the latest software is installed.
 check if the service is running:
+```
 systemctl status ams_server.service
-
+```
 
 ### Use cases supported on Mira220, but not yet on Mira050:
 - Obtaining compressed 8-bit-per-pixel video. Issue the command `libcamera-vid -t 2000 --framerate 5 --codec h264 -o video01.h264 --save-pts video01_timestamp.txt` to capture 2000 milliseconds of video. The command generates a `video01.h264` video file and a time stamp record file `video01_timestamp.txt`. Since the h264 file does not contain timing information, it is recommended to convert it into a video format that has timing info, such as the mkv file format. As an example, first install the mkv video tools by the command `sudo apt install mkvtoolnix-gui`, followed by the command `mkvmerge -o video01.mkv --timecodes 0:video01_timestamp.txt video01.h264` that merges the h264 video file and the time stamp file to generate a mkv video file that contains timing information.
