@@ -12,8 +12,8 @@ from picamera2.sensor_format import SensorFormat
 from PIL import Image
 
 exposure_time = 600
-num_frames = 6
-framerate = 100
+num_frames = 60
+framerate = 10
 # Configure an unpacked raw format as these are easier to add.
 picam2 = Picamera2()
 # raw_format = SensorFormat(picam2.sensor_format)
@@ -21,7 +21,7 @@ picam2 = Picamera2()
 raw_format = SensorFormat('SGRBG10_CSI2P')
 print(raw_format)
 raw_format.packing = None
-config = picam2.create_still_configuration(raw={"format": raw_format.format}, buffer_count=3)
+config = picam2.create_still_configuration(raw={"format": raw_format.format}, buffer_count=2)
 picam2.configure(config)
 images = []
 picam2.set_controls({"ExposureTime": exposure_time , "AnalogueGain": 1.0, "FrameRate":framerate})

@@ -16,8 +16,22 @@ from picamera2.outputs import FileOutput
 PAGE = """\
 <html>
 <head>
-<title>ams MIRA</title>
+<title>ams MIRA ayy</title>
+<style>
+    body {
+        background-color: rgb(20, 40, 60);
+        color: rgb(240, 248, 255);
+    }
+
+    a {
+        color: rgb(255, 111, 111);
+    }
+</style>
+# <script>
+#     alert("Page has been loaded successfully")
+# </script>
 </head>
+
 <body>
 <h1>ams MIRA web view (experimental)</h1>
 this has only been tested with mira050
@@ -37,7 +51,7 @@ click start to enable the camera, click stop to disable.
 </form>
 
 <br/>
-<img src="stream.mjpg" height="400" />
+<img src="stream.mjpg" height="400"/>
 <br/>
 </body>
 </html>
@@ -84,9 +98,10 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             picam2.close()
 
         if "right" in button:
-            picam2.__init__()
-            picam2.configure(picam2.create_video_configuration(main={"size": (576,768)}))
-            picam2.start_recording(JpegEncoder(), FileOutput(output))
+            if not picam2.is_open:
+                picam2.__init__()
+                picam2.configure(picam2.create_video_configuration(main={"size": size}))
+                picam2.start_recording(JpegEncoder(), FileOutput(output))
         #self.path='/'
         self.send_response(303)        
         self.send_header('Content-type', 'text/html')
@@ -138,7 +153,9 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
 
 
 picam2 = Picamera2()
-picam2.configure(picam2.create_video_configuration(main={"size": (576,768)}))
+pixelsize = picam2.camera_properties['PixelArraySize']
+size = (pixelsize[0],pixelsize[1])
+picam2.configure(picam2.create_video_configuration(main={"size": size}))
 output = StreamingOutput()
 picam2.start_recording(JpegEncoder(), FileOutput(output))
 picam2.stop_recording()
