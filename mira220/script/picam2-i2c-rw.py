@@ -18,10 +18,20 @@ if __name__ == "__main__":
     input_camera_stream = CameraStreamInput(width=960, height=720, AeEnable=True)
     i2c = v4l2Ctrl(sensor="mira220", printFunc=print)
 
-    # Before stream on, upload register sequence
-    # Dummy example: uploading a list of values for LSB of exposure reg.
-    # for reg_val in range(1,10):
-    #    exp_val = i2c.rwReg(addr=0x100C, value=reg_val, rw=1, flag=0)
+    # Example: Controlling LED driver chip (LM2759) via I2C
+    # Set the I2C device address to 0x53 for LM2759
+    i2c.rwReg(addr=0x00, value=0x53, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA220_REG_FLAG_I2C_SET_TBD)
+    # Optionally, set torch current to max
+    i2c.rwReg(addr=0xA0, value=0x0F, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA220_REG_FLAG_I2C_TBD)
+    # Turn on torch
+    # i2c.rwReg(addr=0x10, value=1, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA220_REG_FLAG_I2C_TBD)
+    # Turn off torch
+    i2c.rwReg(addr=0x10, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA220_REG_FLAG_I2C_TBD)
+
+    # Test by reading torch current
+    current_reg_val = i2c.rwReg(addr=0xA0, value=0x0, rw=0, flag=i2c.AMS_CAMERA_CID_MIRA220_REG_FLAG_I2C_TBD)
+    current_reg_val = np.uint8(np.uint32(current_reg_val) & 0x0000000F)
+    print(f"Read back torch current register 4-bit value 0x{current_reg_val:X}")
 
 
     # Start streaming. Upload long register sequence before this step.

@@ -18,35 +18,36 @@ if __name__ == "__main__":
     input_camera_stream = CameraStreamInput(width=572, height=768, AeEnable=True)
     i2c = v4l2Ctrl(sensor="mira050", printFunc=print)
 
+    # Example: Controlling LED driver chip (LM2759) via I2C
+    # Set the I2C device address to 0x53 for LM2759
+    i2c.rwReg(addr=0x00, value=0x53, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_I2C_SET_TBD)
+    # Optionally, set torch current to max
+    i2c.rwReg(addr=0xA0, value=0x0F, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_I2C_TBD)
+    # Turn on torch
+    # i2c.rwReg(addr=0x10, value=1, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_I2C_TBD)
+    # Turn off torch
+    i2c.rwReg(addr=0x10, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_I2C_TBD)
+
+    # Test by reading torch current
+    current_reg_val = i2c.rwReg(addr=0xA0, value=0x0, rw=0, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_I2C_TBD)
+    current_reg_val = np.uint8(np.uint32(current_reg_val) & 0x0000000F)
+    print(f"Read back torch current register 4-bit value 0x{current_reg_val:X}")
+
     # Start streaming. Upload long register sequence before this step.
     input_camera_stream.start()
-
-    # Configure sensitivity of event detection between 0 (insensitive) and 3 (very sensitive)
-    # TILE_THRESHOLD (0x0142), 0: 50%, 1: 25%, 2: 12.5%, 3: 6.25%
-    i2c.rwReg(addr=0x0142, value=1, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_USE_BANK)
 
     # Test by reading VERSION_ID
     VERSION_ID = i2c.rwReg(addr=0x011B, value=0, rw=0, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_USE_BANK)
     print("VERSION_ID: {}".format(VERSION_ID))
 
     last_time = time.time()
-    CURRENT_ACTIVE_CONTEXT = 0
 
     # Per-frame operation
     for frame, frame_idx in input_camera_stream:
-        # Test by reading CURRENT_ACTIVE_CONTEXT, NEXT_ACTIVE_CONTEXT
-        previous_active_context = CURRENT_ACTIVE_CONTEXT
-        CURRENT_ACTIVE_CONTEXT = i2c.rwReg(addr=0x4002, value=0, rw=0, flag=0)
-        # At frame 20, manually switch to Context B for event detection
-        if frame_idx == 20:
-            i2c.rwReg(addr=0xE003, value=1, rw=1, flag=0)
-            print(f"Manually switching to context B at frame {frame_idx}.")
-        if previous_active_context == 1 and CURRENT_ACTIVE_CONTEXT == 0:
-            print(f"Event detected at frame {frame_idx}.")
         # GUI element
         current_time = time.time()
         fps = 1 / (current_time - last_time)
-        cv2.putText(frame, f"Context: {CURRENT_ACTIVE_CONTEXT}, fps: {fps:.1f}",
+        cv2.putText(frame, f"fps: {fps:.1f}",
                 (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
         cv2.imshow('output', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
