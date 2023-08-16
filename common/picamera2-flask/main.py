@@ -14,6 +14,26 @@ from flask import Flask, jsonify, redirect, render_template, Response
 import os
 from flask import Flask, flash, request, redirect, url_for
 from werkzeug.utils import secure_filename
+from wtforms import Form, BooleanField, StringField, PasswordField, validators, DecimalRangeField, DecimalField
+
+
+class ControlForm(Form):
+    exposure = DecimalField('Exposure')
+
+    print(f'exposure:  {exposure}')
+
+class RegistrationForm(Form):
+    username = StringField('Username', [validators.Length(min=4, max=25)])
+    email = StringField('Email Address', [validators.Length(min=6, max=35)])
+    password = PasswordField('New Password', [
+        validators.DataRequired(),
+        validators.EqualTo('confirm', message='Passwords must match')
+    ])
+    confirm = PasswordField('Repeat Password')
+    age = DecimalField('Age')
+
+    accept_tos = BooleanField('I accept the TOS', [validators.DataRequired()])
+    print(f'received: {email} {age}')
 
 class StreamingOutput(io.BufferedIOBase):
     def __init__(self):
@@ -82,10 +102,20 @@ app.config['SECRET_KEY'] = 'secret_key_for_flask'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 dirpath = "/tmp"
-
+users = []
     
 camera = Camera()
 
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    form = RegistrationForm(request.form)
+    if request.method == 'POST' and form.validate():
+        user = (form.username.data, form.email.data,
+                    form.password.data)
+        users.append(user)
+        flash('Thanks for registering')
+        return redirect(url_for('login'))
+    return render_template('register.html', form=form)
 
 # login_manager = LoginManager(app)
 
@@ -95,7 +125,7 @@ def allowed_file(filename):
 
 @app.route('/uploadfile', methods=['GET', 'POST'])
 def upload_file():
-    if request.method == 'POST':
+    if request.method == 'POST': #TODO needs form validation using wtforms
         # check if the post request has the file part
         if 'file' not in request.files:
             flash('No file part')
@@ -117,6 +147,8 @@ def upload_file():
     <form method=post enctype=multipart/form-data>
       <input type=file name=file>
       <input type=submit value=Upload>
+      <input type=submit value=Download>
+
     </form>
     '''
 from flask import send_from_directory
@@ -131,7 +163,7 @@ def genFrames(camera):
     video_config = camera.picam2.create_video_configuration(main={
                 "size": camera.size})
     camera.picam2.configure(video_config)
-    camera.picam2.set_controls({"ExposureTime": 100, "AnalogueGain": 1.0})
+    camera.picam2.set_controls({"ExposureTime": 1000, "AnalogueGain": 1.0})
     camera.start_recording(output)
     while True:
         with output.condition:
@@ -168,15 +200,23 @@ def indexhtml():
     return redirect('/')
 
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
+    form = ControlForm(request.form)
+    # form = RegistrationForm(request.form)
+    if request.method == 'POST' and form.validate():
+        exposure = form.exposure
+        # users.append(user)
+        flash('Thanks for setting exposure')
+        # return render_template('index.html', form=form)
+    # return redirect(url_for('indexhtml'))
     #TODO
     # if form.validate_on_submit():
     #     if 'download' in request.form:
     #         pass # do something
     #     elif 'watch' in request.form:
     #         pass # do something else
-    return render_template('index.html')  # you can customze index.html here
+    return render_template('index.html', form=form)  # you can customze index.html here
 
 
 @app.route('/capture')
