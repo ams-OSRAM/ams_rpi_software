@@ -17,8 +17,13 @@
 <form method=post>
   <dl>
     {{ render_field(form.exposure) }}
+    {{ render_field(form.download) }}
+    {{ render_field(form.apply) }}
+
+
   </dl>
-  <p><input type=submit value=Apply>
+  <!-- <p><input type=submit value=Apply> -->
+
 </form>
 
 <!-- <form>
@@ -29,7 +34,10 @@
 <img src="/video_feed" height="400" />
 <br>
 
-keep in mind this is in experimental stage.
+If you don't see the video, probably someone else is accessing the stream.
+<br>
+
+keep in mind this is website is still in experimental stage.
 <br>
 <a href = "mailto: philippe.baetens@ams-osram.com">technical support</a>
 

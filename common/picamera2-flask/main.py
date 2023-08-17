@@ -6,20 +6,25 @@ from picamera2.encoders import JpegEncoder
 from picamera2.outputs import FileOutput
 # from libcamera import Transform
 import io
+import numpy as np
+from PIL import Image
+
 from threading import Condition
 import time
 import os
+from picamera2.sensor_format import SensorFormat
 
 from flask import Flask, jsonify, redirect, render_template, Response
 import os
 from flask import Flask, flash, request, redirect, url_for
 from werkzeug.utils import secure_filename
-from wtforms import Form, BooleanField, StringField, PasswordField, validators, DecimalRangeField, DecimalField
+from wtforms import Form, BooleanField, StringField, PasswordField, validators, DecimalRangeField, DecimalField, SubmitField
 
 
 class ControlForm(Form):
-    exposure = DecimalField('Exposure')
-
+    exposure = DecimalField('exposure (us)', default = 1000)
+    apply = SubmitField(label = 'apply')
+    download = SubmitField(label = 'download')
     print(f'exposure:  {exposure}')
 
 class RegistrationForm(Form):
@@ -64,23 +69,31 @@ class Camera:
             self.picam2 = Picamera2()
             pixelsize = self.picam2.camera_properties['PixelArraySize']
             self.size = (pixelsize[0],pixelsize[1])
+        if self.is_started:
+            self.stop_recording()        
         if not(self.picam2.is_open):
             self.picam2.__init__()
-        if self.is_started:
-            self.stop_recording()
+
     @property
     def is_started(self):
-        return self.picam2.started
+        if self.picam2:
+            return self.picam2.started
+        else:
+            return False
     @property
     def is_opened(self):
-        return self.picam2.is_open
-    
+        if self.picam2:
+            return self.picam2.is_open
+        else:
+            return False
     # def open(self):
     #     self.picam2.__init__()
 
     def close(self):
-        if self.picam2.is_open:
-            self.picam2.close()
+        if self.picam2:
+            self.stop_recording()
+            if self.picam2.is_open:
+                self.picam2.close()
         
 
     def start_recording(self,output):
@@ -88,9 +101,13 @@ class Camera:
     
     def stop_recording(self):
         if self.is_started:
-            self.picam2.stop_recording()
+            print(f'status of is started: {self.is_started}')
+            try:
+                self.picam2.stop_recording()
+            except Exception as e:
+                print(e)
 
-
+expval = 1000
 UPLOAD_FOLDER = '.'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 
@@ -105,6 +122,7 @@ dirpath = "/tmp"
 users = []
     
 camera = Camera()
+# camera.open()
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -156,14 +174,23 @@ from flask import send_from_directory
 @app.route('/uploads/<name>')
 def download_file(name):
     return send_from_directory(app.config["UPLOAD_FOLDER"], name,as_attachment=True)
-
+    
 def genFrames(camera):
+    # camera.open()
+    camera.close()
+    time.sleep(.1)
+
     camera.open()
+    time.sleep(.1)
     output = StreamingOutput()
+    raw_format = SensorFormat('SGRBG10_CSI2P')
+    raw_format.packing = None    
     video_config = camera.picam2.create_video_configuration(main={
-                "size": camera.size})
+                "size": camera.size}, raw={"format": raw_format.format}, buffer_count=2)
+    
+    # config = picam2.create_still_configuration(raw={"format": raw_format.format}, buffer_count=2)
     camera.picam2.configure(video_config)
-    camera.picam2.set_controls({"ExposureTime": 1000, "AnalogueGain": 1.0})
+    camera.picam2.set_controls({"ExposureTime": expval, "AnalogueGain": 1.0})
     camera.start_recording(output)
     while True:
         with output.condition:
@@ -173,22 +200,83 @@ def genFrames(camera):
                 b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 
+def captureImage2(camera):
+    request = camera.picam2.capture_request()
+    request.save("main", "test3.jpg")
+    request.release()
+    print('caputre successful')
+
+def captureImageRaw(camera):
+    request = camera.picam2.capture_request()
+    # request.save("main", "test3.jpg")
+    image = camera.picam2.capture_array("raw").view(np.uint16)
+    metadata = camera.picam2.capture_metadata()
+    new = metadata['SensorTimestamp']
+    print(f'timestamp meta {metadata}')
+    pilim = Image.fromarray(image)
+    pilim.save(f"imgraw.tiff")
+    
+    request.release()
+    print('raw caputre successful')
+    # raw_format = SensorFormat('SGRBG10_CSI2P')
+    # print(raw_format)
+    # raw_format.packing = None
+    # config = picam2.create_still_configuration(raw={"format": raw_format.format}, buffer_count=2)
+    # picam2.configure(config)
+    # images = []
+    # picam2.set_controls({"ExposureTime": exposure_time , "AnalogueGain": 1.0, "FrameRate":framerate})
+    # picam2.start()
+    # old = 0
+    # new = 0
+    # # The raw images can be added directly using 2-byte pixels.
+    # for i in range(num_frames):
+    #     images.append(picam2.capture_array("raw").view(np.uint16))
+    #     metadata = picam2.capture_metadata()
+    #     new = metadata['SensorTimestamp']
+    #     diff = new - old 
+    #     old = new
+    #     print(metadata['SensorTimestamp'])
+    #     print(diff/1000)
+
+    # print(images[0].shape)
+    # print(images[0])
+    # for index, image in enumerate(images):
+    #     pilim = Image.fromarray(image)
+    #     pilim.save(f"imgraw{index}.tiff")
+
+
 def captureImage(camera):
+    camera.close()
+    time.sleep(.1)
+    print(f'status: {camera.picam2}')
     camera.open()
+
+    print(f'status opened: {camera.picam2.is_open}')
+    print(f'status started: {camera.picam2.started}')
+
+    time.sleep(.1)
     status = "failed"
     try:
-        camera_config = camera.picam2.create_still_configuration(main={
-                "size": camera.size})
+        camera_config = camera.picam2.create_still_configuration()
+        # camera_config = camera.picam2.create_still_configuration(main={ "size": camera.size})
+        camera.picam2.configure(camera_config)
+
         filename = time.strftime("%Y%m%d-%H%M%S") + '.jpg'
         savepath = os.path.join(dirpath, filename)
-        # camera.picam2.start()
-        camera.picam2.switch_mode_and_capture_file(camera_config, savepath)
+        camera.picam2.start()
+        time.sleep(1)
+        # camera.picam2.switch_mode_and_capture_file(camera_config, savepath)
+        metadata = camera.picam2.capture_file("./test2.jpg")
+        print(f'metadata {metadata}')
+        # camera.picam2.capture_file(savepath, filename)
         status = "success"
         print('caputre successful')
     except Exception as e:
+        print('capture failed')
         print(e)
     finally:
-        camera.stop_recording()
+        pass
+        # camera.stop_recording()
         # camera.picam2.stop()
         # camera.picam2.close()
     return {'status': status}
@@ -204,10 +292,26 @@ def indexhtml():
 def index():
     form = ControlForm(request.form)
     # form = RegistrationForm(request.form)
+    global camera
+    global expval
     if request.method == 'POST' and form.validate():
-        exposure = form.exposure
+        global camera
+        print(camera.picam2.camera_controls["ExposureValue"][0])        
+        print(camera.picam2.camera_controls["ExposureValue"][1])
+
+        expval = int(form.exposure.data)
+        print(f'form {form.data}')
+        if form.data["download"] == True:
+            print('download button pressed')
+            filename = 'requirements.txt'
+            camera.picam2.capture_image()
+            return redirect(url_for('capture'))
+            # return redirect(url_for('download_file', name=filename))
+
+        # camera.picam2.set_controls({"ExposureTime": exposure, "AnalogueGain": 1.0})
+
         # users.append(user)
-        flash('Thanks for setting exposure')
+        # flash('Thanks for setting exposure')
         # return render_template('index.html', form=form)
     # return redirect(url_for('indexhtml'))
     #TODO
@@ -223,8 +327,11 @@ def index():
 def capture():
     global camera
     print('capture routinge')
-    outcome = captureImage(camera)
-    return jsonify(outcome)
+    outcome = captureImageRaw(camera)
+    # return jsonify(outcome)
+    return redirect(url_for('download_file', name='imgraw.tiff'))
+
+    return redirect('/')
 
 
 # defines the route that will access the video feed and call the feed function
