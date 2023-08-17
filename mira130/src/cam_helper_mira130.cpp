@@ -28,10 +28,10 @@ using namespace RPiController;
  * addresses from the mira130 datasheet:
  */
 constexpr uint32_t gainReg = 0x400A;
-constexpr uint32_t expHiReg = 0x1013;
-constexpr uint32_t expLoReg = 0x1012;
-constexpr uint32_t frameLengthHiReg = 0x1013;
-constexpr uint32_t frameLengthLoReg = 0x1012;
+constexpr uint32_t expHiReg = 0x3E00;
+constexpr uint32_t expLoReg = 0x3E02;
+constexpr uint32_t frameLengthHiReg = 0x320E;
+constexpr uint32_t frameLengthLoReg = 0x320F;
 constexpr std::initializer_list<uint32_t> registerList [[maybe_unused]]
 	= { expHiReg, expLoReg, gainReg, frameLengthHiReg, frameLengthLoReg };
 
