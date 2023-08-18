@@ -21,36 +21,6 @@ from werkzeug.utils import secure_filename
 from wtforms import Form, BooleanField, StringField, PasswordField, validators, DecimalRangeField, DecimalField, SubmitField
 
 
-class ControlForm(Form):
-    exposure = DecimalField('exposure (us)', default = 1000)
-    apply = SubmitField(label = 'apply')
-    download = SubmitField(label = 'download')
-    print(f'exposure:  {exposure}')
-
-class RegistrationForm(Form):
-    username = StringField('Username', [validators.Length(min=4, max=25)])
-    email = StringField('Email Address', [validators.Length(min=6, max=35)])
-    password = PasswordField('New Password', [
-        validators.DataRequired(),
-        validators.EqualTo('confirm', message='Passwords must match')
-    ])
-    confirm = PasswordField('Repeat Password')
-    age = DecimalField('Age')
-
-    accept_tos = BooleanField('I accept the TOS', [validators.DataRequired()])
-    print(f'received: {email} {age}')
-
-class StreamingOutput(io.BufferedIOBase):
-    def __init__(self):
-        self.frame = None
-        self.condition = Condition()
-
-    def write(self, buf):
-        with self.condition:
-            self.frame = buf
-            self.condition.notify_all()
-
-
 class Camera:
     """
     states:
@@ -123,6 +93,39 @@ users = []
     
 camera = Camera()
 # camera.open()
+class ControlForm(Form):
+    # def __init__(self, form, expmin, expmax):
+    exposure = DecimalField('exposure (us)', default = 1000, validators=[validators.NumberRange(min=10, max=10000)])
+    apply = SubmitField(label = 'apply')
+    download = SubmitField(label = 'download')
+        #     print(camera.picam2.camera_controls["ExposureTime"][0])        
+        # print(camera.picam2.camera_controls["ExposureTime"][1])
+        # super().__init__(form)
+
+# class RegistrationForm(Form):
+#     username = StringField('Username', [validators.Length(min=4, max=25)])
+#     email = StringField('Email Address', [validators.Length(min=6, max=35)])
+#     password = PasswordField('New Password', [
+#         validators.DataRequired(),
+#         validators.EqualTo('confirm', message='Passwords must match')
+#     ])
+#     confirm = PasswordField('Repeat Password')
+#     age = DecimalField('Age')
+
+#     accept_tos = BooleanField('I accept the TOS', [validators.DataRequired()])
+#     print(f'received: {email} {age}')
+
+class StreamingOutput(io.BufferedIOBase):
+    def __init__(self):
+        self.frame = None
+        self.condition = Condition()
+
+    def write(self, buf):
+        with self.condition:
+            self.frame = buf
+            self.condition.notify_all()
+
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -290,14 +293,12 @@ def indexhtml():
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    global camera
     form = ControlForm(request.form)
     # form = RegistrationForm(request.form)
-    global camera
+
     global expval
     if request.method == 'POST' and form.validate():
-        global camera
-        print(camera.picam2.camera_controls["ExposureValue"][0])        
-        print(camera.picam2.camera_controls["ExposureValue"][1])
 
         expval = int(form.exposure.data)
         print(f'form {form.data}')
