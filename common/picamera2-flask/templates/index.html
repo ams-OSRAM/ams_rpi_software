@@ -1,45 +1,80 @@
 {% from "_formhelpers.html" import render_field %}
 <html>
+
 <head>
-<link rel="stylesheet" href='/static/style.css' />
+  <link rel="stylesheet" href='/static/style.css' />
 
-<title>mira web</title>
+  <title>mira web</title>
 </head>
-<body>
-<h1>Picamera2 MJPEG Streaming Demo for ams mira</h1>
 
-<!-- <input type="submit" name="download" value="Download">
+<body>
+  <img src="static/amsosram.svg" alt="My Happy SVG" />
+
+
+  <!-- <input type="submit" name="download" value="Download">
 <input type="submit" name="watch" value="Watch">
 <input type="submit" name="watch" value="Watch">
 <input type="text" id="fname" name="fname"> -->
+  <h1>Mira web interface for ams MIPI image sensor</h1>
 
 
-<form method=post>
-  <dl>
-    {{ render_field(form.exposure) }}
-    {{ render_field(form.download) }}
-    {{ render_field(form.apply) }}
+  <div class="row">
+    <div class="column" style="background-color:transparent;">
+      <div class="subrow">
+
+        <h2>Image Sensor Controls</h2>
+        <form method=post>
+          <dl>
+            {{ render_field(form.exposure) }}
+            {{ render_field(form.analog_gain) }}
+            {{ render_field(form.bit_mode) }}
+            {{ render_field(form.apply) }}
+
+      </div>
+
+      <div class="subrow">
+
+        <h2>Image Capture</h2>
+
+        {{ render_field(form.amount) }}
+
+        {{ render_field(form.download_option) }}
+
+        {{ render_field(form.download) }}
+      </div>
+
+      </dl>
+      <!-- <p><input type=submit value=Apply> -->
+
+      </form>
+    </div>
+    <div class="column" style="background-color:transparent;">
+      <div class="subrow">
+        <h2>Video feed</h2>
+        <img src="/video_feed" height="400" />
+        <h2>Info</h2>
+        properties
+        </br>
+
+        {{ (caminfo) }}
 
 
-  </dl>
-  <!-- <p><input type=submit value=Apply> -->
+      </div>
 
-</form>
+    </div>
 
-<!-- <form>
-    <input type="number" min="10" max="20" step="2" value="16" required>
-    <input type="submit" value="Submit Now!">
-    </form> -->
-<br>
-<img src="/video_feed" height="400" />
-<br>
+  </div>
 
-If you don't see the video, probably someone else is accessing the stream.
-<br>
 
-keep in mind this is website is still in experimental stage.
-<br>
-<a href = "mailto: philippe.baetens@ams-osram.com">technical support</a>
+  </script>
+  If you don't see the video, probably someone else is accessing the stream.
+  <br>
+
+  keep in mind this is website is still in experimental stage.
+  <br>
+  <a href="mailto: philippe.baetens@ams-osram.com">technical support</a>
+  <br>
 
 </body>
+
 </html>

@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 
 from picamera2 import Picamera2
-
+from zipfile import ZipFile
 from picamera2.encoders import JpegEncoder
 from picamera2.outputs import FileOutput
 # from libcamera import Transform
 import io
 import numpy as np
 from PIL import Image
-
+import pathlib
 from threading import Condition
 import time
 import os
@@ -18,7 +18,7 @@ from flask import Flask, jsonify, redirect, render_template, Response
 import os
 from flask import Flask, flash, request, redirect, url_for
 from werkzeug.utils import secure_filename
-from wtforms import Form, BooleanField, StringField, PasswordField, validators, DecimalRangeField, DecimalField, SubmitField
+from wtforms import Form, BooleanField, StringField, PasswordField, validators, DecimalRangeField, DecimalField, SubmitField , IntegerField, SelectField
 
 
 class Camera:
@@ -34,9 +34,11 @@ class Camera:
 
     def __init__(self):
         self.picam2 = None
+        self.cam_info = None
     def open(self):
         if not(self.picam2):
             self.picam2 = Picamera2()
+            self.cam_info = self.picam2.camera_properties
             pixelsize = self.picam2.camera_properties['PixelArraySize']
             self.size = (pixelsize[0],pixelsize[1])
         if self.is_started:
@@ -76,8 +78,11 @@ class Camera:
                 self.picam2.stop_recording()
             except Exception as e:
                 print(e)
-
+amount = 1
+download_option = 'tiff'
 expval = 1000
+bitmode = 12
+cam_info = ''
 UPLOAD_FOLDER = '.'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 
@@ -95,9 +100,16 @@ camera = Camera()
 # camera.open()
 class ControlForm(Form):
     # def __init__(self, form, expmin, expmax):
-    exposure = DecimalField('exposure (us)', default = 1000, validators=[validators.NumberRange(min=10, max=10000)])
-    apply = SubmitField(label = 'apply')
-    download = SubmitField(label = 'download')
+    exposure = DecimalField('Exposure (us)', default = 1000, validators=[validators.NumberRange(min=10, max=10000)])
+    analog_gain = SelectField('Analog gain', default = 1, choices=[1])
+    bit_mode = SelectField('Sensor ADC bitmode', default = 12, choices=[8,10,12])
+
+    amount = IntegerField('Number of images to capture', default = 1, validators=[validators.NumberRange(min=1, max=20)])
+    download_option = SelectField('Download option', default = 'tiff', choices=[('tiff', 'tiff single image'), ('npz', 'numpy array (multi)'), ('zip', 'zip of tiff files (multi)')])
+
+    download = SubmitField(label = 'Download image')
+    apply = SubmitField(label = 'Apply settings')
+
         #     print(camera.picam2.camera_controls["ExposureTime"][0])        
         # print(camera.picam2.camera_controls["ExposureTime"][1])
         # super().__init__(form)
@@ -182,11 +194,17 @@ def genFrames(camera):
     # camera.open()
     camera.close()
     time.sleep(.1)
-
+    global bitmode
     camera.open()
     time.sleep(.1)
     output = StreamingOutput()
-    raw_format = SensorFormat('SGRBG10_CSI2P')
+    if bitmode == 12:
+        raw_format = SensorFormat('SGRBG12_CSI2P')
+    elif bitmode ==10:
+        raw_format = SensorFormat('SGRBG10_CSI2P')
+    else:
+        raw_format = SensorFormat('SGRBG8_CSI2P')
+
     raw_format.packing = None    
     video_config = camera.picam2.create_video_configuration(main={
                 "size": camera.size}, raw={"format": raw_format.format}, buffer_count=2)
@@ -209,17 +227,65 @@ def captureImage2(camera):
     request.release()
     print('caputre successful')
 
+
+# importing required modules
+from zipfile import ZipFile
+import os
+
+def get_all_file_paths(directory):
+    # initializing empty file paths list
+    file_paths = []
+    # crawling through directory and subdirectories
+    for root, directories, files in os.walk(directory):
+        for filename in files:
+            # join the two strings in order to form the full filepath.
+            filepath = os.path.join(root, filename)
+            file_paths.append(filepath)
+
+    # returning all file paths
+    return file_paths		
+
+
+
 def captureImageRaw(camera):
     request = camera.picam2.capture_request()
+    global amount
     # request.save("main", "test3.jpg")
-    image = camera.picam2.capture_array("raw").view(np.uint16)
-    metadata = camera.picam2.capture_metadata()
-    new = metadata['SensorTimestamp']
-    print(f'timestamp meta {metadata}')
-    pilim = Image.fromarray(image)
-    pilim.save(f"imgraw.tiff")
-    
+    imgs=[]
+    for i in range(amount):
+        image = camera.picam2.capture_array("raw").view(np.uint16)
+        imgs.append(image)
+        metadata = camera.picam2.capture_metadata()
+        new = metadata['SensorTimestamp']
+        print(f'timestamp meta {metadata}')
+        pilim = Image.fromarray(image)
+        pilim.save(f"imgraw{i}.tiff")
+    # images = camera.picam2.capture_arrays(["raw","raw"])
+
+    print(imgs)
+    np.savez('img_array',imgs)
+
     request.release()
+
+    directory = './'
+
+    # calling function to get all file paths in the directory
+    file_paths = get_all_file_paths(directory)
+
+    file_paths = [f for f in pathlib.Path().glob("*.tiff")]    
+
+    print('Following files will be zipped:')
+    for file_name in file_paths:
+        print(file_name)
+
+    # writing files to a zipfile
+    with ZipFile('my_python_files.zip','w') as zip:
+        # writing each file one by one
+        for file in file_paths:
+            zip.write(file)
+
+    print('All files zipped successfully!')		
+
     print('raw caputre successful')
     # raw_format = SensorFormat('SGRBG10_CSI2P')
     # print(raw_format)
@@ -296,11 +362,17 @@ def index():
     global camera
     form = ControlForm(request.form)
     # form = RegistrationForm(request.form)
-
+    global download_option
     global expval
+    global amount
+    global bitmode
+    global cam_info 
     if request.method == 'POST' and form.validate():
-
+        amount = int(form.amount.data) #nr of images captured
         expval = int(form.exposure.data)
+        bitmode = int(form.bit_mode.data)
+        download_option = str(form.download_option.data)
+
         print(f'form {form.data}')
         if form.data["download"] == True:
             print('download button pressed')
@@ -321,7 +393,7 @@ def index():
     #         pass # do something
     #     elif 'watch' in request.form:
     #         pass # do something else
-    return render_template('index.html', form=form)  # you can customze index.html here
+    return render_template('index.html', form=form, caminfo=camera.cam_info )  # you can customze index.html here
 
 
 @app.route('/capture')
@@ -330,7 +402,13 @@ def capture():
     print('capture routinge')
     outcome = captureImageRaw(camera)
     # return jsonify(outcome)
-    return redirect(url_for('download_file', name='imgraw.tiff'))
+    # return redirect(url_for('download_file', name='imgraw.tiff'))
+    if download_option == 'zip':
+        return redirect(url_for('download_file', name='my_python_files.zip'))
+    elif download_option == 'npz':
+        return redirect(url_for('download_file', name='img_array.npz'))
+    else:
+        return redirect(url_for('download_file', name='imgraw0.tiff'))
 
     return redirect('/')
 
