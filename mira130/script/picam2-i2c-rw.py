@@ -18,13 +18,18 @@ if __name__ == "__main__":
     input_camera_stream = CameraStreamInput(width=1080, height=1280, AeEnable=True)
     i2c = v4l2Ctrl(sensor="mira130", printFunc=print)
 
-    # Start streaming. Upload long register sequence before this step.
+    # Other I2C devices are powered on, but Mira sensor itself is not powered on until calling start().
+
+    # Start streaming. Mira sensor is powered on. From here, Mira sensor is accessible via I2C.
     input_camera_stream.start()
 
     # Test by reading sensor ID
     sensor_id_high = i2c.rwReg(addr=0x3107, value=0, rw=0)
     sensor_id_low = i2c.rwReg(addr=0x3108, value=0, rw=0)
     print(f"Sensor ID high 0x{sensor_id_high:X}, low 0x{sensor_id_low:X}")
+
+    # Example: Enable illumination trigger.
+    i2c.rwReg(addr=0x00, value=0x00, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA130_REG_FLAG_ILLUM_TRIG_ON)
 
     last_time = time.time()
 

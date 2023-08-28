@@ -18,6 +18,8 @@ if __name__ == "__main__":
     input_camera_stream = CameraStreamInput(width=960, height=720, AeEnable=True)
     i2c = v4l2Ctrl(sensor="mira220", printFunc=print)
 
+    # Other I2C devices are powered on, but Mira sensor itself is not powered on until calling start().
+
     # Example: Controlling LED driver chip (LM2759) via I2C
     # Set the I2C device address to 0x53 for LM2759
     i2c.rwReg(addr=0x00, value=0x53, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA220_REG_FLAG_I2C_SET_TBD)
@@ -34,8 +36,20 @@ if __name__ == "__main__":
     print(f"Read back torch current register 4-bit value 0x{current_reg_val:X}")
 
 
-    # Start streaming. Upload long register sequence before this step.
+    # Start streaming. Mira sensor is powered on. From here, Mira sensor is accessible via I2C.
     input_camera_stream.start()
+
+    # Example: Enable illumination trigger, set ILLUM_WIDTH and ILLUM_DELAY.
+    # ILLUM_WIDTH is in unit of rows. When set to 0, width equal to exposure time.
+    illum_width_reg_val = np.uint32(0)
+    # ILLUM_DELAY is in unit of rows. Default to 0.
+    illum_delay_reg_val = np.uint32(0)
+    # Write 16 bits of ILLUM_WIDTH. 8 LSB of ILLUM_WIDTH maps to value; 8 MSB of ILLUM_WIDTH maps to addr.
+    i2c.rwReg(addr=((illum_width_reg_val >> 8) & 0x00FF), value=(illum_width_reg_val & 0xFF), rw=1, flag=i2c.AMS_CAMERA_CID_MIRA220_REG_FLAG_ILLUM_WIDTH)
+    # Write 17 bits of ILLUM_DELAY including sign. 8 LSB of ILLUM_WIDTH maps to value; 9 MSB of ILLUM_WIDTH maps to addr.
+    i2c.rwReg(addr=((illum_delay_reg_val >> 8) & 0x01FF), value=(illum_delay_reg_val & 0xFF), rw=1, flag=i2c.AMS_CAMERA_CID_MIRA220_REG_FLAG_ILLUM_DELAY)
+    # Enable illumination trigger
+    i2c.rwReg(addr=0x00, value=0x00, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA220_REG_FLAG_ILLUM_TRIG_ON)
 
     last_time = time.time()
 
