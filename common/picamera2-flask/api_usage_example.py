@@ -18,10 +18,18 @@ controls['exposure_us']=3000
 r = requests.put(f'http://{pi_address}:8000/controls', json = controls)
 print(r.content)
 
+# r = requests.get(f'http://{pi_address}:8000/index')
+# print(r.content)
+
+
+r = requests.get(f'http://{pi_address}:8000/capturesimple')
+print(r.content)
+
+
 r = requests.get(f'http://{pi_address}:8000/uploads/imgraw0.tiff')
 print(r)
 
-r = requests.get(f'http://{pi_address}:8000/capture')
+
 i = Image.open(BytesIO(r.content))
 
 

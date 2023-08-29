@@ -143,10 +143,10 @@ class Camera():
                 self.picam2.stop_recording()
             except Exception as e:
                 print(e)
-amount = 1
-download_option = 'tiff'
 cam_info = ''
-UPLOAD_FOLDER = '.'
+UPLOAD_FOLDER = pathlib.Path('./images')
+UPLOAD_FOLDER.mkdir(parents=False, exist_ok = True)
+
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 
 # app = Flask(__name__)
@@ -333,24 +333,11 @@ def captureImage2(camera):
 from zipfile import ZipFile
 import os
 
-def get_all_file_paths(directory):
-    # initializing empty file paths list
-    file_paths = []
-    # crawling through directory and subdirectories
-    for root, directories, files in os.walk(directory):
-        for filename in files:
-            # join the two strings in order to form the full filepath.
-            filepath = os.path.join(root, filename)
-            file_paths.append(filepath)
-
-    # returning all file paths
-    return file_paths		
-
-
 
 def captureImageRaw(camera):
     request = camera.picam2.capture_request()
-    global amount
+    amount = camera.controls['amount']
+    global UPLOAD_FOLDER
     # request.save("main", "test3.jpg")
     imgs=[]
     for i in range(amount):
@@ -360,61 +347,37 @@ def captureImageRaw(camera):
         new = metadata['SensorTimestamp']
         print(f'timestamp meta {metadata}')
         pilim = Image.fromarray(image)
-        pilim.save(f"imgraw{i}.tiff")
+        filename = str(f"{UPLOAD_FOLDER}/imgraw{i}.tiff")
+        pilim.save(filename)
     # images = camera.picam2.capture_arrays(["raw","raw"])
 
     print(imgs)
-    np.savez('img_array',imgs)
+    np.savez(UPLOAD_FOLDER/'img_array',imgs)
 
     request.release()
 
-    directory = './'
 
     # calling function to get all file paths in the directory
-    file_paths = get_all_file_paths(directory)
 
-    file_paths = [f for f in pathlib.Path().glob("*.tiff")]    
+    file_paths = [f for f in UPLOAD_FOLDER.glob("*.tiff")]    
 
     print('Following files will be zipped:')
     for file_name in file_paths:
         print(file_name)
 
     # writing files to a zipfile
-    with ZipFile('my_python_files.zip','w') as zip:
+    with ZipFile(UPLOAD_FOLDER/'my_images.zip','w') as zip:
         # writing each file one by one
         for file in file_paths:
             zip.write(file)
+    # for f in file_paths:
+    #     os.remove(f)
 
     print('All files zipped successfully!')		
 
     print('raw caputre successful')
     return 'done'		
 
-    # raw_format = SensorFormat('SGRBG10_CSI2P')
-    # print(raw_format)
-    # raw_format.packing = None
-    # config = picam2.create_still_configuration(raw={"format": raw_format.format}, buffer_count=2)
-    # picam2.configure(config)
-    # images = []
-    # picam2.set_controls({"ExposureTime": exposure_time , "AnalogueGain": 1.0, "FrameRate":framerate})
-    # picam2.start()
-    # old = 0
-    # new = 0
-    # # The raw images can be added directly using 2-byte pixels.
-    # for i in range(num_frames):
-    #     images.append(picam2.capture_array("raw").view(np.uint16))
-    #     metadata = picam2.capture_metadata()
-    #     new = metadata['SensorTimestamp']
-    #     diff = new - old 
-    #     old = new
-    #     print(metadata['SensorTimestamp'])
-    #     print(diff/1000)
-
-    # print(images[0].shape)
-    # print(images[0])
-    # for index, image in enumerate(images):
-    #     pilim = Image.fromarray(image)
-    #     pilim.save(f"imgraw{index}.tiff")
 
 
 def captureImage(camera):
@@ -465,16 +428,13 @@ def index():
     global camera
     form = ControlForm(request.form)
     # form = RegistrationForm(request.form)
-    global download_option
-    global amount
-    global cam_info 
     if request.method == 'POST' and form.validate():
-
+        camera.controls['amount']=int(form.amount.data)
+        camera.controls['download_option']=str(form.download_option.data)
         camera.controls['exposure_us']=int(form.exposure.data)
         camera.controls['gain']=int(form.analog_gain.data)
         camera.controls['bitmode']=int(form.bitmode.data)
         camera.controls['illumination']=form.illumination.data
-        camera.controls['amount']=int(form.amount.data)
         print(f'form {form.data}')
 
         if form.data["download"] == True:
@@ -510,12 +470,14 @@ def capturesimple():
 @app.route('/capture')
 def capture():
     global camera
+    download_option = camera.controls['download_option']
     print('capture routinge')
     outcome = captureImageRaw(camera)
     # return jsonify(outcome)
     # return redirect(url_for('download_file', name='imgraw.tiff'))
     if download_option == 'zip':
-        return redirect(url_for('download_file', name='my_python_files.zip'))
+        print('zip dl option')
+        return redirect(url_for('download_file', name='my_images.zip'))
     elif download_option == 'npz':
         return redirect(url_for('download_file', name='img_array.npz'))
     else:
