@@ -123,7 +123,7 @@ class v4l2Ctrl:
     def __init__(self, sensor, printFunc=print):
         self.fname = "/dev/v4l-subdev0"
         self.pr = printFunc
-        self.sensor = sensor
+        self.sensor = str(sensor).lower()
         if self.sensor == "mira220":
             self.reg_flag_for_read = self.AMS_CAMERA_CID_MIRA220_REG_FLAG_FOR_READ
         elif self.sensor == "mira050":

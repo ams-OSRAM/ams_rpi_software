@@ -78,37 +78,58 @@ class Camera():
             print('setting controls')
             self.picam2.set_controls({"ExposureTime": camera.controls['exposure_us'], "AnalogueGain": camera.controls['gain']})
         print(camera.controls['illumination'])
-        # if camera.controls['illumination']=='on': 
-        #     print('enable illum')
-        #     self.set_illum_trigger( en_trig_illum = True)
-        # else:  
-        #     print('disable illum')
-        #     self.set_illum_trigger( en_trig_illum = False)
+        if  camera.cam_info['Model']=='mira050':
+            if camera.controls['illumination']=='on': 
+                print('enable illum')
+                #     self.set_illum_trigger( en_trig_illum = True)
+                i2c = v4l2Ctrl(sensor="mira050", printFunc=print)
+                i2c.rwReg(addr=0x00, value=0x00, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_ILLUM_TRIG_ON)
+                i2c.rwReg(addr=0x00, value=0x00, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_ILLUM_EXP_T_ON)
+            else:  
+                print('disable illum')
+                i2c = v4l2Ctrl(sensor="mira050", printFunc=print)
 
-    def write_register(self, addr, val):
-        i2c = v4l2Ctrl(sensor="mira050", printFunc=print)
-        result=i2c.rwReg(addr=addr, value=val, rw=1, flag=0)
-        print(f'write {addr } to {val} with result {result}')
+                # self.set_illum_trigger( en_trig_illum = False)
+                i2c.rwReg(addr=0x00, value=0x00, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_ILLUM_TRIG_OFF)
+        elif  camera.cam_info['Model']=='mira016':
+            if camera.controls['illumination']=='on': 
+                print('enable illum')
+                #     self.set_illum_trigger( en_trig_illum = True)
+                i2c = v4l2Ctrl(sensor="MIRA016", printFunc=print)
+                i2c.rwReg(addr=0x00, value=0x00, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA016_REG_FLAG_ILLUM_TRIG_ON)
+                i2c.rwReg(addr=0x00, value=0x00, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA016_REG_FLAG_ILLUM_EXP_T_ON)
+            else:  
+                print('disable illum')
+                i2c = v4l2Ctrl(sensor="MIRA016", printFunc=print)
 
-    def set_illum_trigger(self, en_trig_illum=True, illum_width_us=None, illum_delay_us=0):
-        # exp_val = i2c.rwReg(addr=addr, value=val, rw=1, flag=0)
-        data_rate = 1000
-        if not illum_width_us:
-            illum_width_us=camera.controls['exposure_us']
-        illum_width = int(illum_width_us * data_rate / 8)
-        illum_delay = int(illum_delay_us + 2**19)
-        split_value = lambda x, y: x >> (8*y) & 255
-        self.write_register(0xe004,  0)
-        self.write_register(0xe000,  1)
-        self.write_register(0x001C, int(en_trig_illum))
+                # self.set_illum_trigger( en_trig_illum = False)
+                i2c.rwReg(addr=0x00, value=0x00, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_ILLUM_TRIG_OFF)
 
-        self.write_register(0x0019, split_value(illum_width, 2))
-        self.write_register(0x001A, split_value(illum_width, 1))
-        self.write_register(0x001B, split_value(illum_width, 0))
 
-        self.write_register(0x0016, split_value(illum_delay, 2))
-        self.write_register(0x0017, split_value(illum_delay, 1))
-        self.write_register(0x0018, split_value(illum_delay, 0))
+    # def write_register(self, addr, val):
+    #     i2c = v4l2Ctrl(sensor="mira050", printFunc=print)
+    #     result=i2c.rwReg(addr=addr, value=val, rw=1, flag=0)
+    #     print(f'write {addr } to {val} with result {result}')
+
+    # def set_illum_trigger(self, en_trig_illum=True, illum_width_us=None, illum_delay_us=0):
+    #     # exp_val = i2c.rwReg(addr=addr, value=val, rw=1, flag=0)
+    #     data_rate = 1000
+    #     if not illum_width_us:
+    #         illum_width_us=camera.controls['exposure_us']
+    #     illum_width = int(illum_width_us * data_rate / 8)
+    #     illum_delay = int(illum_delay_us + 2**19)
+    #     split_value = lambda x, y: x >> (8*y) & 255
+    #     self.write_register(0xe004,  0)
+    #     self.write_register(0xe000,  1)
+    #     self.write_register(0x001C, int(en_trig_illum))
+
+    #     self.write_register(0x0019, split_value(illum_width, 2))
+    #     self.write_register(0x001A, split_value(illum_width, 1))
+    #     self.write_register(0x001B, split_value(illum_width, 0))
+
+    #     self.write_register(0x0016, split_value(illum_delay, 2))
+    #     self.write_register(0x0017, split_value(illum_delay, 1))
+    #     self.write_register(0x0018, split_value(illum_delay, 0))
 
 
 
@@ -292,8 +313,7 @@ def genFrames(camera):
     camera.update_controls()
     # camera.picam2.set_controls({"ExposureTime": camera.controls['exposure_us'], "AnalogueGain": camera.controls['gain']})
     camera.start_recording(output)
-    if camera.cam_info['Model']=='mira050':
-        camera.set_illum_trigger( en_trig_illum = True)
+
     while True:
         with output.condition:
             output.condition.wait()
