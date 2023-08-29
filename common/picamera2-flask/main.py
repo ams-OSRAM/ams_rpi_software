@@ -1,27 +1,31 @@
 #!/usr/bin/env python
-
-from picamera2 import Picamera2
-from zipfile import ZipFile
-from picamera2.encoders import JpegEncoder
-from picamera2.outputs import FileOutput
-# from libcamera import Transform
 import io
 import numpy as np
-from PIL import Image
 import pathlib
-from threading import Condition
 import time
 import os
+from threading import Condition
+from picamera2 import Picamera2
+from picamera2.encoders import JpegEncoder
+from picamera2.outputs import FileOutput
 from picamera2.sensor_format import SensorFormat
-
-from flask import Flask, jsonify, redirect, render_template, Response
-import os
-from flask import Flask, flash, request, redirect, url_for
+from zipfile import ZipFile
+from PIL import Image
+from flask.views import MethodView
+from flask import Flask, jsonify, redirect, render_template, Response, flash, request, url_for
 from werkzeug.utils import secure_filename
 from wtforms import Form, BooleanField, StringField, PasswordField, validators, DecimalRangeField, DecimalField, SubmitField , IntegerField, SelectField
 
 
-class Camera:
+import sys
+sys.path.append("../common")
+sys.path.append("../../common")
+
+from driver_access import v4l2Ctrl
+from config_parser import ConfigParser
+
+
+class Camera():
     """
     states:
     open
@@ -32,9 +36,11 @@ class Camera:
     def __del__(self):
         self.close()
 
-    def __init__(self):
+    def __init__(self, exposure_us = 1000, gain = 1, bitmode = 12, illumination=True):
+        self.controls = {'exposure_us' : exposure_us, 'gain' : gain, 'bitmode' : bitmode, 'illumination': True}
         self.picam2 = None
         self.cam_info = None
+    
     def open(self):
         if not(self.picam2):
             self.picam2 = Picamera2()
@@ -67,6 +73,44 @@ class Camera:
             if self.picam2.is_open:
                 self.picam2.close()
         
+    def update_controls(self):
+        if self.is_opened:
+            print('setting controls')
+            self.picam2.set_controls({"ExposureTime": camera.controls['exposure_us'], "AnalogueGain": camera.controls['gain']})
+        print(camera.controls['illumination'])
+        # if camera.controls['illumination']=='on': 
+        #     print('enable illum')
+        #     self.set_illum_trigger( en_trig_illum = True)
+        # else:  
+        #     print('disable illum')
+        #     self.set_illum_trigger( en_trig_illum = False)
+
+    def write_register(self, addr, val):
+        i2c = v4l2Ctrl(sensor="mira050", printFunc=print)
+        result=i2c.rwReg(addr=addr, value=val, rw=1, flag=0)
+        print(f'write {addr } to {val} with result {result}')
+
+    def set_illum_trigger(self, en_trig_illum=True, illum_width_us=None, illum_delay_us=0):
+        # exp_val = i2c.rwReg(addr=addr, value=val, rw=1, flag=0)
+        data_rate = 1000
+        if not illum_width_us:
+            illum_width_us=camera.controls['exposure_us']
+        illum_width = int(illum_width_us * data_rate / 8)
+        illum_delay = int(illum_delay_us + 2**19)
+        split_value = lambda x, y: x >> (8*y) & 255
+        self.write_register(0xe004,  0)
+        self.write_register(0xe000,  1)
+        self.write_register(0x001C, int(en_trig_illum))
+
+        self.write_register(0x0019, split_value(illum_width, 2))
+        self.write_register(0x001A, split_value(illum_width, 1))
+        self.write_register(0x001B, split_value(illum_width, 0))
+
+        self.write_register(0x0016, split_value(illum_delay, 2))
+        self.write_register(0x0017, split_value(illum_delay, 1))
+        self.write_register(0x0018, split_value(illum_delay, 0))
+
+
 
     def start_recording(self,output):
         self.picam2.start_recording(JpegEncoder(), FileOutput(output))
@@ -80,8 +124,6 @@ class Camera:
                 print(e)
 amount = 1
 download_option = 'tiff'
-expval = 1000
-bitmode = 12
 cam_info = ''
 UPLOAD_FOLDER = '.'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
@@ -98,16 +140,52 @@ users = []
     
 camera = Camera()
 # camera.open()
+
+class ControlGroupAPI(MethodView):
+    def __init__(self,camera):
+        self.camera = camera
+    def get(self):
+        return jsonify(camera.controls)
+    def put(self):
+        print('put')
+        print(request.json)
+        self.camera.controls = request.json
+        self.camera.update_controls()
+        print(request.json['exposure_us'])
+        return request.json
+        # return 'hello put'
+
+class ControlItemAPI(MethodView):
+    def __init__(self,camera):
+        self.camera = camera
+    def get(self, id):
+        return jsonify(camera.controls[id])
+    def put(self,id):
+        print('put')
+        data= int(request.get_data())
+        self.camera.controls[id] = data
+        self.camera.update_controls()
+        return jsonify(data)
+        # return 'hello put'
+
+def register_api(app: Flask, camera: Camera , name: str):
+    item = ControlItemAPI.as_view(f"{name}-item", camera)
+    group = ControlGroupAPI.as_view(f"{name}-group", camera)
+    app.add_url_rule(f"/{name}/<id>", view_func=item)
+    app.add_url_rule(f"/{name}/", view_func=group)
+register_api(app, camera, 'controls')
+
 class ControlForm(Form):
     # def __init__(self, form, expmin, expmax):
-    exposure = DecimalField('Exposure (us)', default = 1000, validators=[validators.NumberRange(min=10, max=10000)])
+    exposure = DecimalField('Exposure (us)', default = 1000, validators=[validators.NumberRange(min=10, max=100000)])
     analog_gain = SelectField('Analog gain', default = 1, choices=[1])
-    bit_mode = SelectField('Sensor ADC bitmode', default = 12, choices=[8,10,12])
+    bitmode = SelectField('Sensor ADC bitmode', default = 12, choices=[10,12])
+    illumination = SelectField('Illumination', default = 'off', choices=['on','off'])
 
     amount = IntegerField('Number of images to capture', default = 1, validators=[validators.NumberRange(min=1, max=20)])
     download_option = SelectField('Download option', default = 'tiff', choices=[('tiff', 'tiff single image'), ('npz', 'numpy array (multi)'), ('zip', 'zip of tiff files (multi)')])
 
-    download = SubmitField(label = 'Download image')
+    download = SubmitField(label = 'Download image and stop')
     apply = SubmitField(label = 'Apply settings')
 
         #     print(camera.picam2.camera_controls["ExposureTime"][0])        
@@ -194,10 +272,10 @@ def genFrames(camera):
     # camera.open()
     camera.close()
     time.sleep(.1)
-    global bitmode
     camera.open()
     time.sleep(.1)
     output = StreamingOutput()
+    bitmode = camera.controls['bitmode']
     if bitmode == 12:
         raw_format = SensorFormat('SGRBG12_CSI2P')
     elif bitmode ==10:
@@ -211,8 +289,11 @@ def genFrames(camera):
     
     # config = picam2.create_still_configuration(raw={"format": raw_format.format}, buffer_count=2)
     camera.picam2.configure(video_config)
-    camera.picam2.set_controls({"ExposureTime": expval, "AnalogueGain": 1.0})
+    camera.update_controls()
+    # camera.picam2.set_controls({"ExposureTime": camera.controls['exposure_us'], "AnalogueGain": camera.controls['gain']})
     camera.start_recording(output)
+    if camera.cam_info['Model']=='mira050':
+        camera.set_illum_trigger( en_trig_illum = True)
     while True:
         with output.condition:
             output.condition.wait()
@@ -287,6 +368,8 @@ def captureImageRaw(camera):
     print('All files zipped successfully!')		
 
     print('raw caputre successful')
+    return 'done'		
+
     # raw_format = SensorFormat('SGRBG10_CSI2P')
     # print(raw_format)
     # raw_format.packing = None
@@ -363,17 +446,17 @@ def index():
     form = ControlForm(request.form)
     # form = RegistrationForm(request.form)
     global download_option
-    global expval
     global amount
-    global bitmode
     global cam_info 
     if request.method == 'POST' and form.validate():
-        amount = int(form.amount.data) #nr of images captured
-        expval = int(form.exposure.data)
-        bitmode = int(form.bit_mode.data)
-        download_option = str(form.download_option.data)
 
+        camera.controls['exposure_us']=int(form.exposure.data)
+        camera.controls['gain']=int(form.analog_gain.data)
+        camera.controls['bitmode']=int(form.bitmode.data)
+        camera.controls['illumination']=form.illumination.data
+        camera.controls['amount']=int(form.amount.data)
         print(f'form {form.data}')
+
         if form.data["download"] == True:
             print('download button pressed')
             filename = 'requirements.txt'
@@ -395,6 +478,14 @@ def index():
     #         pass # do something else
     return render_template('index.html', form=form, caminfo=camera.cam_info )  # you can customze index.html here
 
+
+
+@app.route('/capturesimple')
+def capturesimple():
+    global camera
+    print('capture routinge')
+    outcome = captureImageRaw(camera)
+    return outcome
 
 @app.route('/capture')
 def capture():
