@@ -15,7 +15,7 @@ from driver_access import v4l2Ctrl
 if __name__ == "__main__":
 
     # Initialize classes
-    input_camera_stream = CameraStreamInput(width=572, height=768, AeEnable=True)
+    input_camera_stream = CameraStreamInput(width=400, height=400, AeEnable=False, FrameRate=100.0, bit_depth=12, ExposureTime=1000, AnalogueGain=1.0)
     i2c = v4l2Ctrl(sensor="mira016", printFunc=print)
 
     # Other I2C devices are powered on, but Mira sensor itself is not powered on until calling start().
@@ -48,9 +48,9 @@ if __name__ == "__main__":
         # Configure illumination trigger width to track exposure time
         i2c.rwReg(addr=0x00, value=0x00, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA016_REG_FLAG_ILLUM_EXP_T_ON)
     else:
-        # Manually set width to 5ms for 100fps.
-        illum_width_us = 5000
-        illum_width_reg_val = np.uint32(illum_width_us * 1000 / 8 )
+        # Manually set width to 1ms for exposure time of 1ms
+        illum_width_us = 1000
+        illum_width_reg_val = np.uint32(illum_width_us * 900 / 8 )
         # Write 24 bits of ILLUM_WIDTH. 8 LSB of ILLUM_WIDTH maps to value; 16 MSB of ILLUM_WIDTH maps to addr.
         i2c.rwReg(addr=((illum_width_reg_val >> 8) & 0xFFFF), value=(illum_width_reg_val & 0xFF), rw=1, flag=i2c.AMS_CAMERA_CID_MIRA016_REG_FLAG_ILLUM_WIDTH)
         # Disable illumination trigger tracking exposure time
