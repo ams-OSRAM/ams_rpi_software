@@ -15,7 +15,7 @@ from driver_access import v4l2Ctrl
 if __name__ == "__main__":
 
     # Initialize classes
-    input_camera_stream = CameraStreamInput(width=960, height=720, AeEnable=True)
+    input_camera_stream = CameraStreamInput(width=960, height=720, AeEnable=False, FrameRate=30.0, bit_depth=12, ExposureTime=1000, AnalogueGain=1.0)
     i2c = v4l2Ctrl(sensor="mira220", printFunc=print)
 
     # Other I2C devices are powered on, but Mira sensor itself is not powered on until calling start().
