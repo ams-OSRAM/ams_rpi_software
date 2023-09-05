@@ -112,13 +112,13 @@ class Camera():
             self.picam2.set_controls({"ExposureTime": int(self.controls.exposure_us), "AnalogueGain": int(self.controls.analog_gain)})
         print(self.controls.illumination)
         
-        if self.controls.bitmode == 12:
-            self.raw_format = SensorFormat('SGRBG12_CSI2P')
-        elif self.controls.bitmode ==10:
-            self.raw_format = SensorFormat('SGRBG10_CSI2P')
-        else:
-            self.raw_format = SensorFormat('SGRBG8_CSI2P')
-        self.raw_format.packing = None    
+        # if self.controls.bitmode == 12:
+        #     self.raw_format = SensorFormat('SGRBG12_CSI2P')
+        # elif self.controls.bitmode ==10:
+        #     self.raw_format = SensorFormat('SGRBG10_CSI2P')
+        # else:
+        #     self.raw_format = SensorFormat('SGRBG8_CSI2P')
+        # self.raw_format.packing = None    
 
         if  self.cam_info['Model']=='mira050':
             if self.controls.illumination=='on': 

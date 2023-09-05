@@ -147,16 +147,18 @@ def captureImageRaw(videostream=False):
             camera.picam2.stop()
         except RuntimeError:
             log.debug('already started')
-
         still_config = camera.picam2.create_still_configuration(main={
-                    "size": camera.size}, raw=camera.controls.mode, buffer_count=2)
+                "size": camera.sensor_modes[int(camera.controls.mode)]['size']}, raw={"format": camera.sensor_modes[int(camera.controls.mode)]['format'], 'size': camera.sensor_modes[int(camera.controls.mode)]['size']}, buffer_count=2)
+
+        # still_config = camera.picam2.create_still_configuration(main={
+        #             "size": camera.size}, raw=camera.controls.mode, buffer_count=2)
         camera.picam2.configure(still_config)
         try:
             camera.picam2.start()
         except RuntimeError:
             log.debug('already started')
     request = camera.picam2.capture_request()
-    amount = camera.controls['amount']
+    amount = camera.controls.amount
     camera.update_controls()
 
     imgs=[]
@@ -178,6 +180,7 @@ def captureImageRaw(videostream=False):
     for file_name in file_paths:
             log.debug(f'zip {file_name}')
 
+    #TODO this does not take into account the amount properly
     # writing files to a zipfile
     with ZipFile(UPLOAD_FOLDER/'my_images.zip','w') as zip:
         # writing each file one by one
@@ -206,13 +209,15 @@ def index():
         print(mode)
 
     form.mode.choices = [(ind, f"{mode['bit_depth']} bit {mode['size']}") for ind,mode  in enumerate(camera.sensor_modes)]
+    current_mode = camera.sensor_modes[int(camera.controls.mode)]
+    min = current_mode['exposure_limits'][0]
+    max = current_mode['exposure_limits'][1]
 
     if camera.cam_info['Model']=='mira220':
-        form.exposure_us.validators[0]= validators.NumberRange(min=10, max=20000)
+        form.exposure_us.validators[0]= validators.NumberRange(min=min, max=max)
         form.analog_gain.choices=[1]
 
     elif camera.cam_info['Model']=='mira050':
-        form.exposure_us.validators[0]= validators.NumberRange(min=10, max=20000)
         form.analog_gain.choices=[1,2,4]
 
 
@@ -257,7 +262,7 @@ def index():
 @app.route('/capture')
 def capture():
     global camera
-    download_option = camera.controls['download_option']
+    download_option = camera.controls.download_option
     log.debug('capture routinge')
     outcome = captureImageRaw()
     if not camera.is_opened:
