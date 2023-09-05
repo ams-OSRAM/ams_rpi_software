@@ -25,6 +25,19 @@ class StreamingOutput(io.BufferedIOBase):
 
 
 
+class Controls():
+    def __init__(self) -> None:
+        self.amount = 1
+        self.exposure_us = 10000
+        self.analog_gain = 1
+        self.illumination = True
+        self.mode = 0
+
+    @property
+    def json(self):
+        return self.__dict__
+
+
 class Camera():
     """
     states:
@@ -47,18 +60,23 @@ class Camera():
     def __del__(self):
         self.close()
 
-    def __init__(self, exposure_us = 1000, gain = 1, bitmode = 12, illumination=True):
-        self.controls = {'amount': 1, 'exposure_us' : exposure_us, 'gain' : gain, 'bitmode' : bitmode, 'illumination': illumination}
+    def __init__(self, exposure_us = 1000, analog_gain = 1, bitmode = 12, illumination=True):
+        self.controls = Controls() #{'amount': 1, 'exposure_us' : exposure_us, 'gain' : gain, 'bitmode' : bitmode, 'illumination': illumination}
         self.picam2 = None
+        self.form_data = None
         self.cam_info = None
         self.raw_format = 'SGRBG10_CSI2P'
         log.debug("cam class init")
-
     
     def open(self):
         if not(self.picam2):
             self.picam2 = Picamera2()
             self.cam_info = self.picam2.camera_properties
+            self.sensor_modes = self.picam2.sensor_modes
+            log.debug(f"cam info {self.cam_info}")
+            log.debug(f"cam modes {self.sensor_modes}")
+
+
             pixelsize = self.picam2.camera_properties['PixelArraySize']
             self.size = (pixelsize[0],pixelsize[1])
         if self.is_started:
@@ -89,20 +107,21 @@ class Camera():
         
     def update_controls(self):
         if self.is_opened:
-            print('setting controls')
-            self.picam2.set_controls({"ExposureTime": self.controls['exposure_us'], "AnalogueGain": self.controls['gain']})
-        print(self.controls['illumination'])
+            print('setting controls') 
+            print(self.controls.exposure_us)
+            self.picam2.set_controls({"ExposureTime": int(self.controls.exposure_us), "AnalogueGain": int(self.controls.analog_gain)})
+        print(self.controls.illumination)
         
-        if self.controls['bitmode'] == 12:
+        if self.controls.bitmode == 12:
             self.raw_format = SensorFormat('SGRBG12_CSI2P')
-        elif self.controls['bitmode'] ==10:
+        elif self.controls.bitmode ==10:
             self.raw_format = SensorFormat('SGRBG10_CSI2P')
         else:
             self.raw_format = SensorFormat('SGRBG8_CSI2P')
         self.raw_format.packing = None    
 
         if  self.cam_info['Model']=='mira050':
-            if self.controls['illumination']=='on': 
+            if self.controls.illumination=='on': 
                 print('enable illum')
                 #     self.set_illum_trigger( en_trig_illum = True)
                 i2c = v4l2Ctrl(sensor="mira050", printFunc=print)
@@ -115,7 +134,7 @@ class Camera():
                 # self.set_illum_trigger( en_trig_illum = False)
                 i2c.rwReg(addr=0x00, value=0x00, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_ILLUM_TRIG_OFF)
         elif  self.cam_info['Model']=='mira016':
-            if self.controls['illumination']=='on': 
+            if self.controls.illumination=='on': 
                 print('enable illum')
                 #     self.set_illum_trigger( en_trig_illum = True)
                 i2c = v4l2Ctrl(sensor="MIRA016", printFunc=print)

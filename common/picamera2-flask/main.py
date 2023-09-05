@@ -5,6 +5,7 @@ import pathlib
 import time
 import os
 import sys
+import json
 
 # importing required modules
 from zipfile import ZipFile
@@ -42,10 +43,10 @@ class ControlGroupAPI(MethodView):
     def __init__(self,camera):
         self.camera = camera
     def get(self):
-        return jsonify(camera.controls)
+        return jsonify(camera.controls.json)
     def put(self):
         log.debug("put request {request.json}")
-        self.camera.controls = request.json #TODO make a setter
+        self.camera.controls.json = request.json #TODO make a setter
         self.camera.update_controls()
         return request.json
         # return 'hello put'
@@ -54,12 +55,12 @@ class ControlItemAPI(MethodView):
     def __init__(self,camera):
         self.camera = camera
     def get(self, id):
-        return jsonify(camera.controls[id])
+        return jsonify(camera.controls.json[id])
     def put(self,id):
         log.debug(f"put {__class__} ")
 
         data= int(request.get_data())
-        self.camera.controls[id] = data
+        self.camera.controls.json[id] = data
         self.camera.update_controls()
         return jsonify(data)
         # return 'hello put'
@@ -73,9 +74,11 @@ register_api(app, camera, 'controls')
 
 class ControlForm(Form):
     # def __init__(self, form, expmin, expmax):
-    exposure = DecimalField('Exposure (us)', default = 1000, validators=[validators.NumberRange(min=10, max=100000)])
+    exposure_us = DecimalField('Exposure (us)', default = 1000, validators=[validators.NumberRange(min=10, max=100000)])
     analog_gain = SelectField('Analog gain', default = 1, choices=[1, 2, 4])
-    bitmode = SelectField('Sensor ADC bitmode', default = 12, choices=[8, 10,12])
+    # bitmode = SelectField('Sensor ADC bitmode', default = 12, choices=[8, 10,12])
+    mode = SelectField('Sensor mode', default = None, choices=[])
+
     illumination = SelectField('Illumination', default = 'off', choices=['on','off'])
 
     amount = IntegerField('Number of images to capture', default = 1, validators=[validators.NumberRange(min=1, max=20)])
@@ -100,10 +103,12 @@ def genFrames(camera, only_configure=False):
     # time.sleep(.1)
     # camera.open()
     time.sleep(.1)
-    
-
+    log.info(f'camea controls mode {camera.controls.mode} ----------------------------------------')
     video_config = camera.picam2.create_video_configuration(main={
-                "size": camera.size}, raw={"format": camera.raw_format}, buffer_count=2)
+                "size": camera.sensor_modes[int(camera.controls.mode)]['size']}, raw={"format": camera.sensor_modes[int(camera.controls.mode)]['format'], 'size': camera.sensor_modes[int(camera.controls.mode)]['size']}, buffer_count=2)
+
+    # video_config = camera.picam2.create_video_configuration(main={
+    #             "size": camera.size}, raw={"format": camera.raw_format}, buffer_count=2)
 
     # config = picam2.create_still_configuration(raw={"format": raw_format.format}, buffer_count=2)
     camera.stop_recording()
@@ -144,7 +149,7 @@ def captureImageRaw(videostream=False):
             log.debug('already started')
 
         still_config = camera.picam2.create_still_configuration(main={
-                    "size": camera.size}, raw={"format": camera.raw_format}, buffer_count=2)
+                    "size": camera.size}, raw=camera.controls.mode, buffer_count=2)
         camera.picam2.configure(still_config)
         try:
             camera.picam2.start()
@@ -194,17 +199,37 @@ def indexhtml():
 @app.route('/', methods=['GET', 'POST'])
 def index():
     global camera
+    camera.cam_info
     form = ControlForm(request.form)
-    # form = RegistrationForm(request.form)
-    if request.method == 'POST' and form.validate():
-        camera.controls['amount']=int(form.amount.data)
-        camera.controls['download_option']=str(form.download_option.data)
-        camera.controls['exposure_us']=int(form.exposure.data)
-        camera.controls['gain']=int(form.analog_gain.data)
-        camera.controls['bitmode']=int(form.bitmode.data)
-        camera.controls['illumination']=form.illumination.data
-        log.debug(f'form {form.data}')
 
+    for mode in camera.sensor_modes:
+        print(mode)
+
+    form.mode.choices = [(ind, f"{mode['bit_depth']} bit {mode['size']}") for ind,mode  in enumerate(camera.sensor_modes)]
+
+    if camera.cam_info['Model']=='mira220':
+        form.exposure_us.validators[0]= validators.NumberRange(min=10, max=20000)
+        form.analog_gain.choices=[1]
+
+    elif camera.cam_info['Model']=='mira050':
+        form.exposure_us.validators[0]= validators.NumberRange(min=10, max=20000)
+        form.analog_gain.choices=[1,2,4]
+
+
+    # form.bitmode.choices = [8,10]
+    if request.method == 'POST' and form.validate():
+        form.populate_obj(camera.controls)
+        print(f'form data {camera.controls.json}')
+        print(f'form data type {json.loads(camera.controls.mode)}')
+
+        # camera.controls['amount']=int(form.amount.data)
+        # camera.controls['download_option']=str(form.download_option.data)
+        # camera.controls['exposure_us']=int(form.exposure.data)
+        # camera.controls['gain']=int(form.analog_gain.data)
+        # camera.controls['bitmode']=int(form.bitmode.data)
+        # camera.controls['illumination']=form.illumination.data
+        log.debug(f'form {form.data}')
+        camera.update_controls()
         if form.data["download"] == True:
             log.debug('download button pressed')
             filename = 'requirements.txt'
@@ -224,7 +249,7 @@ def index():
     #         pass # do something
     #     elif 'watch' in request.form:
     #         pass # do something else
-    return render_template('index.html', form=form, caminfo=camera.cam_info )  # you can customze index.html here
+    return render_template('index.html', form=form, caminfo=camera.sensor_modes[int(camera.controls.mode)] )  # you can customze index.html here
 
 
 

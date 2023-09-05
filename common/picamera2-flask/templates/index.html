@@ -25,10 +25,11 @@
         <h2>Image Sensor Controls</h2>
         <form method=post>
           <dl>
-            {{ render_field(form.exposure) }}
+            {{ render_field(form.exposure_us) }}
             {{ render_field(form.illumination) }}
             {{ render_field(form.analog_gain) }}
-            {{ render_field(form.bitmode) }}
+            {{ render_field(form.mode) }}
+
             {{ render_field(form.apply) }}
 
       </div>
