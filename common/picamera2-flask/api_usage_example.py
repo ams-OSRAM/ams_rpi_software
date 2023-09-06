@@ -22,7 +22,7 @@ print(r.content)
 # print(r.content)
 
 
-r = requests.get(f'http://{pi_address}:8000/capturesimple')
+r = requests.get(f'http://{pi_address}:8000/captureraw')
 print(r.content)
 
 

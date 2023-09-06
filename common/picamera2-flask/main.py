@@ -39,16 +39,46 @@ if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
 else:
     log.debug("Hello, world")
 
+class RegisterItemAPI(MethodView):
+    """
+    definition of register api
+    get: read a register
+    put: write a register
+    
+    """
+    def __init__(self,camera):
+        self.camera = camera
+    def get(self):
+        return jsonify(camera.registers.json)
+    def post(self):
+        log.debug("put request {request.json}")
+        self.camera.registers.json = request.json #TODO make a setter
+        # self.camera.update_controls()
+        return request.json
+        # return 'hello put'
+
 class ControlGroupAPI(MethodView):
     def __init__(self,camera):
         self.camera = camera
     def get(self):
         return jsonify(camera.controls.json)
     def put(self):
-        log.debug("put request {request.json}")
-        self.camera.controls.json = request.json #TODO make a setter
+        log.debug(f"put {__class__} ")
+        data= request.get_data()
+        print(data)
+        print(request.json)
+        dict_of_items = request.json
+        for key,value in dict_of_items.items():
+            self.camera.controls.json[key] = value
+
+        # self.camera.controls.json = request.json #TODO make a setter
+
+        # self.camera.controls.json = data
         self.camera.update_controls()
-        return request.json
+        return jsonify(camera.controls.json)
+
+        # self.camera.update_controls()
+        # return request.json
         # return 'hello put'
 
 class ControlItemAPI(MethodView):
@@ -65,12 +95,16 @@ class ControlItemAPI(MethodView):
         return jsonify(data)
         # return 'hello put'
 
-def register_api(app: Flask, camera: Camera , name: str):
+def register_api(app: Flask, camera: Camera , name: str, name2: str):
     item = ControlItemAPI.as_view(f"{name}-item", camera)
     group = ControlGroupAPI.as_view(f"{name}-group", camera)
+    regitem = RegisterItemAPI.as_view(f"{name2}-regitem", camera)
+
     app.add_url_rule(f"/{name}/<id>", view_func=item)
     app.add_url_rule(f"/{name}/", view_func=group)
-register_api(app, camera, 'controls')
+    app.add_url_rule(f"/{name2}/<id>", view_func=regitem)
+
+register_api(app, camera, 'controls', 'registers')
 
 class ControlForm(Form):
     # def __init__(self, form, expmin, expmax):
@@ -254,7 +288,7 @@ def index():
     #         pass # do something
     #     elif 'watch' in request.form:
     #         pass # do something else
-    return render_template('index.html', form=form, caminfo=camera.sensor_modes[int(camera.controls.mode)] )  # you can customze index.html here
+    return render_template('index.html', form=form, model = camera.cam_info['Model'], caminfo=camera.sensor_modes[int(camera.controls.mode)] )  # you can customze index.html here
 
 
 
