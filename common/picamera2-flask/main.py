@@ -270,7 +270,6 @@ def indexhtml():
 @app.route('/', methods=['GET', 'POST'])
 def index():
     global camera
-    camera.cam_info
     form = ControlForm(request.form)
 
     for mode in camera.sensor_modes:
