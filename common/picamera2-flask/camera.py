@@ -32,6 +32,7 @@ class Registers():
         self.power = True
         self.manual_mode = False
         self.illum = True
+        self.set_manual_mode(False)
     def set_power(self, enable=True):
         self.power = enable
         log.debug(f" {__class__} {enable}")
@@ -77,7 +78,7 @@ class Controls():
     def __init__(self) -> None:
         self.amount = 1
         self.exposure_us = 10000
-        self.analog_gain = 1
+        self.analog_gain = 1.0
         self.illumination = True
         self.mode = 0
 
@@ -114,14 +115,19 @@ class Camera():
         self.form_data = None
         self.cam_info = None
         self.raw_format = 'SGRBG10_CSI2P'
+        self.registers = Registers('mira220') #TODO
+
         log.debug("cam class init")
     
     def open(self):
         if not(self.picam2):
-            self.picam2 = Picamera2()
+            try:
+                self.picam2 = Picamera2()
+            except RuntimeError as e:
+                log.error(f"can't start picam2")
+                return
             self.cam_info = self.picam2.camera_properties
             self.sensor_modes = self.picam2.sensor_modes
-            self.registers = Registers(self.cam_info['Model'])
 
             log.debug(f"cam info {self.cam_info}")
             log.debug(f"cam modes {self.sensor_modes}")
@@ -159,7 +165,7 @@ class Camera():
         if self.is_opened:
             print('setting controls') 
             print(self.controls.exposure_us)
-            self.picam2.set_controls({"ExposureTime": int(self.controls.exposure_us), "AnalogueGain": int(self.controls.analog_gain)})
+            self.picam2.set_controls({"ExposureTime": int(self.controls.exposure_us), "AnalogueGain": float(self.controls.analog_gain)})
         print(self.controls.illumination)
         
         # if self.controls.bitmode == 12:

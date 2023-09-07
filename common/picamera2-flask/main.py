@@ -116,8 +116,14 @@ class ControlItemAPI(MethodView):
         return jsonify(camera.controls.json[id])
     def put(self,id):
         log.debug(f"put {__class__} ")
+        print(request.get_data())
+        if id == 'illumination':
+            data= bool(request.get_data())
+        elif id =='analog_gain':
+            data= float(request.get_data())
+        else:
+            data= int(request.get_data())
 
-        data= int(request.get_data())
         self.camera.controls.json[id] = data
         self.camera.update_controls()
         return jsonify(data)

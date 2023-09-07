@@ -18,6 +18,20 @@ controls['exposure_us']=3000
 r = requests.put(f'http://{pi_address}:8000/controls', json = controls)
 print(r.content)
 
+# replace single controls
+controls['exposure_us']=3000
+r = requests.put(f'http://{pi_address}:8000/controls/exposure_us', 'true')
+print(r)
+
+# replace single controls
+controls['analog_gain']=1.1
+r = requests.put(f'http://{pi_address}:8000/controls/', json = controls)
+print(r)
+
+# replace single controls
+controls['analog_gain']=1.1
+r = requests.put(f'http://{pi_address}:8000/controls/', json = controls)
+print(r)
 # r = requests.get(f'http://{pi_address}:8000/index')
 # print(r.content)
 
