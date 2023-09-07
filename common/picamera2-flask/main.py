@@ -48,13 +48,41 @@ class RegisterItemAPI(MethodView):
     """
     def __init__(self,camera):
         self.camera = camera
-    def get(self):
-        return jsonify(camera.registers.json)
-    def post(self):
-        log.debug("put request {request.json}")
-        self.camera.registers.json = request.json #TODO make a setter
+    def get(self, id):
+        ret = self.camera.registers.json[id]
+        return jsonify(ret)
+    def put(self, id):
+        log.debug(f"put {__class__} put ID: {id} ")
+        # data= request.get_data()
+        # print(data)
+        print(request.json)
+        dict_of_items = request.json
+        if id == 'read':
+            retval = self.camera.registers.read_register(int(dict_of_items['reg'],16))
+            return jsonify(retval)
+        if id == 'write':
+            retval = self.camera.registers.write_register(int(dict_of_items['reg'],16), int(dict_of_items['val'],16))
+            return jsonify(retval)
+        if id == 'manual_mode':
+            retval = self.camera.registers.set_manual_mode(int(dict_of_items['enable']))
+            return jsonify(retval)
+        if id == 'power':
+            retval = self.camera.registers.set_power(int(dict_of_items['enable']))
+            return jsonify(retval)
+        
+        # for key,value in dict_of_items.items():
+        # self.camera.controls.json[key] = value
+
+        # self.camera.controls.json = request.json #TODO make a setter
+
+        # self.camera.controls.json = data
         # self.camera.update_controls()
-        return request.json
+        # return jsonify(camera.controls.json)
+    # def post(self):
+    #     log.debug("put request {request.json}")
+    #     self.camera.registers.json = request.json #TODO make a setter
+    #     # self.camera.update_controls()
+    #     return request.json
         # return 'hello put'
 
 class ControlGroupAPI(MethodView):

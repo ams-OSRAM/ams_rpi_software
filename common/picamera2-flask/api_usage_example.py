@@ -21,17 +21,44 @@ print(r.content)
 # r = requests.get(f'http://{pi_address}:8000/index')
 # print(r.content)
 
-
+# CAPTURE IMAGE ARRAY
 r = requests.get(f'http://{pi_address}:8000/captureraw')
 print(r.content)
 
-
+# DOWNLOAD IMAGE ARRAY
 r = requests.get(f'http://{pi_address}:8000/uploads/imgraw0.tiff')
 print(r)
-
-
 i = Image.open(BytesIO(r.content))
-
-
 arr=np.asarray(i)
 print(arr)
+
+# READ REGISTER EXAMPLE
+message = {"reg": "0x100d"}
+r = requests.put(f'http://{pi_address}:8000/registers/read', json = message)
+print(r.content)
+
+# WRITE REGISTER EXAMPLE
+message = {"reg": "0x100d", "val": "0x2"}
+r = requests.put(f'http://{pi_address}:8000/registers/write', json = message)
+print(r.content)
+
+# ENABLE MANUAL MODE (disable reg upload and reset)
+message = {"enable": "1"}
+r = requests.put(f'http://{pi_address}:8000/registers/manual_mode', json = message)
+print(r.content)
+
+# DISABLE MANUAL MODE (disable reg upload and reset)
+message = {"enable": "0"}
+r = requests.put(f'http://{pi_address}:8000/registers/manual_mode', json = message)
+print(r.content)
+
+# DISABLE POWER EXAMPLE (reset pin)
+message = {"enable": "0"}
+r = requests.put(f'http://{pi_address}:8000/registers/power', json = message)
+print(r.content)
+
+# ENABLE POWER EXAMPLE
+message = {"enable": "1"}
+r = requests.put(f'http://{pi_address}:8000/registers/power', json = message)
+print(r.content)
+

@@ -26,47 +26,52 @@ class StreamingOutput(io.BufferedIOBase):
 
 
 class Registers():
-    def __init__(self) -> None:
+    def __init__(self, sensor) -> None:
         self.register_sequence = ['test']
-        self.i2c = v4l2Ctrl(sensor="mira050", printFunc=print)
-        self.power = 
-    def power(self, enable=True):
+        self.i2c = v4l2Ctrl(sensor, printFunc=print)
+        self.power = True
+        self.manual_mode = False
+        self.illum = True
+    def set_power(self, enable=True):
+        self.power = enable
         log.debug(f" {__class__} {enable}")
         if enable:
-            self.self.i2c.rwReg(addr=0x0, value=0, rw=1, flag=self.i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_POWER_ON)
+            self.i2c.rwReg(addr=0x0, value=0, rw=1, flag=self.i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_POWER_ON) #flags are same for all sensors
         else:
-            self.self.i2c.rwReg(addr=0x0, value=0, rw=1, flag=self.i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_POWER_OFF)
-    def manual_mode(self, enable = True):
+            self.i2c.rwReg(addr=0x0, value=0, rw=1, flag=self.i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_POWER_OFF)
+    def set_manual_mode(self, enable = False):
         log.debug(f" {__class__} {enable}")
+        self.manual_mode = enable
         if enable:
-            self.i2c.rwReg(addr=0x0, value=0, rw=1, flag=self.i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_REG_UP_ON)
-            self.i2c.rwReg(addr=0x0, value=0, rw=1, flag=self.i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_RESET_ON)
-        else:
             self.i2c.rwReg(addr=0x0, value=0, rw=1, flag=self.i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_REG_UP_OFF)
             self.i2c.rwReg(addr=0x0, value=0, rw=1, flag=self.i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_RESET_OFF)
-    def illum_trig(self, enable = True):
-        log.debug(f" {__class__} {enable}")
-        self.i2c.rwReg(addr=0x00, value=0x00, rw=1, flag=self.i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_ILLUM_TRIG_ON)
-        self.i2c.rwReg(addr=0x00, value=0x00, rw=1, flag=self.i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_ILLUM_EXP_T_ON)
+        else:
+            self.i2c.rwReg(addr=0x0, value=0, rw=1, flag=self.i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_REG_UP_ON)
+            self.i2c.rwReg(addr=0x0, value=0, rw=1, flag=self.i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_RESET_ON)
 
+    def set_illum_trig(self, enable = True):
+        log.debug(f" {__class__} {enable}")
+        self.illum = enable
+        if enable:
+            self.i2c.rwReg(addr=0x00, value=0x00, rw=1, flag=self.i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_ILLUM_TRIG_ON)
+            self.i2c.rwReg(addr=0x00, value=0x00, rw=1, flag=self.i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_ILLUM_EXP_T_ON)
+        else:
+            self.i2c.rwReg(addr=0x00, value=0x00, rw=1, flag=self.i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_ILLUM_TRIG_OFF)
+            self.i2c.rwReg(addr=0x00, value=0x00, rw=1, flag=self.i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_ILLUM_EXP_T_OFF)
+    
     def write_register(self, reg, val):
-        log.debug(f" {__class__} writereg {reg} {val}")
         exp_val = self.i2c.rwReg(addr=reg, value=val, rw=1, flag=0)
+        log.debug(f" {__class__} writereg {reg} {val} {exp_val}")
+
         return exp_val
     def read_register(self, reg):
         exp_val = self.i2c.rwReg(addr=reg, value=0, rw=0, flag=0)
         log.debug(f" {__class__} reg read {reg} {exp_val}")
         return exp_val
 
-
-
-        pass
-    i2c = v4l2Ctrl(sensor="mira050", printFunc=print)
-    i2c.rwReg(addr=0x00, value=0x00, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_ILLUM_TRIG_ON)
-    i2c.rwReg(addr=0x00, value=0x00, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_ILLUM_EXP_T_ON)
     @property
     def json(self):
-        return self.register_sequence
+        return self.__dict__
 
 class Controls():
     def __init__(self) -> None:
@@ -108,7 +113,6 @@ class Camera():
         self.picam2 = None
         self.form_data = None
         self.cam_info = None
-        self.registers = Registers()
         self.raw_format = 'SGRBG10_CSI2P'
         log.debug("cam class init")
     
@@ -117,6 +121,8 @@ class Camera():
             self.picam2 = Picamera2()
             self.cam_info = self.picam2.camera_properties
             self.sensor_modes = self.picam2.sensor_modes
+            self.registers = Registers(self.cam_info['Model'])
+
             log.debug(f"cam info {self.cam_info}")
             log.debug(f"cam modes {self.sensor_modes}")
 
