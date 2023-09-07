@@ -26,6 +26,9 @@ class StreamingOutput(io.BufferedIOBase):
 
 
 class Registers():
+    def __del__(self):
+        self.set_manual_mode(False)
+        self.close()
     def __init__(self, sensor) -> None:
         self.register_sequence = ['test']
         self.i2c = v4l2Ctrl(sensor, printFunc=print)

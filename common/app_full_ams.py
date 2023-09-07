@@ -59,7 +59,8 @@ def post_callback(request):
         aec_tab.colour_gain_b.setValue(metadata.get("ColourGains", [1.0, 1.0])[1])
     vid_tab.frametime = metadata["FrameDuration"]
 
-
+import os
+os.system("sudo systemctl stop picamera2-flask")
 # Set up camera and application
 picam2 = Picamera2()
 picam2.post_callback = post_callback
@@ -1238,5 +1239,9 @@ window.resize(1600, 600)
 window.setLayout(layout_h)
 
 if __name__ == "__main__":
+    # import subprocess
+    # subprocess.call(['sh', 'sudo systemctl stop picamera2-flask.service'])
+
     window.show()
     app.exec()
+    os.system("sudo systemctl start picamera2-flask")
