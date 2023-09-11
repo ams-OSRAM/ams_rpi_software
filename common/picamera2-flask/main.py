@@ -253,7 +253,7 @@ def captureImageRaw(videostream=False):
     with ZipFile(UPLOAD_FOLDER/'my_images.zip','w') as zip:
         # writing each file one by one
         for file in file_paths:
-            zip.write(file)
+            zip.write(file, arcname=file.name)
     # for f in file_paths:
     #     os.remove(f)
 
