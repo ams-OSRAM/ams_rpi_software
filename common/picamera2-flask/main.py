@@ -231,7 +231,10 @@ def captureImageRaw(videostream=False):
 
     imgs=[]
     for i in range(amount):
-        image = camera.picam2.capture_array("raw").view(np.uint16)
+        if int(camera.sensor_modes[int(camera.controls.mode)]['bit_depth'])==8:
+            image = camera.picam2.capture_array("raw").view(np.uint8)
+        else:
+            image = camera.picam2.capture_array("raw").view(np.uint16)
         imgs.append(image)
         metadata = camera.picam2.capture_metadata()
         new = metadata['SensorTimestamp']
