@@ -1,0 +1,48 @@
+; 
+; ams AG - Virtual COM port over USB
+; Communication Device Class driver installation file
+; (C) 2016 Copyright 
+;
+
+[Version] 
+Signature="$Windows NT$" 
+Class=Ports
+ClassGuid={4D36E978-E325-11CE-BFC1-08002BE10318} 
+Provider=%AMS% 
+CatalogFile=ams-raspi-cdc.cat
+
+; US date format
+DriverVer=01/14/2016,2.0.0.0 
+
+[Manufacturer] 
+%AMS%=DeviceList, NTx86, NTamd64, NTARM
+
+[DeviceList.NTx86] 
+%COMPOSITE%=AMSVCOM,USB\VID_1325&PID_0C08&MI_05
+
+[DeviceList.NTamd64] 
+%COMPOSITE%=AMSVCOM,USB\VID_1325&PID_0C08&MI_05
+
+[DeviceList.NTARM] 
+%COMPOSITE%=AMSVCOM,USB\VID_1325&PID_0C08&MI_05
+
+;------------------------------------------------------------------------------
+;  Windows 2000/XP Sections
+;------------------------------------------------------------------------------
+[AMSVCOM]
+include=mdmcpq.inf
+CopyFiles=FakeModemCopyFileSection
+AddReg=LowerFilterAddReg,SerialPropPageAddReg
+[AMSVCOM.Services]
+include = mdmcpq.inf
+AddService = usbser, 0x00000002, LowerFilter_Service_Inst
+; This adds the serial port property tab to the device properties dialog
+[SerialPropPageAddReg]
+HKR,,EnumPropPages32,,"MsPorts.dll,SerialPortPropPageProvider"
+
+;------------------------------------------------------------------------------
+;  String Definitions
+;------------------------------------------------------------------------------
+[Strings] 
+AMS         = "ams AG"
+COMPOSITE   = "ams USBSensorBridge CDC"
