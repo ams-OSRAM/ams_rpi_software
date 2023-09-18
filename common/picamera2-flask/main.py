@@ -173,7 +173,7 @@ def genFrames(camera, only_configure=False):
     time.sleep(.1)
     log.info(f'camea controls mode {camera.controls.mode} ----------------------------------------')
     video_config = camera.picam2.create_video_configuration(main={
-                "size": camera.sensor_modes[int(camera.controls.mode)]['size']}, raw={"format": camera.sensor_modes[int(camera.controls.mode)]['format'], 'size': camera.sensor_modes[int(camera.controls.mode)]['size']}, buffer_count=2)
+                "size": camera.sensor_modes[int(camera.controls.mode)]['size']}, raw={"format": camera.sensor_modes[int(camera.controls.mode)]['unpacked'], 'size': camera.sensor_modes[int(camera.controls.mode)]['size']}, buffer_count=2)
 
     # video_config = camera.picam2.create_video_configuration(main={
     #             "size": camera.size}, raw={"format": camera.raw_format}, buffer_count=2)
@@ -216,7 +216,7 @@ def captureImageRaw(videostream=False):
         except RuntimeError:
             log.debug('already started')
         still_config = camera.picam2.create_still_configuration(main={
-                "size": camera.sensor_modes[int(camera.controls.mode)]['size']}, raw={"format": camera.sensor_modes[int(camera.controls.mode)]['format'], 'size': camera.sensor_modes[int(camera.controls.mode)]['size']}, buffer_count=2)
+                "size": camera.sensor_modes[int(camera.controls.mode)]['size']}, raw={"format": camera.sensor_modes[int(camera.controls.mode)]['unpacked'], 'size': camera.sensor_modes[int(camera.controls.mode)]['size']}, buffer_count=2)
 
         # still_config = camera.picam2.create_still_configuration(main={
         #             "size": camera.size}, raw=camera.controls.mode, buffer_count=2)
@@ -236,6 +236,7 @@ def captureImageRaw(videostream=False):
         else:
             image = camera.picam2.capture_array("raw").view(np.uint16)
         imgs.append(image)
+        log.debug(f'size of image: {image.shape}')
         metadata = camera.picam2.capture_metadata()
         new = metadata['SensorTimestamp']
         pilim = Image.fromarray(image)
@@ -274,9 +275,6 @@ def indexhtml():
 def index():
     global camera
     form = ControlForm(request.form)
-
-    for mode in camera.sensor_modes:
-        print(mode)
 
     form.mode.choices = [(ind, f"{mode['bit_depth']} bit {mode['size']}") for ind,mode  in enumerate(camera.sensor_modes)]
     current_mode = camera.sensor_modes[int(camera.controls.mode)]
@@ -334,7 +332,7 @@ def capture():
     global camera
     download_option = camera.controls.download_option
     log.debug('capture routinge')
-    outcome = captureImageRaw()
+    outcome = captureImageRaw(True)
     if not camera.is_opened:
         log.debug('camera not opened, return to main page')
         return redirect('/')
