@@ -1,0 +1,42 @@
+{% from "_formhelpers.html" import render_field %}
+<html>
+
+<head>
+  <link rel="stylesheet" href='/static/style.css' />
+
+  <title>mira web admin</title> 
+</head>
+
+<body>
+  <img src="static/Ams-Osram_Logo.svg" alt="osramlogo" />
+
+
+  <!-- <input type="submit" name="download" value="Download">
+<input type="submit" name="watch" value="Watch">
+<input type="submit" name="watch" value="Watch">
+<input type="text" id="fname" name="fname"> -->
+  <h1>Admin panel for {{ (model) }} evaluation</h1>
+  <p>Go back: <a href="{{ url_for('index') }}">Main page!</a></p>
+
+
+        <h2>Image Sensor Controls</h2>
+        current driver loaded: {{ (model) }}
+        <br>
+        to load another driver, select one below. system needs a reboot after this.
+        <br>
+        <form method=post>
+
+            {{ render_field(form.sensor) }}
+
+            {{ render_field(form.apply) }}
+
+      <!-- <p><input type=submit value=Apply> -->
+
+      </form>
+  <br>
+  <a href="mailto: philippe.baetens@ams-osram.com">technical support</a>
+  <br>
+
+</body>
+
+</html>

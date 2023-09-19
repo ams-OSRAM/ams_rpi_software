@@ -159,6 +159,14 @@ class ControlForm(Form):
         # log.debug(camera.picam2.camera_controls["ExposureTime"][1])
         # super().__init__(form)
 
+class AdminForm(Form):
+    # def __init__(self, form, expmin, expmax):
+    sensor = SelectField('Sensor driver', default = None, choices=['mira050', 'mira130', 'mira220', 'mira016'])
+    apply = SubmitField(label = 'Apply settings and reboot')
+
+        #     log.debug(camera.picam2.camera_controls["ExposureTime"][0])        
+        # log.debug(camera.picam2.camera_controls["ExposureTime"][1])
+        # super().__init__(form)
 
 
 @app.route('/uploads/<name>')
@@ -324,6 +332,53 @@ def index():
     #         pass # do something else
     return render_template('index.html', form=form, model = camera.cam_info['Model'], caminfo=camera.sensor_modes[int(camera.controls.mode)] )  # you can customze index.html here
 
+
+@app.route('/admin', methods=['GET', 'POST'])
+def admin():
+    global camera
+    form = AdminForm(request.form)
+
+    if request.method == 'POST' and form.validate():
+        # form.populate_obj(camera.controls)
+        # print(f'form data {camera.controls.json}')
+        # print(f'form data type {json.loads(camera.controls.mode)}')
+
+        log.debug(f'form {form.data}')
+        # camera.update_controls()
+        if form.data["sensor"]:
+            log.debug('download button pressed')
+            import os
+            sp = os.popen('echo {} | sudo -S sed -i "s/^dtoverlay=mira.*$/dtoverlay={}/" /boot/config.txt'.format('pi', form.data["sensor"]))
+            result = sp.read()
+            print(result)
+            sp = os.popen('echo {} | sudo reboot'.format('pi'))
+            result = sp.read()
+            print(result)
+            
+            # grep -q '^dtoverlay=mira*' /boot/config.txt && sed -i 's/\r$//;s/^dtoverlay=mira.*$/dtoverlay=mira016/' /boot/config.txt
+            # grep -q '^dtoverlay=mira*' /boot/config.txt || echo "dtoverlay=mira016" >> /boot/config.txt
+            # echo "Mira added to dtoverlay. Below is /boot/config.txt"
+            # cat /boot/config.txt
+
+            # filename = 'requirements.txt'
+
+            # camera.picam2.capture_image()
+            # return redirect(url_for('capture'))
+            # return redirect(url_for('download_file', name=filename))
+
+        # camera.picam2.set_controls({"ExposureTime": exposure, "AnalogueGain": 1.0})
+
+        # users.append(user)
+        # flash('Thanks for setting exposure')
+        # return render_template('index.html', form=form)
+    # return redirect(url_for('indexhtml'))
+    #TODO
+    # if form.validate_on_submit():
+    #     if 'download' in request.form:
+    #         pass # do something
+    #     elif 'watch' in request.form:
+    #         pass # do something else
+    return render_template('admin.html', form=form, model = camera.cam_info['Model'], caminfo=camera.sensor_modes[int(camera.controls.mode)] )  # you can customze index.html here
 
 
 
