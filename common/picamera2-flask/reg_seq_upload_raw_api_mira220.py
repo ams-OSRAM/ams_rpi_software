@@ -19,7 +19,6 @@ import requests
 import time
 
 # pi_address = 'raspberrypi.local'
-pi_address = 'localhost'
 pi_address = '10.61.100.177'
 
 time_start = time.time()
