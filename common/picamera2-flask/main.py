@@ -150,7 +150,7 @@ class ControlForm(Form):
     illumination = SelectField('Illumination', default = 'off', choices=['on','off'])
 
     amount = IntegerField('Number of images to capture', default = 1, validators=[validators.NumberRange(min=1, max=20)])
-    download_option = SelectField('Download option', default = 'tiff', choices=[('tiff', 'tiff single image'), ('npz', 'numpy array (multi)'), ('zip', 'zip of tiff files (multi)')])
+    download_option = SelectField('Download option', default = 'tiff', choices=[('tiff', 'tiff single image'), ('npz', 'numpy array (multi)'), ('zip', 'zip of tiff files (multi)'), ('jpg', 'jpg compressed image')])
 
     download = SubmitField(label = 'Download image and stop stream')
     apply = SubmitField(label = 'Apply settings and resume stream')
@@ -161,7 +161,7 @@ class ControlForm(Form):
 
 class AdminForm(Form):
     # def __init__(self, form, expmin, expmax):
-    sensor = SelectField('Sensor driver', default = None, choices=['mira050', 'mira130', 'mira220', 'mira016'])
+    sensor = SelectField('Sensor driver', default = None, choices=['mira050','mira050color', 'mira130', 'mira220','mira220color', 'mira016'])
     apply = SubmitField(label = 'Apply settings and reboot')
 
         #     log.debug(camera.picam2.camera_controls["ExposureTime"][0])        
@@ -239,6 +239,8 @@ def captureImageRaw(videostream=False):
 
     imgs=[]
     for i in range(amount):
+        filename = str(f"{UPLOAD_FOLDER}/imgisp{i}.jpg")
+        camera.picam2.capture_file(filename)
         if int(camera.sensor_modes[int(camera.controls.mode)]['bit_depth'])==8:
             image = camera.picam2.capture_array("raw").view(np.uint8)
         else:
@@ -397,6 +399,8 @@ def capture():
         return redirect(url_for('download_file', name='my_images.zip'))
     elif download_option == 'npz':
         return redirect(url_for('download_file', name='img_array.npz'))
+    elif download_option == 'jpg':
+        return redirect(url_for('download_file', name='imgisp0.jpg'))
     else:
         return redirect(url_for('download_file', name='imgraw0.tiff'))
 
