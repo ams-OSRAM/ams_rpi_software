@@ -16,9 +16,13 @@ from PIL import Image
 from io import BytesIO
 import numpy as np
 import requests
+import time
 
 # pi_address = 'raspberrypi.local'
+pi_address = 'localhost'
 pi_address = '10.61.100.177'
+
+time_start = time.time()
 
 # have a look at the current controls
 r = requests.get(f'http://{pi_address}:8000/controls')
@@ -46,20 +50,40 @@ message = {"enable": "1"}
 r = requests.put(f'http://{pi_address}:8000/registers/power', json = message)
 print(r.content)
 
+time_set_control = time.time()
 
 print(f"Writing {len(reg_seq)} registers to driver buffer via V4L2 interface.")
 for reg in reg_seq:
     # WRITE REGISTER EXAMPLE
     message = {"reg": hex(reg[0]) , "val": hex(reg[1])}
     r = requests.put(f'http://{pi_address}:8000/registers/write', json = message)
-    print(r.content)
+    # print(r.content)
+
+print(f"Finished writing {len(reg_seq)} registers to driver buffer via V4L2 interface.")
+
+time_reg_upload = time.time()
 
 # CAPTURE IMAGE ARRAY
 r = requests.get(f'http://{pi_address}:8000/captureraw')
-print(r.content)
+# print(r.content)
+print(f"received len(r.content): {len(r.content)}")
+
+time_captureraw = time.time()
 
 # DOWNLOAD IMAGE ARRAY
 r = requests.get(f'http://{pi_address}:8000/uploads/imgraw0.tiff')
-print(r)
+# print(r)
 i = Image.open(BytesIO(r.content))
 arr=np.asarray(i)
+print(f"received arr.shape: {arr.shape}")
+
+time_get_tiff = time.time()
+
+print(f"Set control takes: {time_set_control - time_start} [s]")
+print(f"Register upload takes: {time_reg_upload - time_set_control} [s]")
+print(f"Capture raw takes: {time_captureraw - time_reg_upload} [s]")
+print(f"Get tiff takes: {time_get_tiff - time_captureraw} [s]")
+
+
+
+
