@@ -650,7 +650,7 @@ class AECTab(QWidget):
         self.analogue_gain.valueChanged.connect(lambda: self.aec_apply.setEnabled(self.exposure_time.isEnabled()))
 
         self.awb_check = QCheckBox("AWB")
-        self.awb_check.setChecked(True)
+        self.awb_check.setChecked(False)
         self.awb_check.stateChanged.connect(self.awb_update)
         self.awb_mode = QComboBox()
         self.awb_mode.addItems([
@@ -686,7 +686,7 @@ class AECTab(QWidget):
         self.layout.addRow("Blue Gain", self.colour_gain_b)
 
     def reset(self):
-        self.aec_check.setChecked(True)
+        self.aec_check.setChecked(False)
         self.awb_check.setChecked(True)
         self.exposure_time.setValue(10000)
         self.analogue_gain.setValue(1.0)
@@ -887,6 +887,7 @@ class vidTab(QWidget):
         self.resolution_h = QSpinBox()
         # Max height is 1080 for the encoder to still work
         self.resolution_h.setMaximum(min(picam2.sensor_resolution[1], 1080))
+        
         self.raw_format = QComboBox()
         self.raw_format.addItem("Default")
         self.raw_format.addItems([f'{x["format"].format} {x["size"]}, {x["fps"]:.0f}fps' for x in picam2.sensor_modes])
@@ -958,6 +959,8 @@ class vidTab(QWidget):
         self.framerate.setValue(30)
         self.resolution_h.setValue(720)
         self.resolution_w.setValue(1280)
+        self.resolution_w.setValue(picam2.sensor_resolution[0])
+        self.resolution_h.setValue(picam2.sensor_resolution[1])
         picam2.video_configuration = picam2.create_video_configuration(
             main={"size": (self.resolution_w.value(), self.resolution_h.value())},
             raw=self.sensor_mode
@@ -976,10 +979,14 @@ class picTab(QWidget):
         super().__init__()
         self.layout = QFormLayout()
         self.setLayout(self.layout)
-
+        self.label = QLabel((
+        "Use TIFF for raw capture. \n \
+        ImageJ viewer is recommended. \n \
+        outp: ~/ams_rpi_software/common "))
+        self.layout.addRow(self.label)
         self.filename = QLineEdit()
         self.filetype = QComboBox()
-        self.filetype.addItems(["jpg", "png", "bmp", "gif", "dng (raw)", "dng+tiff (raw)"])
+        self.filetype.addItems(["dng+tiff (raw)","jpg", "png", "bmp", "gif", "dng (raw)" ])
         self.resolution_w = QSpinBox()
         self.resolution_w.setMaximum(picam2.sensor_resolution[0])
         self.resolution_w.valueChanged.connect(lambda: self.apply_button.setEnabled(True))
@@ -1218,9 +1225,9 @@ mode_tabs.setFixedWidth(400)
 layout_h = QHBoxLayout()
 layout_v = QVBoxLayout()
 
-tabs.addTab(img_tab, "Image Tuning")
-tabs.addTab(pan_tab, "Pan/Zoom")
 tabs.addTab(aec_tab, "AEC/AWB")
+tabs.addTab(pan_tab, "Pan/Zoom")
+tabs.addTab(img_tab, "Image Tuning")
 tabs.addTab(info_tab, "Info")
 tabs.addTab(other_tab, "Other")
 
