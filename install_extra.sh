@@ -9,3 +9,13 @@ sudo systemctl stop picamera2-flask.service
 sudo systemctl start picamera2-flask.service
 
 sudo systemctl enable picamera2-flask.service
+
+# Nginx forwards port 80 to port 8000, which is used by Flask
+# Copy ams_nginx_config to the available site folder
+sudo cp common/ams_nginx_config /etc/nginx/sites-available/ams_nginx_config
+# Set the right permission for the config file
+sudo chmod 644 /etc/nginx/sites-available/ams_nginx_config
+# Remove the default enabled config
+sudo rm -f /etc/nginx/sites-enabled/default
+# Create a symbolic link at sites-enabled that points to sites-available/ams_nginx_config
+sudo ln -s /etc/nginx/sites-available/ams_nginx_config /etc/nginx/sites-enabled/ams_nginx_config

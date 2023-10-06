@@ -87,3 +87,8 @@ sudo apt remove -y libepoxy-dev
 #
 ################################
 sudo pip3 install pyro5
+################################
+# Nginx forwards port 80 to 8000
+################################
+sudo apt install -y nginx
+
