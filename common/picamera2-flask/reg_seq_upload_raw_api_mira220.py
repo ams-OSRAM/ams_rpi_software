@@ -52,11 +52,12 @@ print(r.content)
 time_set_control = time.time()
 
 print(f"Writing {len(reg_seq)} registers to driver buffer via V4L2 interface.")
+message_list = []
 for reg in reg_seq:
     # WRITE REGISTER EXAMPLE
-    message = {"reg": hex(reg[0]) , "val": hex(reg[1])}
-    r = requests.put(f'http://{pi_address}:8000/registers/write', json = message)
-    # print(r.content)
+    message_list.append( {"reg": hex(reg[0]) , "val": hex(reg[1])} )
+r = requests.put(f'http://{pi_address}:8000/registers/write', json = message_list)
+# print(r.content)
 
 print(f"Finished writing {len(reg_seq)} registers to driver buffer via V4L2 interface.")
 

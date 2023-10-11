@@ -56,17 +56,28 @@ class RegisterItemAPI(MethodView):
         # data= request.get_data()
         # print(data)
         print(request.json)
-        dict_of_items = request.json
         if id == 'read':
+            dict_of_items = request.json
             retval = self.camera.registers.read_register(int(dict_of_items['reg'],16))
             return jsonify(retval)
         if id == 'write':
-            retval = self.camera.registers.write_register(int(dict_of_items['reg'],16), int(dict_of_items['val'],16))
-            return jsonify(retval)
+            # Check is the JSON is a dictionary. If not, assume it is a list of dictionary.
+            if isinstance(request.json, dict):
+                # JSON is a dictionary, directly parse: {'reg': number, 'val', number}
+                dict_of_items = request.json
+                retval = self.camera.registers.write_register(int(dict_of_items['reg'],16), int(dict_of_items['val'],16))
+                return jsonify(retval)
+            else:
+                # JSON is not a dictionary. Assume it is a list. Loop over the list.
+                for dict_of_items in request.json:
+                    retval = self.camera.registers.write_register(int(dict_of_items['reg'],16), int(dict_of_items['val'],16))
+                return jsonify(retval)
         if id == 'manual_mode':
+            dict_of_items = request.json
             retval = self.camera.registers.set_manual_mode(int(dict_of_items['enable']))
             return jsonify(retval)
         if id == 'power':
+            dict_of_items = request.json
             retval = self.camera.registers.set_power(int(dict_of_items['enable']))
             return jsonify(retval)
         
