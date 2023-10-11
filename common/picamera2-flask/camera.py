@@ -1,5 +1,6 @@
 import io
 import sys
+import time
 from picamera2 import Picamera2
 from picamera2.encoders import JpegEncoder
 from picamera2.outputs import FileOutput
@@ -43,6 +44,8 @@ class Registers():
             self.i2c.rwReg(addr=0x0, value=0, rw=1, flag=self.i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_POWER_ON) #flags are same for all sensors
         else:
             self.i2c.rwReg(addr=0x0, value=0, rw=1, flag=self.i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_POWER_OFF)
+        # Must wait for a while for power on/off. Otherwise subsequent actions may hang.
+        time.sleep(1)
     def set_manual_mode(self, enable = False):
         log.debug(f" {__class__} {enable}")
         self.manual_mode = enable
@@ -165,12 +168,12 @@ class Camera():
                 self.picam2.close()
         
     def update_controls(self):
-        if self.is_opened:
-            print('setting controls') 
-            print(self.controls.exposure_us)
-            self.picam2.set_controls({"ExposureTime": int(self.controls.exposure_us), "AnalogueGain": float(self.controls.analog_gain)})
-        print(self.controls.illumination)
-        
+        if not self.is_opened:
+            self.open()
+        print('setting controls')
+        print(self.controls.exposure_us)
+        self.picam2.set_controls({"ExposureTime": int(self.controls.exposure_us), "AnalogueGain": float(self.controls.analog_gain)})
+
         # if self.controls.bitmode == 12:
         #     self.raw_format = SensorFormat('SGRBG12_CSI2P')
         # elif self.controls.bitmode ==10:
