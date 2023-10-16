@@ -4,3 +4,4 @@ __pycache__
 /libepoxy/
 /picamera2/
 images
+.ipynb_checkpoints

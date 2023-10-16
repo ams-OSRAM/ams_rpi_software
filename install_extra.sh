@@ -1,8 +1,25 @@
+sudo pip3 install setuptools
+sudo apt install libffi-dev
+sudo pip3 install cffi
+pip3 install jupyterlab
+
+sudo cp jupyter.service /etc/systemd/system
+
+
 pip install -r common/picamera2-flask/requirements.txt
 #pip3 install pyro5
-sudo cp common/picamera2-flask/picamera2-flask.service /lib/systemd/system
+sudo cp common/picamera2-flask/picamera2-flask.service /etc/systemd/system
 
 sudo systemctl daemon-reload
+
+
+sudo systemctl stop jupyter.service
+
+sudo systemctl start jupyter.service
+
+sudo systemctl enable jupyter.service
+
+
 
 sudo systemctl stop picamera2-flask.service
 
