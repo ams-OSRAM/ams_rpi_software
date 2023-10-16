@@ -18,12 +18,13 @@
   <h1>Web interface for {{ (model) }} evaluation</h1>
   
   <p>Change sensor model: <a href="{{ url_for('admin') }}">admin panel!</a></p>
+  <form method=post>
+
   <div class="row">
     <div class="column" style="background-color:transparent;">
       <div class="subrow">
 
         <h2>Image Sensor Controls</h2>
-        <form method=post>
           <dl>
             {{ render_field(form.exposure_us) }}
             {{ render_field(form.illumination) }}
@@ -48,11 +49,13 @@
       </dl>
       <!-- <p><input type=submit value=Apply> -->
 
-      </form>
     </div>
     <div class="column" style="background-color:transparent;">
       <div class="subrow">
         <h2>Video feed</h2>
+	<h4>Close the camera to avoid conflicts with other applications such as libcamera-apps</h4>
+            {{ render_field(form.cam_open) }}
+            {{ render_field(form.cam_close) }}
         <img src="/video_feed" height="400" />
         <h2>Info</h2>
         properties
@@ -66,6 +69,7 @@
     </div>
 
   </div>
+  </form>
 
 
   </script>

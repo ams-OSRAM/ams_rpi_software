@@ -36,6 +36,8 @@ camera = Camera()
 # ensure camera opens only once during debug.
 if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
     camera.open()
+    time.sleep(3)
+    camera.close()
 else:
     log.debug("Hello, world")
 
@@ -163,6 +165,9 @@ class ControlForm(Form):
     amount = IntegerField('Number of images to capture', default = 1, validators=[validators.NumberRange(min=1, max=20)])
     download_option = SelectField('Download option', default = 'tiff', choices=[('tiff', 'tiff single image'), ('npz', 'numpy array (multi)'), ('zip', 'zip of tiff files (multi)'), ('jpg', 'jpg compressed image')])
 
+    cam_open = SubmitField(label = '(Re-)open camera')
+    cam_close = SubmitField(label = 'Close camera')
+
     download = SubmitField(label = 'Download image and stop stream')
     apply = SubmitField(label = 'Apply settings and resume stream')
 
@@ -191,6 +196,8 @@ def genFrames(camera, only_configure=False):
     # camera.open()
     time.sleep(.1)
     log.info(f'camea controls mode {camera.controls.mode} ----------------------------------------')
+    if not camera.is_opened:
+        camera.open()
     video_config = camera.picam2.create_video_configuration(main={
                 "size": camera.sensor_modes[int(camera.controls.mode)]['size']}, raw={"format": camera.sensor_modes[int(camera.controls.mode)]['unpacked'], 'size': camera.sensor_modes[int(camera.controls.mode)]['size']}, buffer_count=2)
 
@@ -226,17 +233,21 @@ def captureImageRaw(videostream=False):
     global camera
     #TODO implemnet using completedrequest, see p36 picamera2-manual
     global UPLOAD_FOLDER
+    if not camera.is_opened:
+        camera.open()
     camera.update_controls()
 
     # request.save("main", "test3.jpg")
     if not videostream:
         try:
-            camera.picam2.stop()
+            if not camera.is_opened:
+                camera.open()
+            if camera.is_started:
+                camera.picam2.stop()
         except RuntimeError:
             log.debug('already started')
         still_config = camera.picam2.create_still_configuration(main={
                 "size": camera.sensor_modes[int(camera.controls.mode)]['size']}, raw={"format": camera.sensor_modes[int(camera.controls.mode)]['unpacked'], 'size': camera.sensor_modes[int(camera.controls.mode)]['size']}, buffer_count=2)
-
         # still_config = camera.picam2.create_still_configuration(main={
         #             "size": camera.size}, raw=camera.controls.mode, buffer_count=2)
         camera.picam2.configure(still_config)
@@ -283,6 +294,12 @@ def captureImageRaw(videostream=False):
     #     os.remove(f)
 
     log.debug('raw caputre successful')
+
+    if not videostream:
+        log.debug('Stopping picam2')
+        camera.picam2.stop()
+        camera.close()
+
     return 'done'		
 
 
@@ -330,6 +347,17 @@ def index():
             camera.picam2.capture_image()
             return redirect(url_for('capture'))
             # return redirect(url_for('download_file', name=filename))
+
+        if form.data["cam_open"] == True:
+            log.debug('cam_open pressed')
+            if camera.is_opened:
+                camera.close()
+            camera.open()
+
+        if form.data["cam_close"] == True:
+            log.debug('cam_close pressed')
+            camera.close()
+            return render_template('closed.html', form=form, model = camera.cam_info['Model'], caminfo=camera.sensor_modes[int(camera.controls.mode)] )  # you can customze index.html here
 
         # camera.picam2.set_controls({"ExposureTime": exposure, "AnalogueGain": 1.0})
 
@@ -401,9 +429,6 @@ def capture():
     download_option = camera.controls.download_option
     log.debug('capture routinge')
     outcome = captureImageRaw(True)
-    if not camera.is_opened:
-        log.debug('camera not opened, return to main page')
-        return redirect('/')
 
     if download_option == 'zip':
         log.debug('zip dl option')
