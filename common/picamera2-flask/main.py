@@ -267,6 +267,10 @@ def captureImageRaw(videostream=False):
             image = camera.picam2.capture_array("raw").view(np.uint8)
         else:
             image = camera.picam2.capture_array("raw").view(np.uint16)
+        size = camera.sensor_modes[int(camera.controls.mode)]['size']
+        width = size[0]
+        height = size[1]
+        image = image[0:height,0:width]
         imgs.append(image)
         log.debug(f'size of image: {image.shape}')
         metadata = camera.picam2.capture_metadata()
@@ -326,6 +330,8 @@ def index():
     elif camera.cam_info['Model']=='mira050':
         form.analog_gain.choices=[1,2,4]
 
+    elif camera.cam_info['Model']=='mira016':
+        form.analog_gain.choices=[1]
 
     # form.bitmode.choices = [8,10]
     if request.method == 'POST' and form.validate():
