@@ -14,4 +14,5 @@ All changes to this project will be documented here.
 
 ### Added
 
-- Changelog added. 
+- Changelog added.
+- Jupyter notebooks added on port 8888 
