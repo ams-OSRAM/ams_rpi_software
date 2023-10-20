@@ -1,8 +1,30 @@
+sudo pip3 install setuptools
+sudo apt install libffi-dev
+sudo pip3 install cffi
+pip3 install jupyterlab
+
+sudo cp jupyter.service /etc/systemd/system
+
+#adjust this so it is not dubplicated when running twice.
+sed -i "2i127.0.0.1  web.localhost web.raspberrypi.local" /etc/hosts
+sed -i "2i127.0.0.1  jupyter.localhost jupyter.raspberrypi.local" /etc/hosts
+
+
+
 pip install -r common/picamera2-flask/requirements.txt
 #pip3 install pyro5
-sudo cp common/picamera2-flask/picamera2-flask.service /lib/systemd/system
+sudo cp common/picamera2-flask/picamera2-flask.service /etc/systemd/system
 
 sudo systemctl daemon-reload
+
+
+sudo systemctl stop jupyter.service
+
+sudo systemctl start jupyter.service
+
+sudo systemctl enable jupyter.service
+
+
 
 sudo systemctl stop picamera2-flask.service
 
