@@ -1,0 +1,25 @@
+{% from "_formhelpers.html" import render_field %}
+<html>
+
+<head>
+  <link rel="stylesheet" href='/static/style.css' />
+
+  <title>mira evk changelog</title> 
+</head>
+
+<body>
+
+  <img src="static/Ams-Osram_Logo.svg" alt="osramlogo" />
+  <p>Go back to <a href="{{ url_for('index') }}">main page</a> to (re-)open camera.</p>
+
+
+  
+  {{ mkd_text|markdown }}
+  
+ <h1> Debug log </h1> 
+{% for i in logs %}
+<p>{{ i }} </p>
+{% endfor %}
+</body>
+
+</html>

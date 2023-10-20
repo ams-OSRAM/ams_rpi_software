@@ -15,14 +15,31 @@ from zipfile import ZipFile
 from PIL import Image
 from flask.views import MethodView
 from flask import Flask, jsonify, redirect, render_template, Response, flash, request, url_for, send_from_directory
+from flaskext.markdown import Markdown
 
 from werkzeug.utils import secure_filename
 from wtforms import Form, BooleanField, StringField, PasswordField, validators, DecimalRangeField, DecimalField, SubmitField , IntegerField, SelectField
 #Todo implement logging
 import logging
 log = logging.getLogger(__name__)
-logging.basicConfig(level=os.environ.get("LOGLEVEL", "DEBUG"))
-log.info("Hello, world")
+
+log.setLevel(logging.DEBUG)
+
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+ch.setFormatter(formatter)
+log.addHandler(ch)
+#logging.basicConfig(level=os.environ.get("LOGLEVEL", "DEBUG"))
+
+fh = logging.FileHandler('logs.log')
+fh.setLevel(logging.DEBUG)
+fh.setFormatter(formatter)
+
+log.addHandler(fh)
+
+
+log.info("app started")
 #TODO get rid of these paths
 
 
@@ -30,6 +47,7 @@ UPLOAD_FOLDER = pathlib.Path(__file__).parent/'images'
 UPLOAD_FOLDER.mkdir(parents=False, exist_ok = True)
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
+Markdown(app)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 camera = Camera()
@@ -38,8 +56,6 @@ if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
     camera.open()
     time.sleep(3)
     camera.close()
-else:
-    log.debug("Hello, world")
 
 class RegisterItemAPI(MethodView):
     """
@@ -56,8 +72,8 @@ class RegisterItemAPI(MethodView):
     def put(self, id):
         log.debug(f"put {__class__} put ID: {id} ")
         # data= request.get_data()
-        # print(data)
-        print(request.json)
+        # log.debug(data)
+        log.debug(request.json)
         if id == 'read':
             dict_of_items = request.json
             retval = self.camera.registers.read_register(int(dict_of_items['reg'],16))
@@ -106,8 +122,7 @@ class ControlGroupAPI(MethodView):
     def put(self):
         log.debug(f"put {__class__} ")
         data= request.get_data()
-        print(data)
-        print(request.json)
+
         dict_of_items = request.json
         for key,value in dict_of_items.items():
             self.camera.controls.json[key] = value
@@ -129,7 +144,7 @@ class ControlItemAPI(MethodView):
         return jsonify(camera.controls.json[id])
     def put(self,id):
         log.debug(f"put {__class__} ")
-        print(request.get_data())
+        log.debug(request.get_data())
         if id == 'illumination':
             data= bool(request.get_data())
         elif id =='analog_gain':
@@ -195,7 +210,7 @@ def genFrames(camera, only_configure=False):
     # time.sleep(.1)
     # camera.open()
     time.sleep(.1)
-    log.info(f'camea controls mode {camera.controls.mode} ----------------------------------------')
+    log.info(f'camera controls mode {camera.controls.mode} ----')
     if not camera.is_opened:
         camera.open()
     video_config = camera.picam2.create_video_configuration(main={
@@ -336,8 +351,7 @@ def index():
     # form.bitmode.choices = [8,10]
     if request.method == 'POST' and form.validate():
         form.populate_obj(camera.controls)
-        print(f'form data {camera.controls.json}')
-        print(f'form data type {json.loads(camera.controls.mode)}')
+
 
         # camera.controls['amount']=int(form.amount.data)
         # camera.controls['download_option']=str(form.download_option.data)
@@ -380,6 +394,21 @@ def index():
     return render_template('index.html', form=form, model = camera.cam_info['Model'], caminfo=camera.sensor_modes[int(camera.controls.mode)] )  # you can customze index.html here
 
 
+@app.route('/changelog', methods=['GET', 'POST'])
+def changelog():
+    global camera
+    #     if 'download' in request.form:
+    #         pass # do something
+    #     elif 'watch' in request.form:
+    #         pass # do something else
+    with open('logs.log','r',newline='') as f:
+        logs = f.readlines()
+#        logs = ['a','b','c']
+    with open('../../CHANGELOG.md') as f:
+        mkd_text = f.read()
+    #mkd_text = "## Your Markdown Here "
+    return render_template('changelog.html',mkd_text=mkd_text, logs=logs)
+
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
     global camera
@@ -387,8 +416,8 @@ def admin():
 
     if request.method == 'POST' and form.validate():
         # form.populate_obj(camera.controls)
-        # print(f'form data {camera.controls.json}')
-        # print(f'form data type {json.loads(camera.controls.mode)}')
+        # log.debug(f'form data {camera.controls.json}')
+        # log.debug(f'form data type {json.loads(camera.controls.mode)}')
 
         log.debug(f'form {form.data}')
         # camera.update_controls()
@@ -397,10 +426,8 @@ def admin():
             import os
             sp = os.popen('echo {} | sudo -S sed -i "s/^dtoverlay=mira.*$/dtoverlay={}/" /boot/config.txt'.format('pi', form.data["sensor"]))
             result = sp.read()
-            print(result)
             sp = os.popen('echo {} | sudo reboot'.format('pi'))
             result = sp.read()
-            print(result)
             
             # grep -q '^dtoverlay=mira*' /boot/config.txt && sed -i 's/\r$//;s/^dtoverlay=mira.*$/dtoverlay=mira016/' /boot/config.txt
             # grep -q '^dtoverlay=mira*' /boot/config.txt || echo "dtoverlay=mira016" >> /boot/config.txt
