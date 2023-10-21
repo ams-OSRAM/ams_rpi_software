@@ -1,7 +1,7 @@
 sudo pip3 install setuptools
 sudo apt install libffi-dev
 sudo pip3 install cffi
-pip3 install jupyterlab
+sudo pip3 install jupyterlab
 
 sudo cp jupyter.service /etc/systemd/system
 
