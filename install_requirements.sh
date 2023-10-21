@@ -91,4 +91,4 @@ sudo pip3 install pyro5
 # Nginx forwards port 80 to 8000
 ################################
 sudo apt install -y nginx
-
+pip3 install pillow==9.4.0
