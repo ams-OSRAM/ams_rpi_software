@@ -3,9 +3,7 @@ import io
 import numpy as np
 import pathlib
 import time
-import os
-import sys
-import json
+
 
 # importing required modules
 from zipfile import ZipFile
@@ -17,8 +15,6 @@ from flask.views import MethodView
 from flask import Flask, jsonify, redirect, render_template, Response, flash, request, url_for, send_from_directory
 from flaskext.markdown import Markdown
 from urllib.parse import urlparse
-
-from werkzeug.utils import secure_filename
 from wtforms import Form, BooleanField, StringField, PasswordField, validators, DecimalRangeField, DecimalField, SubmitField , IntegerField, SelectField
 #Todo implement logging
 import logging
@@ -53,10 +49,10 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 camera = Camera()
 # ensure camera opens only once during debug.
-if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
-    camera.open()
-    time.sleep(3)
-    camera.close()
+# if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
+camera.open()
+time.sleep(1)
+camera.close()
 
 class RegisterItemAPI(MethodView):
     """
@@ -242,6 +238,33 @@ def genFrames(camera, only_configure=False):
                 frame = output.frame
             yield (b'--frame\r\n'
                     b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+
+
+@app.route('/capturefast')
+def capturefast(videostream=False):
+    """fast raw capture. dont forget to update controls before this."""
+    global camera
+    #TODO implemnet using completedrequest, see p36 picamera2-manual
+    global UPLOAD_FOLDER
+
+    # if not camera.is_opened:
+    #     camera.open()
+    # camera.update_controls()
+    from io import BytesIO
+    from flask import make_response
+    log.debug('testfast')
+    # create array
+    request = camera.picam2.capture_request()
+    arr=request.make_array("raw").view(np.uint16)
+    request.release()
+    #create bytes stream
+    stream = io.BytesIO()  
+    np.savez(stream, A=arr)  
+    stream.seek(0)
+    response = make_response(stream.getvalue())
+    response.headers.set('Content-Type', 'image/jpeg')
+    return response
 
 
 
@@ -491,4 +514,4 @@ def video_feed():
 #
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000, debug=True)
+    app.run(host='0.0.0.0', port=8000, debug=False)
