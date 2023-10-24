@@ -3,7 +3,7 @@
 
 <head>
   <link rel="stylesheet" href='/static/style.css' />
-
+<link rel="shortcut icon" href="{{ url_for('static', filename='ams.ico') }}">
   <title>mira web</title>
 </head>
 
@@ -70,12 +70,17 @@
 
   </div>
   </form>
-
-
-  </script>
-  If you don't see the video, probably someone else is accessing the stream.
+  
   <br>
 
+  You can also write scripts for automated image capture, register access...
+  <a href = "{{ notebook }}" target="_blank">Jupyter Lab for scripting and automated capture</a>
+  </p>
+  
+  <p>
+  If you don't see the video, probably another application accessing the camera, or the cable is not connected. See the logs below.
+
+  </p>
   <p>Changelog and version: <a href="{{ url_for('changelog') }}">changelog!</a></p>
   keep in mind this is website is still in experimental stage.
   <br>

@@ -16,6 +16,7 @@ from PIL import Image
 from flask.views import MethodView
 from flask import Flask, jsonify, redirect, render_template, Response, flash, request, url_for, send_from_directory
 from flaskext.markdown import Markdown
+from urllib.parse import urlparse
 
 from werkzeug.utils import secure_filename
 from wtforms import Form, BooleanField, StringField, PasswordField, validators, DecimalRangeField, DecimalField, SubmitField , IntegerField, SelectField
@@ -200,6 +201,7 @@ class AdminForm(Form):
         # super().__init__(form)
 
 
+
 @app.route('/uploads/<name>')
 def download_file(name):
     return send_from_directory(app.config["UPLOAD_FOLDER"], name,as_attachment=True)
@@ -330,6 +332,11 @@ def indexhtml():
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
+
+    o = urlparse(request.base_url)
+    host = o.hostname
+    notebook = 'http://'+host+':8888'
+    log.debug(f'link to jupyter is {notebook}')
     global camera
     form = ControlForm(request.form)
 
@@ -391,7 +398,7 @@ def index():
     #         pass # do something
     #     elif 'watch' in request.form:
     #         pass # do something else
-    return render_template('index.html', form=form, model = camera.cam_info['Model'], caminfo=camera.sensor_modes[int(camera.controls.mode)] )  # you can customze index.html here
+    return render_template('index.html', notebook=notebook, form=form, model = camera.cam_info['Model'], caminfo=camera.sensor_modes[int(camera.controls.mode)] )  # you can customze index.html here
 
 
 @app.route('/changelog', methods=['GET', 'POST'])

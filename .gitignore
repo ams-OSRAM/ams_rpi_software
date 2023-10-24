@@ -5,3 +5,4 @@ __pycache__
 /picamera2/
 images
 .ipynb_checkpoints
+logs.log
