@@ -208,7 +208,7 @@ def genFrames(camera, only_configure=False):
     # time.sleep(.1)
     # camera.open()
     time.sleep(.1)
-    log.info(f'camera controls mode {camera.controls.mode} ----')
+    log.debug(f'camera controls mode {camera.controls.mode} ----')
     if not camera.is_opened:
         camera.open()
     video_config = camera.picam2.create_video_configuration(main={
@@ -224,7 +224,7 @@ def genFrames(camera, only_configure=False):
     output = StreamingOutput()
     camera.start_recording(output)
     time.sleep(1)
-    log.info(f"cam controls gain {camera.picam2.camera_controls['AnalogueGain']}")
+    log.debug(f"cam controls gain {camera.picam2.camera_controls['AnalogueGain']}")
 
     # camera.picam2.set_controls({"ExposureTime": camera.controls['exposure_us'], "AnalogueGain": camera.controls['gain']})
     if only_configure:
@@ -247,6 +247,31 @@ def capturefast(videostream=False):
     global camera
     #TODO implemnet using completedrequest, see p36 picamera2-manual
     global UPLOAD_FOLDER
+    log.debug(f'cam  open {camera.is_opened} {camera.is_started}')
+
+    if not camera.is_opened:
+        camera.open()
+    camera.update_controls()
+
+    # request.save("main", "test3.jpg")
+    if not videostream:
+        try:
+            if not camera.is_opened:
+                camera.open()
+            if not camera.is_started:
+                camera.picam2.stop()
+                still_config = camera.picam2.create_still_configuration(main={
+                "size": camera.sensor_modes[int(camera.controls.mode)]['size']}, raw={"format": camera.sensor_modes[int(camera.controls.mode)]['unpacked'], 'size': camera.sensor_modes[int(camera.controls.mode)]['size']}, buffer_count=2)
+                # still_config = camera.picam2.create_still_configuration(main={
+                #             "size": camera.size}, raw=camera.controls.mode, buffer_count=2)
+                camera.picam2.configure(still_config)
+                try:
+                    camera.picam2.start()
+                except RuntimeError:
+                    log.debug('already started')
+        except RuntimeError:
+            log.debug('already started')
+        
 
     # if not camera.is_opened:
     #     camera.open()
@@ -255,12 +280,29 @@ def capturefast(videostream=False):
     from flask import make_response
     log.debug('testfast')
     # create array
+    amount = camera.controls.amount
+    size = camera.sensor_modes[int(camera.controls.mode)]['size']
+    width = size[0]
+    height = size[1]
+
+    
     request = camera.picam2.capture_request()
-    arr=request.make_array("raw").view(np.uint16)
+    log.debug('capture req started')
+
+    imgs=[]
+    for i in range(amount):
+        if int(camera.sensor_modes[int(camera.controls.mode)]['bit_depth'])==8:
+            image = camera.picam2.capture_array("raw").view(np.uint8)
+        else:
+            image = camera.picam2.capture_array("raw").view(np.uint16)
+        imgs.append(image[0:height,0:width])
+
+
+
     request.release()
     #create bytes stream
     stream = io.BytesIO()  
-    np.savez(stream, A=arr)  
+    np.savez(stream, A=imgs)  
     stream.seek(0)
     response = make_response(stream.getvalue())
     response.headers.set('Content-Type', 'image/jpeg')

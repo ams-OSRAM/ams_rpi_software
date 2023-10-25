@@ -8,8 +8,26 @@ from picamera2.sensor_format import SensorFormat
 from threading import Condition
 
 import logging
-
 log = logging.getLogger(__name__)
+
+log.setLevel(logging.DEBUG)
+
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+ch.setFormatter(formatter)
+log.addHandler(ch)
+#logging.basicConfig(level=os.environ.get("LOGLEVEL", "DEBUG"))
+
+fh = logging.FileHandler('logs.log')
+fh.setLevel(logging.DEBUG)
+fh.setFormatter(formatter)
+
+log.addHandler(fh)
+
+
+log.info("app started")
+
 sys.path.append("../common")
 sys.path.append("../../common")
 from driver_access import v4l2Ctrl
@@ -162,6 +180,7 @@ class Camera():
     #     self.picam2.__init__()
 
     def close(self):
+        log.debug('close cam')
         if self.picam2:
             self.stop_recording()
             if self.picam2.is_open:
@@ -241,9 +260,13 @@ class Camera():
         self.picam2.start_recording(JpegEncoder(), FileOutput(output))
     
     def stop_recording(self):
+        log.debug('stop recording cam')
+
         if self.is_started:
             print(f'status of is started: {self.is_started}')
             try:
                 self.picam2.stop_recording()
             except Exception as e:
                 print(e)
+                log.error(f'ERROR {e}')
+
