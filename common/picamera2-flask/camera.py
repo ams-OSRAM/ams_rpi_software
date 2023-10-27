@@ -191,7 +191,10 @@ class Camera():
             self.open()
         print('setting controls')
         print(self.controls.exposure_us)
-        self.picam2.set_controls({"ExposureTime": int(self.controls.exposure_us), "AnalogueGain": float(self.controls.analog_gain)})
+        # fps=self.sensor_modes[int(self.controls.mode)]['fps']
+        # if 1/fps > exposure
+        # fps = 1/exposure
+        self.picam2.set_controls({"ExposureTime": int(self.controls.exposure_us),"FrameDurationLimits": (10000,1000000), "AnalogueGain": float(self.controls.analog_gain)})
 
         # if self.controls.bitmode == 12:
         #     self.raw_format = SensorFormat('SGRBG12_CSI2P')

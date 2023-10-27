@@ -167,7 +167,7 @@ register_api(app, camera, 'controls', 'registers')
 
 class ControlForm(Form):
     # def __init__(self, form, expmin, expmax):
-    exposure_us = DecimalField('Exposure (us)', default = 1000, validators=[validators.NumberRange(min=10, max=100000)])
+    exposure_us = DecimalField('Exposure (us)', default = 1000, validators=[validators.NumberRange(min=10, max=1000000)])
     analog_gain = SelectField('Analog gain', default = 1, choices=[1, 2, 4])
     # bitmode = SelectField('Sensor ADC bitmode', default = 12, choices=[8, 10,12])
     mode = SelectField('Sensor mode', default = None, choices=[])
@@ -211,9 +211,12 @@ def genFrames(camera, only_configure=False):
     log.debug(f'camera controls mode {camera.controls.mode} ----')
     if not camera.is_opened:
         camera.open()
-    video_config = camera.picam2.create_video_configuration(main={
-                "size": camera.sensor_modes[int(camera.controls.mode)]['size']}, raw={"format": camera.sensor_modes[int(camera.controls.mode)]['unpacked'], 'size': camera.sensor_modes[int(camera.controls.mode)]['size']}, buffer_count=2)
-
+    video_config = camera.picam2.create_video_configuration(
+                main={
+                "size": camera.sensor_modes[int(camera.controls.mode)]['size']}, 
+                raw={
+                "format": camera.sensor_modes[int(camera.controls.mode)]['unpacked'], 
+                'size': camera.sensor_modes[int(camera.controls.mode)]['size']}, buffer_count=2)
     # video_config = camera.picam2.create_video_configuration(main={
     #             "size": camera.size}, raw={"format": camera.raw_format}, buffer_count=2)
 
