@@ -2,6 +2,17 @@
 
 All changes to this project will be documented here.
 
+## 2023-10-27
+
+### Fixed
+
+- higher fps in web interface, longer exposures automatically lower fps.
+- mira016: kernel supports exposures up to 1 second
+### Added
+
+- fast capture api
+
+
 ## 2023-10-20
 
 ### Fixed
