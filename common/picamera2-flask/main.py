@@ -17,8 +17,8 @@ from flask import (
     make_response,
     redirect,
     render_template,
-    Response,
     request,
+    Response,
     url_for,
     send_from_directory,
 )
@@ -98,7 +98,7 @@ class RegisterItemAPI(MethodView):
             retval = self.camera.registers.read_register(int(dict_of_items["reg"], 16))
             return jsonify(retval)
         if id == "write":
-            # Check is the JSON is a dictionary. 
+            # Check is the JSON is a dictionary.
             # If not, assume it is a list of dictionary.
             if isinstance(request.json, dict):
                 # JSON is a dictionary, directly parse: {'reg': number, 'val', number}
@@ -118,15 +118,48 @@ class RegisterItemAPI(MethodView):
             dict_of_items = request.json
             retval = self.camera.registers.set_manual_mode(int(dict_of_items["enable"]))
             return jsonify(retval)
-        if id == 'stream_ctrl':
+        if id == "stream_ctrl":
             dict_of_items = request.json
-            retval = self.camera.registers.set_stream_ctrl(int(dict_of_items['enable']))
+            retval = self.camera.registers.set_stream_ctrl(int(dict_of_items["enable"]))
             return jsonify(retval)
 
-        if id == 'power':
+        if id == "power":
             dict_of_items = request.json
             retval = self.camera.registers.set_power(int(dict_of_items["enable"]))
             return jsonify(retval)
+
+
+class InfoGroupAPI(MethodView):
+    def __init__(self, camera):
+        self.camera = camera
+
+    @staticmethod
+    def serialize(obj): 
+        return str(obj)
+    
+    def get(self):
+        log.debug(f"put {camera.sensor_modes} {camera.cam_info}")
+        import json
+        return jsonify(
+            {
+                "cam_info": json.loads(json.dumps(camera.cam_info, default=self.serialize)),
+                "sensor_modes": json.loads(json.dumps(camera.sensor_modes, default=self.serialize)),
+
+            }
+        )
+
+    # def put(self):
+    #     log.debug(f"put {__class__} ")
+
+    #     dict_of_items = request.json
+    #     for key, value in dict_of_items.items():
+    #         self.camera.controls.json[key] = value
+
+    #     # self.camera.controls.json = request.json #TODO make a setter
+
+    #     self.camera.update_controls()
+    #     return jsonify(camera.controls.json)
+
 
 class ControlGroupAPI(MethodView):
     def __init__(self, camera):
@@ -146,6 +179,7 @@ class ControlGroupAPI(MethodView):
 
         self.camera.update_controls()
         return jsonify(camera.controls.json)
+
 
 class ControlItemAPI(MethodView):
     def __init__(self, camera):
@@ -170,17 +204,15 @@ class ControlItemAPI(MethodView):
         # return 'hello put'
 
 
-def register_api(app: Flask, camera: Camera, name: str, name2: str):
-    item = ControlItemAPI.as_view(f"{name}-item", camera)
-    group = ControlGroupAPI.as_view(f"{name}-group", camera)
-    regitem = RegisterItemAPI.as_view(f"{name2}-regitem", camera)
+item = ControlItemAPI.as_view("controls-item", camera)
+group = ControlGroupAPI.as_view("controls-group", camera)
+regitem = RegisterItemAPI.as_view("registers-regitem", camera)
+infogroup = InfoGroupAPI.as_view("info-group", camera)
 
-    app.add_url_rule(f"/{name}/<id>", view_func=item)
-    app.add_url_rule(f"/{name}/", view_func=group)
-    app.add_url_rule(f"/{name2}/<id>", view_func=regitem)
-
-
-register_api(app, camera, "controls", "registers")
+app.add_url_rule("/controls/<id>", view_func=item)
+app.add_url_rule("/controls/", view_func=group)
+app.add_url_rule("/registers/<id>", view_func=regitem)
+app.add_url_rule("/info/", view_func=infogroup)
 
 
 class ControlForm(Form):
@@ -292,11 +324,12 @@ def genFrames(camera, only_configure=False):
 @app.route("/capturefast")
 def capturefast(videostream=False):
     """fast raw capture. dont forget to update controls before this."""
-    global camera
+    # global camera
+    # from flask import request
     # TODO implemnet using completedrequest, see p36 picamera2-manual
-    global UPLOAD_FOLDER
+    # data = request.get_data()
+    # log.debug(data)
     log.debug(f"cam  open {camera.is_opened} {camera.is_started}")
-
     if not camera.is_opened:
         camera.open()
     camera.update_controls()
@@ -341,7 +374,7 @@ def capturefast(videostream=False):
     width = size[0]
     height = size[1]
 
-    request = camera.picam2.capture_request()
+    req = camera.picam2.capture_request()
     log.debug("capture req started")
 
     imgs = []
@@ -352,7 +385,7 @@ def capturefast(videostream=False):
             image = camera.picam2.capture_array("raw").view(np.uint16)
         imgs.append(image[0:height, 0:width])
 
-    request.release()
+    req.release()
     # create bytes stream
     stream = io.BytesIO()
     np.savez(stream, A=imgs)
@@ -395,7 +428,7 @@ def captureImageRaw(videostream=False):
             camera.picam2.start()
         except RuntimeError:
             log.debug("already started")
-    request = camera.picam2.capture_request()
+    req = camera.picam2.capture_request()
     amount = camera.controls.amount
     camera.update_controls()
 
@@ -421,7 +454,7 @@ def captureImageRaw(videostream=False):
     # images = camera.picam2.capture_arrays(["raw","raw"])
 
     np.savez(UPLOAD_FOLDER / "img_array", imgs)
-    request.release()
+    req.release()
     # calling function to get all file paths in the directory
     file_paths = [f for f in UPLOAD_FOLDER.glob("*.tiff")]
 
@@ -609,6 +642,6 @@ def video_feed():
         genFrames(camera), mimetype="multipart/x-mixed-replace; boundary=frame"
     )
 
-    
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=False)

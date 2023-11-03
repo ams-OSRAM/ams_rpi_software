@@ -7,6 +7,7 @@ from picamera2.encoders import JpegEncoder
 from picamera2.outputs import FileOutput
 from picamera2.sensor_format import SensorFormat
 from threading import Condition
+
 sys.path.append("../common")
 sys.path.append("../../common")
 from config_parser import ConfigParser
@@ -108,15 +109,25 @@ class Registers:
                 flag=self.i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_RESET_ON,
             )
 
-    def set_stream_ctrl(self, enable = False):
+    def set_stream_ctrl(self, enable=False):
         log.debug(f" {__class__} {enable}")
         self.stream_ctrl = enable
         if enable:
-            self.i2c.rwReg(addr=0x0, value=0, rw=1, flag=self.i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_STREAM_CTRL_ON)
+            self.i2c.rwReg(
+                addr=0x0,
+                value=0,
+                rw=1,
+                flag=self.i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_STREAM_CTRL_ON,
+            )
         else:
-            self.i2c.rwReg(addr=0x0, value=0, rw=1, flag=self.i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_STREAM_CTRL_OFF)
+            self.i2c.rwReg(
+                addr=0x0,
+                value=0,
+                rw=1,
+                flag=self.i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_STREAM_CTRL_OFF,
+            )
 
-    def set_illum_trig(self, enable = True):
+    def set_illum_trig(self, enable=True):
         log.debug(f" {__class__} {enable}")
         self.illum = enable
         if enable:
@@ -165,7 +176,7 @@ class Registers:
 class Controls:
     def __init__(self) -> None:
         self.amount = 1
-        self.exposure_us = 10000
+        self.exposure_us = 1000
         self.analog_gain = 1.0
         self.illumination = True
         self.mode = 0
@@ -333,7 +344,6 @@ class Camera:
                     rw=1,
                     flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_ILLUM_TRIG_OFF,
                 )
-
 
     def start_recording(self, output):
         self.picam2.start_recording(JpegEncoder(), FileOutput(output))
