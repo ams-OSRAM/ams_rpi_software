@@ -53,6 +53,7 @@ class Registers():
         self.i2c = v4l2Ctrl(sensor, printFunc=print)
         self.power = True
         self.manual_mode = False
+        self.stream_ctrl = False
         self.illum = True
         self.set_manual_mode(False)
     def set_power(self, enable=True):
@@ -73,6 +74,14 @@ class Registers():
         else:
             self.i2c.rwReg(addr=0x0, value=0, rw=1, flag=self.i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_REG_UP_ON)
             self.i2c.rwReg(addr=0x0, value=0, rw=1, flag=self.i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_RESET_ON)
+
+    def set_stream_ctrl(self, enable = False):
+        log.debug(f" {__class__} {enable}")
+        self.stream_ctrl = enable
+        if enable:
+            self.i2c.rwReg(addr=0x0, value=0, rw=1, flag=self.i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_STREAM_CTRL_ON)
+        else:
+            self.i2c.rwReg(addr=0x0, value=0, rw=1, flag=self.i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_STREAM_CTRL_OFF)
 
     def set_illum_trig(self, enable = True):
         log.debug(f" {__class__} {enable}")
