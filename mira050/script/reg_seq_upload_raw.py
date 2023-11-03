@@ -30,7 +30,8 @@ if __name__ == "__main__":
     # (3) manaully power on the sensor
     # (3) disable base register upload and reset
     # (4) upload register sequence
-    # (5) power off
+    # (5) force stream control by picamera2
+    # (6) power off
     #########################################################
 
     # (1) Manually power off the sensor
@@ -51,6 +52,9 @@ if __name__ == "__main__":
     print(f"Writing {len(reg_seq)} registers to sensor via V4L2 interface.")
     for reg in reg_seq:
         exp_val = i2c.rwReg(addr=reg[0], value=reg[1], rw=1, flag=0)
+
+    # (5) force stream control by picamera2
+    i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_STREAM_CTRL_ON)
 
     # Initialize camera stream according to width, height, bit depth etc. from register sequence
     # Set AeEnable to False to avoid over-writing exposure and analog gain related registers
@@ -73,7 +77,7 @@ if __name__ == "__main__":
         if frame_idx >= 5:
             break
         last_time = current_time
-    # (5) power off
+    # (6) power off
     print(f"Manually power off the sensor via V4L2 interface.")
     i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_POWER_OFF)
     sys.exit(0)

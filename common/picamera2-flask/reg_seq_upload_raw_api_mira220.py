@@ -49,6 +49,12 @@ message = {"enable": "1"}
 r = requests.put(f'http://{pi_address}:8000/registers/power', json = message)
 print(r.content)
 
+# ENABLE STREAM CONTROL
+# Otherwise picam2 cannot write start/stop streaming registers.
+message = {"enable": "1"}
+r = requests.put(f'http://{pi_address}:8000/registers/stream_ctrl', json = message)
+print(r.content)
+
 time_set_control = time.time()
 
 print(f"Writing {len(reg_seq)} registers to driver buffer via V4L2 interface.")

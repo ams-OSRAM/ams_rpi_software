@@ -61,6 +61,9 @@ if do_upload==True:
 # Disable reset during stream on or off
 i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_RESET_OFF)
 
+# force stream control by picamera2
+i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_STREAM_CTRL_ON)
+
 # Initialize camera stream according to width, height, bit depth etc. from register sequence
 # input_camera_stream = CameraStreamInput(width=572, height=768, AeEnable=False, FrameRate=50.0, bit_depth=10)
 

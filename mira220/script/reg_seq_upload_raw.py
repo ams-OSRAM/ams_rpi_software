@@ -28,7 +28,7 @@ if __name__ == "__main__":
     # Steps to upload reg sequence txt:
     # (1) manually power off the sensor
     # (3) manaully power on the sensor
-    # (3) disable base register upload and reset
+    # (3) disable reg upload and reset; force stream ctrl
     # (4) upload register sequence
     # (5) power off
     #########################################################
@@ -46,6 +46,7 @@ if __name__ == "__main__":
     # (3) Disable base register sequence upload and reset
     i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA220_REG_FLAG_REG_UP_OFF)
     i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA220_REG_FLAG_RESET_OFF)
+    i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA220_REG_FLAG_STREAM_CTRL_ON)
 
     # (4) Upload register sequence from txt file
     print(f"Writing {len(reg_seq)} registers to driver buffer via V4L2 interface.")

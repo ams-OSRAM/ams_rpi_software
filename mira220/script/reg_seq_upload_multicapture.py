@@ -22,7 +22,7 @@ if __name__ == "__main__":
     # Process to upload reg sequence txt:
     # (1) Manually power off the sensor
     # (2) Manaully power on the sensor
-    # (3) Disable sensor reset and base register upload
+    # (3) Disable reset, base reg upload; force stream ctrl
     # (4) Loop for a few iterations:
     #     (4a) Upload register seq (at leaast for 1st iter)
     #     (4b) Config camera stream and start capture
@@ -44,6 +44,7 @@ if __name__ == "__main__":
     # (3) Disable base register sequence upload and reset
     i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA220_REG_FLAG_REG_UP_OFF)
     i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA220_REG_FLAG_RESET_OFF)
+    i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA220_REG_FLAG_STREAM_CTRL_ON)
 
     # (4) Loop for a few iterations. Example: 2 iterations.
     for capture_iter in range(2):

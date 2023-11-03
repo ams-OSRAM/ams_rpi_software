@@ -23,12 +23,13 @@ if __name__ == "__main__":
     # (1) Manually power off the sensor
     # (2) Manaully power on the sensor
     # (3) Disable sensor reset and base register upload
-    # (4) Loop for a few iterations:
-    #     (4a) Upload register seq (at leaast for 1st iter)
-    #     (4b) Config camera stream and start capture
-    #     (4c) Show frames in GUI until user stops (key 'q')
-    #     (4d) Close camera stream and GUI.
-    # (5) Power off the sensor
+    # (4) force stream control by picamera2
+    # (5) Loop for a few iterations:
+    #     (5a) Upload register seq (at leaast for 1st iter)
+    #     (5b) Config camera stream and start capture
+    #     (5c) Show frames in GUI until user stops (key 'q')
+    #     (5d) Close camera stream and GUI.
+    # (6) Power off the sensor
     #########################################################
 
     # (1) Manually power off the sensor
@@ -45,11 +46,15 @@ if __name__ == "__main__":
     i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_REG_UP_OFF)
     i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_RESET_OFF)
 
-    # (4) Loop for a few iterations. Example: 2 iterations.
+    # (4) force stream control by picamera2
+    i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_STREAM_CTRL_ON)
+
+
+    # (5) Loop for a few iterations. Example: 2 iterations.
     for capture_iter in range(2):
         print(f"Starting capture loop interation {capture_iter}.")
         if capture_iter == 0:
-            # (4a) upload register sequence at least for the first iteration
+            # (5a) upload register sequence at least for the first iteration
             # Create a config parse to parse the register sequence txt
             config_parser = ConfigParser()
             reg_seq = config_parser.parse_file('config_files/Mira050_register_sequence_10bhsgain1_test2.txt')
@@ -58,11 +63,11 @@ if __name__ == "__main__":
             print(f"Writing {len(reg_seq)} registers to sensor via V4L2 interface.")
             for reg in reg_seq:
                 exp_val = i2c.rwReg(addr=reg[0], value=reg[1], rw=1, flag=0)
-        # (4b) Initialize camera stream according to width, height, bit depth etc. from register sequence
+        # (5b) Initialize camera stream according to width, height, bit depth etc. from register sequence
         input_camera_stream = CameraStreamInput(width=572, height=768, AeEnable=False, FrameRate=50.0, bit_depth=10)
         # Start streaming. Upload long register sequence before this step.
         input_camera_stream.start()
-        # (4c) Show frames in GUI until user stops (key 'q')
+        # (5c) Show frames in GUI until user stops (key 'q')
         last_time = time.time()
         it = 0
         # Per-frame operation
@@ -82,10 +87,10 @@ if __name__ == "__main__":
             exp_val = i2c.rwReg(addr=0x00E, value=0, rw=1, flag=0)
             exp_val = i2c.rwReg(addr=0x00F, value=0, rw=1, flag=0)
             it+=1
-        # (4d) Close camera stream and GUI
+        # (5d) Close camera stream and GUI
         del input_camera_stream
         cv2.destroyAllWindows()
-    # (5) Power off the sensor
+    # (6) Power off the sensor
     print(f"Manually power off the sensor via V4L2 interface.")
     i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA050_REG_FLAG_POWER_OFF)
     sys.exit(0)

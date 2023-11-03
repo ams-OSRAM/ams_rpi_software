@@ -66,6 +66,17 @@ message = {"enable": "0"}
 r = requests.put(f'http://{pi_address}:8000/registers/manual_mode', json = message)
 print(r.content)
 
+# ENABLE STREAM CONTROL (while in manual mode, still let picam2 write start/stop stream register)
+message = {"enable": "1"}
+r = requests.put(f'http://{pi_address}:8000/registers/stream_ctrl', json = message)
+print(r.content)
+
+# (default) DISABLE STREAM CONTROL (while in manual mode, user manually write start/stop stream register)
+message = {"enable": "0"}
+r = requests.put(f'http://{pi_address}:8000/registers/manual_mode', json = message)
+print(r.content)
+
+
 # DISABLE POWER EXAMPLE (reset pin)
 message = {"enable": "0"}
 r = requests.put(f'http://{pi_address}:8000/registers/power', json = message)

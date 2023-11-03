@@ -91,6 +91,11 @@ class RegisterItemAPI(MethodView):
             dict_of_items = request.json
             retval = self.camera.registers.set_manual_mode(int(dict_of_items['enable']))
             return jsonify(retval)
+        if id == 'stream_ctrl':
+            dict_of_items = request.json
+            retval = self.camera.registers.set_stream_ctrl(int(dict_of_items['enable']))
+            return jsonify(retval)
+
         if id == 'power':
             dict_of_items = request.json
             retval = self.camera.registers.set_power(int(dict_of_items['enable']))
