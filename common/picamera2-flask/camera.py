@@ -53,6 +53,7 @@ class Registers():
         self.i2c = v4l2Ctrl(sensor, printFunc=print)
         self.power = True
         self.manual_mode = False
+        self.stream_ctrl = False
         self.illum = True
         self.set_manual_mode(False)
     def set_power(self, enable=True):
