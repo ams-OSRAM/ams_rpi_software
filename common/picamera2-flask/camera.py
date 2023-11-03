@@ -2,12 +2,13 @@ import io
 import sys
 import time
 import logging
-
 from picamera2 import Picamera2
 from picamera2.encoders import JpegEncoder
 from picamera2.outputs import FileOutput
 from picamera2.sensor_format import SensorFormat
 from threading import Condition
+sys.path.append("../common")
+sys.path.append("../../common")
 from config_parser import ConfigParser
 from driver_access import v4l2Ctrl
 
@@ -29,9 +30,6 @@ log.addHandler(fh)
 
 
 log.info("app started")
-
-sys.path.append("../common")
-sys.path.append("../../common")
 
 
 class StreamingOutput(io.BufferedIOBase):
