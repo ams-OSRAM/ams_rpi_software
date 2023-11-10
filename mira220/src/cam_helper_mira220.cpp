@@ -22,6 +22,9 @@
 #endif
 
 using namespace RPiController;
+using namespace libcamera;
+using libcamera::utils::Duration;
+using namespace std::literals::chrono_literals;
 
 /*
  * We care about one gain register and a pair of exposure registers. Their I2C
@@ -41,16 +44,25 @@ public:
 	CamHelperMira220();
 	uint32_t gainCode(double gain) const override;
 	double gain(uint32_t gain_code) const override;
+	uint32_t exposureLines(const Duration exposure, const Duration lineLength) const override;
+	Duration exposure(uint32_t exposureLines, const Duration lineLength) const override;
 	unsigned int mistrustFramesModeSwitch() const override;
 	bool sensorEmbeddedDataPresent() const override;
 
 private:
+	static constexpr uint32_t minExposureLines = 1;
 	/*
 	 * Smallest difference between the frame length and integration time,
 	 * in units of lines.
 	 */
 	static constexpr int frameIntegrationDiff = 4;
-
+       /*
+	* ROW_TIME_US = ROW_LENGTH * CLK_IN_PERIOD_NS / 1000
+	* MIRA220_ROW_TIME_1600x1400_1000GBS_US=(300*26.04/1000)=7.8us
+	* MIRA220_ROW_TIME_640x480_1000GBS_US=(450*26.04/1000)=11.7us
+	*/
+	static constexpr Duration timePerLine_1600x1400_1000gbs = (7.8 / 1.0e6) * 1.0s;
+	static constexpr Duration timePerLine_640x480_1000gbs = (11.7 / 1.0e6) * 1.0s;
 	void populateMetadata(const MdParser::RegisterMap &registers,
 			      Metadata &metadata) const override;
 };
@@ -73,6 +85,33 @@ double CamHelperMira220::gain(uint32_t gainCode) const
 {
 	return (double)(gainCode);
 }
+
+uint32_t CamHelperMira220::exposureLines(const Duration exposure,
+					[[maybe_unused]] const Duration lineLength) const
+{
+	Duration timePerLine;
+	if (mode_.width == 640) {
+		timePerLine = timePerLine_640x480_1000gbs;
+	} else {
+		timePerLine = timePerLine_1600x1400_1000gbs;
+	}
+	return std::max<uint32_t>(minExposureLines, exposure / timePerLine);
+
+}
+
+
+Duration CamHelperMira220::exposure(uint32_t exposureLines,
+				   [[maybe_unused]] const Duration lineLength) const
+{
+	Duration timePerLine;
+	if (mode_.width == 640) {
+		timePerLine = timePerLine_640x480_1000gbs;
+	} else {
+		timePerLine = timePerLine_1600x1400_1000gbs;
+	}
+	return std::max<uint32_t>(minExposureLines, exposureLines) * timePerLine;
+}
+
 
 unsigned int CamHelperMira220::mistrustFramesModeSwitch() const
 {
