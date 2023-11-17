@@ -13,13 +13,14 @@ sys.path.append("../../common")
 from picam2cv2 import CameraStreamInput
 from driver_access import v4l2Ctrl
 from config_parser import ConfigParser
+from ExtTrigPWM import ExtTrigPWM
 
 if __name__ == "__main__":
 
     # Before stream on, upload register sequence
     # Create a config parse to parse the register sequence txt
     config_parser = ConfigParser()
-    reg_seq = config_parser.parse_file('config_files/SLV_Mira220.txt')
+    reg_seq = config_parser.parse_file('config_files/Mira220_register_sequence_12b_1600x1400.txt')
     print(f"Parsed {len(reg_seq)} register writes from file.")
 
     # Create a v4l2Ctrl class for register read/write over i2c.
@@ -49,23 +50,26 @@ if __name__ == "__main__":
     # (3) Disable base register sequence upload and reset; use external trigger
     i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA220_REG_FLAG_REG_UP_OFF)
     i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA220_REG_FLAG_RESET_OFF)
-    # Set STREAM_CTRL_OFF to use external trigger
-    i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA220_REG_FLAG_STREAM_CTRL_OFF)
 
     # (4) Upload register sequence from txt file
     print(f"Writing {len(reg_seq)} registers to driver buffer via V4L2 interface.")
     for reg in reg_seq:
         exp_val = i2c.rwReg(addr=reg[0], value=reg[1], rw=1, flag=0)
 
-    # (5) enable external trigger PWM
-    # Pin Definitons:
-    pwmPin = 18 # Broadcom pin 18 (P1 pin 12)
-    dc = 10 # duty cycle (0-100) for PWM pin
-    # Pin Setup:
-    GPIO.setmode(GPIO.BCM) # Broadcom pin-numbering scheme
-    GPIO.setup(pwmPin, GPIO.OUT) # PWM pin set as output
-    pwm = GPIO.PWM(pwmPin, 1)  # Initialize PWM on pwmPin 100Hz frequency
-    pwm.start(dc)
+    # (5) enable external trigger
+    # On the sensor side:
+    # (a) set slave mode register 0x1003. Value 0x08 : slave mode. Value 0x10: master mode.
+    i2c.rwReg(addr=0x1003, value=0x08, rw=1, flag=0)
+    # (b) set external selection register 0x1001.
+    #     value 0x00 : single pin control via REQ_EXP, exp_time via PWM width.
+    #     value 0x01 : single pin control via REG_EXP, exp_time via register.
+    i2c.rwReg(addr=0x1001, value=0x00, rw=1, flag=0)
+    # (c) set STREAM_CTRL_OFF to disable stream start/stop.
+    i2c.rwReg(addr=0x0, value=0, rw=1, flag=i2c.AMS_CAMERA_CID_MIRA220_REG_FLAG_STREAM_CTRL_OFF)
+    # Below are codes that use RPi PWM pin as external trigger. Not needed if ext trig is from elsewhere.
+    # Config: Broadcom GPIO 18 (PCM CLK) at header position 12. Frequency 30Hz. Duty cycle 20 percent.
+    ext_trig_pwm = ExtTrigPWM(ext_trig_pwm_pin=18, ext_trig_pwm_hz=30, ext_trig_pwm_dc=20)
+    ext_trig_pwm.start()
 
     # (6) Initialize camera stream according to width, height, bit depth etc. from register sequence
     input_camera_stream = CameraStreamInput(width=1600, height=1400, AeEnable=False, FrameRate=30.0, bit_depth=12)
