@@ -7,3 +7,6 @@ Werkzeug==2.3.6
 Flask-Markdown
 autopep8
 matplotlib
+ipywidgets
+jupyterlab_widgets 
+pandas

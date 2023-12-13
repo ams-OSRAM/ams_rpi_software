@@ -7,3 +7,7 @@ images
 .ipynb_checkpoints
 logs.log
 .vscode
+*.dng
+*.jpg
+*.npz
+*.csv

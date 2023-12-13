@@ -217,6 +217,7 @@ class Camera:
         self.picam2 = None
         self.form_data = None
         self.cam_info = None
+        self.model = Picamera2.global_camera_info()[0]['Model']  #before init
         self.registers = None #Registers("mira220")  # TODO
 
         log.debug("cam class init")
@@ -230,7 +231,7 @@ class Camera:
                 return
             self.cam_info = self.picam2.camera_properties
             self.sensor_modes = self.picam2.sensor_modes
-            self.registers = Registers(self.cam_info["Model"])
+            self.registers = Registers(self.model)
             log.debug(f"cam info {self.cam_info}")
             log.debug(f"cam modes {self.sensor_modes}")
 
