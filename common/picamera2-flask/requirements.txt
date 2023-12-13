@@ -6,3 +6,4 @@ python-dotenv==1.0.0
 Werkzeug==2.3.6
 Flask-Markdown
 autopep8
+matplotlib

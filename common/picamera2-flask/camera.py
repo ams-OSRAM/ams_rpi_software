@@ -51,6 +51,8 @@ class Registers:
 
     def __init__(self, sensor) -> None:
         self.register_sequence = ["test"]
+        log.debug(f" {__class__} register class init w sensor: {sensor}")
+
         self.i2c = v4l2Ctrl(sensor, printFunc=print)
         self.power = True
         self.manual_mode = False
@@ -60,7 +62,7 @@ class Registers:
 
     def set_power(self, enable=True):
         self.power = enable
-        log.debug(f" {__class__} {enable}")
+        log.debug(f" {__class__} power enable: {enable}")
         if enable:
             # flags are same for all sensors
             self.i2c.rwReg(
@@ -159,7 +161,7 @@ class Registers:
 
     def write_register(self, reg, val):
         exp_val = self.i2c.rwReg(addr=reg, value=val, rw=1, flag=0)
-        log.debug(f" {__class__} writereg {reg} {val} {exp_val}")
+        log.debug(f" {__class__} writereg sensor {self.i2c.sensor} {reg} {val} {exp_val}")
 
         return exp_val
 
@@ -215,8 +217,7 @@ class Camera:
         self.picam2 = None
         self.form_data = None
         self.cam_info = None
-        self.raw_format = "SGRBG10_CSI2P"
-        self.registers = Registers("mira220")  # TODO
+        self.registers = None #Registers("mira220")  # TODO
 
         log.debug("cam class init")
 
@@ -229,7 +230,7 @@ class Camera:
                 return
             self.cam_info = self.picam2.camera_properties
             self.sensor_modes = self.picam2.sensor_modes
-
+            self.registers = Registers(self.cam_info["Model"])
             log.debug(f"cam info {self.cam_info}")
             log.debug(f"cam modes {self.sensor_modes}")
 
@@ -274,7 +275,7 @@ class Camera:
         # fps = 1/exposure
         self.picam2.set_controls(
             {
-                "ExposureTime": int(self.controls.exposure_us),
+                "ExposureTime": int(float(self.controls.exposure_us)),
                 "FrameDurationLimits": (10000, 1000000),
                 "AnalogueGain": float(self.controls.analog_gain),
             }

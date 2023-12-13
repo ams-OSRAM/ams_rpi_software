@@ -2,6 +2,12 @@
 
 All changes to this project will be documented here.
 
+## 2023-12-27
+
+### Fixed
+
+- mira016: update 10b and 8 bit mode to have analog gain of 1x. 
+
 ## 2023-10-27
 
 ### Fixed

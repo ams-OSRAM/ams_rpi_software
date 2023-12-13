@@ -441,6 +441,7 @@ def captureImageRaw(videostream=False):
         else:
             image = camera.picam2.capture_array("raw").view(np.uint16)
         size = camera.sensor_modes[int(camera.controls.mode)]["size"]
+        log.debug(f"camera size is {size} for cropping image, bitmode is {int(camera.sensor_modes[int(camera.controls.mode)]['bit_depth'])}")
         width = size[0]
         height = size[1]
         image = image[0:height, 0:width]
