@@ -11,7 +11,7 @@ class ConfigParser:
                 try:
                     values = line.split()
                     if len(values) > 0:
-                        if values[0] != '#':
+                        if values[0] != '#' and values[0].lower()=='write':
                             # Create a temporary lower-case line for matching
                             values_lower = [item.lower() for item in values]
                             # Find where the keyword "write" starts in the line
