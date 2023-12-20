@@ -573,7 +573,7 @@ Write 0 to 0x002B
 Write 0 to 0xE004
 Write 0 to 0x000E
 Write 0 to 0x000F
-Write 3 to 0x0010
+Write 211 to 0x0010
 Write 232 to 0x0011
 Write 0 to 0x0012
 Write 0 to 0x0013
