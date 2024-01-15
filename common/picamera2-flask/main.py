@@ -511,7 +511,7 @@ def index():
         form.analog_gain.choices = [1, 2, 4]
 
     elif camera.cam_info["Model"] == "mira016":
-        form.analog_gain.choices = [1]
+        form.analog_gain.choices = [1,2]
 
     # form.bitmode.choices = [8,10]
     if request.method == "POST" and form.validate():
