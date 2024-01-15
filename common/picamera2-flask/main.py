@@ -330,6 +330,9 @@ def capturefast(videostream=False):
     # data = request.get_data()
     # log.debug(data)
     log.debug(f"cam  open {camera.is_opened} {camera.is_started}")
+    camera.close()
+    log.debug(f"cam  open {camera.is_opened} {camera.is_started}")
+
     if not camera.is_opened:
         camera.open()
     camera.update_controls()
@@ -341,6 +344,8 @@ def capturefast(videostream=False):
                 camera.open()
             if not camera.is_started:
                 camera.picam2.stop()
+                log.debug("stopping cam then configuring")
+
                 still_config = camera.picam2.create_still_configuration(
                     main={
                         "size": camera.sensor_modes[int(camera.controls.mode)]["size"]
@@ -400,10 +405,10 @@ def captureImageRaw(videostream=False):
     global camera
     # TODO implemnet using completedrequest, see p36 picamera2-manual
     global UPLOAD_FOLDER
+
     if not camera.is_opened:
         camera.open()
     camera.update_controls()
-
     # request.save("main", "test3.jpg")
     if not videostream:
         try:
