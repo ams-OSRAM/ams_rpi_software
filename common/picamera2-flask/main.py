@@ -222,6 +222,11 @@ class ControlForm(Form):
         default=1000,
         validators=[validators.NumberRange(min=10, max=1000000)],
     )
+    framerate = DecimalField(
+        "Framerate ",
+        default=30,
+        validators=[validators.NumberRange(min=1, max=360)],
+    )
     analog_gain = SelectField("Analog gain", default=1, choices=[1, 2, 4])
     # bitmode = SelectField('Sensor ADC bitmode', default = 12, choices=[8, 10,12])
     mode = SelectField("Sensor mode", default=None, choices=[])
@@ -305,7 +310,9 @@ def genFrames(camera, only_configure=False):
     camera.stop_recording()
     camera.picam2.configure(video_config)
     camera.update_controls()
+
     output = StreamingOutput()
+
     camera.start_recording(output)
     time.sleep(1)
     log.debug(f"cam controls gain {camera.picam2.camera_controls['AnalogueGain']}")
@@ -361,6 +368,8 @@ def capturefast(videostream=False):
                 # still_config = camera.picam2.create_still_configuration(main={
                 #             "size": camera.size}, raw=camera.controls.mode, buffer_count=2)
                 camera.picam2.configure(still_config)
+                camera.update_controls()
+
                 try:
                     camera.picam2.start()
                 except RuntimeError:
@@ -389,6 +398,10 @@ def capturefast(videostream=False):
         else:
             image = camera.picam2.capture_array("raw").view(np.uint16)
         imgs.append(image[0:height, 0:width])
+        frametime=camera.picam2.capture_metadata()["FrameDuration"]
+        timestamp=camera.picam2.capture_metadata()["SensorTimestamp"]
+        print(f'timestamp {timestamp} frametime {frametime}')
+
 
     req.release()
     # create bytes stream

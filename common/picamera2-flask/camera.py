@@ -182,6 +182,7 @@ class Controls:
         self.analog_gain = 1.0
         self.illumination = True
         self.mode = 0
+        self.framerate = 30
 
     @property
     def json(self):
@@ -279,6 +280,7 @@ class Camera:
                 "ExposureTime": int(float(self.controls.exposure_us)),
                 "FrameDurationLimits": (10000, 1000000),
                 "AnalogueGain": float(self.controls.analog_gain),
+                "FrameRate": int(float(self.controls.framerate))
             }
         )
 
