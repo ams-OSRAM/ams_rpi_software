@@ -57,19 +57,14 @@ public:
 	bool sensorEmbeddedDataPresent() const override;
 
 private:
-	static constexpr uint32_t minExposureLines = 1;
-	static constexpr uint32_t minExposureTunits = 50;
-
+	static constexpr uint32_t minExposureLines = 41; //in us
 	/*
 	 * Smallest difference between the frame length and integration time,
 	 * in units of lines.
 	 */
 	static constexpr int frameIntegrationDiff = 4;
 	/* ROW_LENGTH is microseconds is (ROW_LENGTH * 8 / MIRA_DATA_RATE) */
-#define MIRA016_DATA_RATE			1500 // Mbit/s
-#define MIRA016_MIN_ROW_LENGTH			1504
-	static constexpr Duration timePerLine = (MIRA016_MIN_ROW_LENGTH * 8.0 / MIRA016_DATA_RATE) / 1.0e6 * 1.0s;
-	static constexpr Duration timeUnit_us = 1.0s;
+	static constexpr Duration timePerLine = 1.0 / 1.0e6 * 1.0s; //time unit is 1 us
 	static constexpr float gainLut8bit[] = {
 	1,
 	1.018,
@@ -261,14 +256,14 @@ double CamHelperMira016::gain(uint32_t gainCode) const
 uint32_t CamHelperMira016::exposureLines(const Duration exposure,
 					[[maybe_unused]] const Duration lineLength) const
 {
-	return std::max<uint32_t>(minExposureTunits, exposure / timeUnit_us);
+	return std::max<uint32_t>(minExposureLines, exposure / timePerLine);
 }
 
 
 Duration CamHelperMira016::exposure(uint32_t exposureLines,
 				   [[maybe_unused]] const Duration lineLength) const
 {
-	return std::max<uint32_t>(minExposureTunits, exposureLines) * timeUnit_us;
+	return std::max<uint32_t>(minExposureLines, exposureLines) * timePerLine;
 }
 
 
