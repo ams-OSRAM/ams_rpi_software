@@ -111,26 +111,26 @@ double CamHelperMira016::gain(uint32_t gainCode) const
 	}
 }
 
-uint32_t CamHelperMira016::exposureLines(const Duration exposure,
-										 [[maybe_unused]] const Duration lineLength) const
-{
-	return std::max<uint32_t>(minExposureLines, exposure / timePerLine);
-}
+// uint32_t CamHelperMira016::exposureLines(const Duration exposure,
+// 										 [[maybe_unused]] const Duration lineLength) const
+// {
+// 	return std::max<uint32_t>(minExposureLines, exposure / timePerLine);
+// }
 
-Duration CamHelperMira016::exposure(uint32_t exposureLines,
-									[[maybe_unused]] const Duration lineLength) const
-{
-	return std::max<uint32_t>(minExposureLines, exposureLines) * timePerLine;
-}
+// Duration CamHelperMira016::exposure(uint32_t exposureLines,
+// 									[[maybe_unused]] const Duration lineLength) const
+// {
+// 	return std::max<uint32_t>(minExposureLines, exposureLines) * timePerLine;
+// }
 
 void CamHelperMira016::getDelays(int &exposureDelay, int &gainDelay,
 								 int &vblankDelay, int &hblankDelay) const
 {
 	/* The driver appears to behave as follows: */
-	exposureDelay = 2;
+	exposureDelay = 1;
 	gainDelay = 2;
-	vblankDelay = 2;
-	hblankDelay = 2;
+	vblankDelay = 1;
+	hblankDelay = 1;
 }
 
 static CamHelper *create()
