@@ -75,6 +75,7 @@ sudo apt install -y qtbase5-dev libqt5core5a libqt5gui5 libqt5widgets5 qttools5-
 ##############################
 sudo pip3 install rawpy
 sudo pip3 install imageio
+pip3 install scipy
 ################################
 # Uninstall apt and pip packages
 # Use self-built ones instead
