@@ -48,8 +48,8 @@ public:
 	CamHelperMira016();
 	uint32_t gainCode(double gain) const override;
 	double gain(uint32_t code) const override;
-	uint32_t exposureLines(const Duration exposure, const Duration lineLength) const override;
-	Duration exposure(uint32_t exposureLines, const Duration lineLength) const override;
+	//uint32_t exposureLines(const Duration exposure, const Duration lineLength) const override;
+	//Duration exposure(uint32_t exposureLines, const Duration lineLength) const override;
 	void getDelays(int &exposureDelay, int &gainDelay,
 				   int &vblankDelay, int &hblankDelay) const override;
 
