@@ -38,12 +38,12 @@ LOG_DECLARE_CATEGORY(IPARPI)
  * We care about one gain register and a pair of exposure registers. Their I2C
  * addresses from the mira050 datasheet:
  */
-constexpr uint32_t gainReg = 0x0024;
-constexpr uint32_t expReg = 0x000E;
+// constexpr uint32_t gainReg = 0x0024;
+// constexpr uint32_t expReg = 0x000E;
 // constexpr uint32_t frameLengthHiReg = 0x1013;
 // constexpr uint32_t frameLengthLoReg = 0x1012;
-constexpr std::initializer_list<uint32_t> registerList [[maybe_unused]]
-	= { expReg, gainReg };
+// constexpr std::initializer_list<uint32_t> registerList [[maybe_unused]]
+// 	= { expReg, gainReg };
 
 class CamHelperMira050 : public CamHelper
 {
@@ -51,23 +51,29 @@ public:
 	CamHelperMira050();
 	uint32_t gainCode(double gain) const override;
 	double gain(uint32_t code) const override;
-	uint32_t exposureLines(const Duration exposure, const Duration lineLength) const override;
-	Duration exposure(uint32_t exposureLines, const Duration lineLength) const override;
-	unsigned int mistrustFramesModeSwitch() const override;
-	bool sensorEmbeddedDataPresent() const override;
+	// uint32_t exposureLines(const Duration exposure, const Duration lineLength) const override;
+	// Duration exposure(uint32_t exposureLines, const Duration lineLength) const override;
+	// unsigned int mistrustFramesModeSwitch() const override;
+	// bool sensorEmbeddedDataPresent() const override;
+	void getDelays(int &exposureDelay, int &gainDelay,
+				   int &vblankDelay, int &hblankDelay) const override;
+
 
 private:
-	static constexpr uint32_t minExposureLines = 1;
+	static constexpr uint32_t minExposureLines = 60;
 	/*
 	 * Smallest difference between the frame length and integration time,
 	 * in units of lines.
 	 */
 	static constexpr int frameIntegrationDiff = 4;
 	/* ROW_LENGTH is microseconds is (ROW_LENGTH * 8 / MIRA_DATA_RATE) */
-#define MIRA050_DATA_RATE			1000 // Mbit/s
-#define MIRA050_MIN_ROW_LENGTH			1842
-	static constexpr Duration timePerLine = (MIRA050_MIN_ROW_LENGTH * 8.0 / MIRA050_DATA_RATE) / 1.0e6 * 1.0s;
-	static constexpr float gainLut8bit[] = {
+	// #define MIRA050_DATA_RATE			1000 // Mbit/s
+	// #define MIRA050_MIN_ROW_LENGTH			1842
+	static constexpr Duration timePerLine = 1000ns; // time unit is 1 us
+
+	// static constexpr Duration timePerLine = (MIRA050_MIN_ROW_LENGTH * 8.0 / MIRA050_DATA_RATE) / 1.0e6 * 1.0s;
+	static constexpr float gainLut8bit[] = 
+	{
 	1,
 	1.018,
 	1.056,
@@ -214,8 +220,8 @@ private:
 	3.864,
 	4,
 	};
-	void populateMetadata(const MdParser::RegisterMap &registers,
-			      Metadata &metadata) const override;
+	// void populateMetadata(const MdParser::RegisterMap &registers,
+	// 		      Metadata &metadata) const override;
 };
 
 CamHelperMira050::CamHelperMira050()
@@ -291,45 +297,56 @@ double CamHelperMira050::gain(uint32_t gainCode) const
 	}
 }
 
-uint32_t CamHelperMira050::exposureLines(const Duration exposure,
-					[[maybe_unused]] const Duration lineLength) const
+// uint32_t CamHelperMira050::exposureLines(const Duration exposure,
+// 					[[maybe_unused]] const Duration lineLength) const
+// {
+// 	return std::max<uint32_t>(minExposureLines, exposure / timePerLine);
+// }
+
+
+// Duration CamHelperMira050::exposure(uint32_t exposureLines,
+// 				   [[maybe_unused]] const Duration lineLength) const
+// {
+// 	return std::max<uint32_t>(minExposureLines, exposureLines) * timePerLine;
+// }
+
+
+// unsigned int CamHelperMira050::mistrustFramesModeSwitch() const
+// {
+// 	/*
+// 	 * For reasons unknown, we do occasionally get a bogus metadata frame
+// 	 * at a mode switch (though not at start-up). Possibly warrants some
+// 	 * investigation, though not a big deal.
+// 	 */
+// 	return 1;
+// }
+
+// bool CamHelperMira050::sensorEmbeddedDataPresent() const
+// {
+// 	return ENABLE_EMBEDDED_DATA;
+// }
+
+// void CamHelperMira050::populateMetadata(const MdParser::RegisterMap &registers,
+// 				       Metadata &metadata) const
+// {
+// 	DeviceStatus deviceStatus;
+
+// 	deviceStatus.shutterSpeed = exposure(registers.at(expReg), deviceStatus.lineLength);
+// 	deviceStatus.analogueGain = gain(registers.at(gainReg));
+
+// 	metadata.set("device.status", deviceStatus);
+// }
+
+void CamHelperMira050::getDelays(int &exposureDelay, int &gainDelay,
+								 int &vblankDelay, int &hblankDelay) const
 {
-	return std::max<uint32_t>(minExposureLines, exposure / timePerLine);
+	/* The driver appears to behave as follows: */
+	exposureDelay = 1;
+	gainDelay = 2;
+	vblankDelay = 1;
+	hblankDelay = 1;
 }
 
-
-Duration CamHelperMira050::exposure(uint32_t exposureLines,
-				   [[maybe_unused]] const Duration lineLength) const
-{
-	return std::max<uint32_t>(minExposureLines, exposureLines) * timePerLine;
-}
-
-
-unsigned int CamHelperMira050::mistrustFramesModeSwitch() const
-{
-	/*
-	 * For reasons unknown, we do occasionally get a bogus metadata frame
-	 * at a mode switch (though not at start-up). Possibly warrants some
-	 * investigation, though not a big deal.
-	 */
-	return 1;
-}
-
-bool CamHelperMira050::sensorEmbeddedDataPresent() const
-{
-	return ENABLE_EMBEDDED_DATA;
-}
-
-void CamHelperMira050::populateMetadata(const MdParser::RegisterMap &registers,
-				       Metadata &metadata) const
-{
-	DeviceStatus deviceStatus;
-
-	deviceStatus.shutterSpeed = exposure(registers.at(expReg), deviceStatus.lineLength);
-	deviceStatus.analogueGain = gain(registers.at(gainReg));
-
-	metadata.set("device.status", deviceStatus);
-}
 
 static CamHelper *create()
 {
