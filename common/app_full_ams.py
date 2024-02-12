@@ -687,7 +687,7 @@ class AECTab(QWidget):
 
     def reset(self):
         self.aec_check.setChecked(False)
-        self.awb_check.setChecked(True)
+        self.awb_check.setChecked(False)
         self.exposure_time.setValue(10000)
         self.analogue_gain.setValue(1.0)
         self.colour_gain_r.setValue(1.0)
