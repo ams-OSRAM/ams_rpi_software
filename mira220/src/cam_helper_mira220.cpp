@@ -25,7 +25,9 @@ using namespace RPiController;
 using namespace libcamera;
 using libcamera::utils::Duration;
 using namespace std::literals::chrono_literals;
-
+namespace libcamera {
+LOG_DECLARE_CATEGORY(IPARPI)
+}
 /*
  * We care about one gain register and a pair of exposure registers. Their I2C
  * addresses from the mira220 datasheet:
@@ -44,10 +46,10 @@ public:
 	CamHelperMira220();
 	uint32_t gainCode(double gain) const override;
 	double gain(uint32_t gain_code) const override;
-	uint32_t exposureLines(const Duration exposure, const Duration lineLength) const override;
-	Duration exposure(uint32_t exposureLines, const Duration lineLength) const override;
-	unsigned int mistrustFramesModeSwitch() const override;
-	bool sensorEmbeddedDataPresent() const override;
+	// uint32_t exposureLines(const Duration exposure, const Duration lineLength) const override;
+	// Duration exposure(uint32_t exposureLines, const Duration lineLength) const override;
+	// unsigned int mistrustFramesModeSwitch() const override;
+	// bool sensorEmbeddedDataPresent() const override;
 
 private:
 	static constexpr uint32_t minExposureLines = 1;
@@ -61,10 +63,10 @@ private:
 	* MIRA220_ROW_TIME_1600x1400_1000GBS_US=(300*26.04/1000)=7.8us
 	* MIRA220_ROW_TIME_640x480_1000GBS_US=(450*26.04/1000)=11.7us
 	*/
-	static constexpr Duration timePerLine_1600x1400_1000gbs = (7.8 / 1.0e6) * 1.0s;
-	static constexpr Duration timePerLine_640x480_1000gbs = (11.7 / 1.0e6) * 1.0s;
-	void populateMetadata(const MdParser::RegisterMap &registers,
-			      Metadata &metadata) const override;
+	// static constexpr Duration timePerLine_1600x1400_1000gbs = (7.8 / 1.0e6) * 1.0s;
+	// static constexpr Duration timePerLine_640x480_1000gbs = (11.7 / 1.0e6) * 1.0s;
+	// void populateMetadata(const MdParser::RegisterMap &registers,
+			    //   Metadata &metadata) const override;
 };
 
 CamHelperMira220::CamHelperMira220()
@@ -86,59 +88,64 @@ double CamHelperMira220::gain(uint32_t gainCode) const
 	return (double)(gainCode);
 }
 
-uint32_t CamHelperMira220::exposureLines(const Duration exposure,
-					[[maybe_unused]] const Duration lineLength) const
-{
-	Duration timePerLine;
-	if (mode_.width == 640) {
-		timePerLine = timePerLine_640x480_1000gbs;
-	} else {
-		timePerLine = timePerLine_1600x1400_1000gbs;
-	}
-	return std::max<uint32_t>(minExposureLines, exposure / timePerLine);
+// uint32_t CamHelperMira220::exposureLines(const Duration exposure,
+// 					[[maybe_unused]] const Duration lineLength) const
+// {
+// 	Duration timePerLine;
+// 	if (mode_.width == 640) {
+// 		timePerLine = timePerLine_640x480_1000gbs;
+// 	} else {
+// 		timePerLine = timePerLine_1600x1400_1000gbs;
+// 	}
+// 	return std::max<uint32_t>(minExposureLines, exposure / timePerLine);
 
-}
-
-
-Duration CamHelperMira220::exposure(uint32_t exposureLines,
-				   [[maybe_unused]] const Duration lineLength) const
-{
-	Duration timePerLine;
-	if (mode_.width == 640) {
-		timePerLine = timePerLine_640x480_1000gbs;
-	} else {
-		timePerLine = timePerLine_1600x1400_1000gbs;
-	}
-	return std::max<uint32_t>(minExposureLines, exposureLines) * timePerLine;
-}
+// }
 
 
-unsigned int CamHelperMira220::mistrustFramesModeSwitch() const
-{
-	/*
-	 * For reasons unknown, we do occasionally get a bogus metadata frame
-	 * at a mode switch (though not at start-up). Possibly warrants some
-	 * investigation, though not a big deal.
-	 */
-	return 1;
-}
+// Duration CamHelperMira220::exposure(uint32_t exposureLines,
+// 				   [[maybe_unused]] const Duration lineLength) const
+// {
+// 	Duration timePerLine;
+// 	LOG(IPARPI, Warning) << "Philippe cam_helper220.cpp exposurefun " ;
 
-bool CamHelperMira220::sensorEmbeddedDataPresent() const
-{
-	return ENABLE_EMBEDDED_DATA;
-}
+// 	if (mode_.width == 640) {
+// 		timePerLine = timePerLine_640x480_1000gbs;
+// 	} else {
+// 		timePerLine = timePerLine_1600x1400_1000gbs;
+// 	}
+// 	return std::max<uint32_t>(minExposureLines, exposureLines) * timePerLine;
+// }
 
-void CamHelperMira220::populateMetadata(const MdParser::RegisterMap &registers,
-				       Metadata &metadata) const
-{
-	DeviceStatus deviceStatus;
 
-	deviceStatus.shutterSpeed = exposure(registers.at(expHiReg) * 256 + registers.at(expLoReg), deviceStatus.lineLength);
-	deviceStatus.analogueGain = gain(registers.at(gainReg));
-	deviceStatus.frameLength = registers.at(frameLengthHiReg) * 256 + registers.at(frameLengthLoReg);
+// unsigned int CamHelperMira220::mistrustFramesModeSwitch() const
+// {
+// 	/*
+// 	 * For reasons unknown, we do occasionally get a bogus metadata frame
+// 	 * at a mode switch (though not at start-up). Possibly warrants some
+// 	 * investigation, though not a big deal.
+// 	 */
+// 	return 1;
+// }
 
-	metadata.set("device.status", deviceStatus);
-}
+// bool CamHelperMira220::sensorEmbeddedDataPresent() const
+// {
+// 	return ENABLE_EMBEDDED_DATA;
+// }
+
+// void CamHelperMira220::populateMetadata(const MdParser::RegisterMap &registers,
+// 				       Metadata &metadata) const
+// {
+// 	DeviceStatus deviceStatus;
+
+// 	deviceStatus.shutterSpeed = exposure(registers.at(expHiReg) * 256 + registers.at(expLoReg), deviceStatus.lineLength);
+// 	deviceStatus.analogueGain = gain(registers.at(gainReg));
+// 	deviceStatus.frameLength = registers.at(frameLengthHiReg) * 256 + registers.at(frameLengthLoReg);
+// 	LOG(IPARPI, Warning) << "Philippe cam_helper220.cpp shutterspeed " << deviceStatus.shutterSpeed;
+// 	LOG(IPARPI, Warning) << "Philippe cam_helper220.cpp anag " << deviceStatus.analogueGain;
+// 	LOG(IPARPI, Warning) << "Philippe cam_helper220.cpp framelen " << deviceStatus.frameLength;
+
+// 	metadata.set("device.status", deviceStatus);
+// }
 
 static CamHelper *create()
 {
