@@ -65,8 +65,9 @@ os.system("sudo systemctl stop picamera2-flask")
 picam2 = Picamera2()
 picam2.post_callback = post_callback
 lores_size = picam2.sensor_resolution
-while lores_size[0] > 1600:
-    lores_size = (lores_size[0] // 2 & ~1, lores_size[1] // 2 & ~1)
+print(f'{lores_size=}')
+while lores_size[0] > 1200:
+    lores_size = (lores_size[0] // 4 & ~1, lores_size[1] // 4 & ~1)
 still_kwargs = {"lores": {"size": lores_size}, "display": "lores", "encode": "lores", "buffer_count": 1}
 picam2.still_configuration = picam2.create_still_configuration(
     **still_kwargs
@@ -79,7 +80,6 @@ app = QApplication([])
 
 
 def switch_config(new_config):
-    print("Switching to", new_config)
     # Stop and change config
     picam2.stop()
     picam2.configure(new_config)
@@ -203,9 +203,6 @@ def capture_done(job):
             request.save_dng(path)
             with rawpy.imread(path) as raw:
                 im = raw.raw_image
-                print(im)
-                print(im.dtype)
-                print(im.shape)
                 pilim = Image.fromarray(im)
                 pilim.save(f"{pic_tab.filename.text() if pic_tab.filename.text() else 'test'}.tiff")
                 
@@ -1117,6 +1114,7 @@ class picTab(QWidget):
         self.preview_format.clear()
         self.preview_format.addItem("Same as capture")
         self.preview_modes = []
+        print(f'crop limits: {crop_limits}')
         for mode in picam2.sensor_modes:
             if mode["crop_limits"] == crop_limits:
                 self.preview_format.addItem(f'{mode["format"].format} {mode["size"]}')
