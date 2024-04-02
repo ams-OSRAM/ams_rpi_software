@@ -342,7 +342,7 @@ void CamHelperMira050::getDelays(int &exposureDelay, int &gainDelay,
 {
 	/* The driver appears to behave as follows: */
 	exposureDelay = 1;
-	gainDelay = 2;
+	gainDelay = 1;
 	vblankDelay = 1;
 	hblankDelay = 1;
 }
