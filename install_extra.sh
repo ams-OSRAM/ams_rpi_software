@@ -2,7 +2,7 @@ sudo pip3 install setuptools
 sudo apt install libffi-dev
 sudo pip3 install cffi
 sudo pip3 install jupyterlab
-
+pip3 install packages/char/. --ignore-requires-python
 sudo cp jupyter.service /etc/systemd/system
 
 #adjust this so it is not dubplicated when running twice.
