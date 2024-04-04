@@ -227,7 +227,9 @@ class ControlForm(Form):
         default=30,
         validators=[validators.NumberRange(min=1, max=360)],
     )
-    analog_gain = SelectField("Analog gain", default=1, choices=[1, 2, 4])
+    analog_gain = DecimalField(
+            "Analog gain", default=1.0, validators=[validators.NumberRange(min=1, max=16)],
+    )
     # bitmode = SelectField('Sensor ADC bitmode', default = 12, choices=[8, 10,12])
     mode = SelectField("Sensor mode", default=None, choices=[])
 
@@ -523,13 +525,13 @@ def index():
 
     if camera.cam_info["Model"] == "mira220":
         form.exposure_us.validators[0] = validators.NumberRange(min=min, max=max)
-        form.analog_gain.choices = [1]
+        form.analog_gain.validators[0] = validators.NumberRange(min=1, max=1)
 
     elif camera.cam_info["Model"] == "mira050":
-        form.analog_gain.choices = [1, 2, 4]
+        form.analog_gain.validators[0] = validators.NumberRange(min=1, max=16)
 
     elif camera.cam_info["Model"] == "mira016":
-        form.analog_gain.choices = [1,2]
+        form.analog_gain.validators[0] = validators.NumberRange(min=1, max=2)
 
     # form.bitmode.choices = [8,10]
     if request.method == "POST" and form.validate():
@@ -543,6 +545,7 @@ def index():
         # camera.controls['illumination']=form.illumination.data
         log.debug(f"form {form.data}")
         camera.update_controls()
+
         if form.data["download"] == True:
             log.debug("download button pressed")
             filename = "requirements.txt"
@@ -555,6 +558,7 @@ def index():
             if camera.is_opened:
                 camera.close()
             camera.open()
+        
 
         if form.data["cam_close"] == True:
             log.debug("cam_close pressed")
@@ -580,12 +584,19 @@ def index():
     #     elif 'watch' in request.form:
     #         pass # do something else
     # you can customze index.html here
+    info = camera.sensor_modes[int(camera.controls.mode)]
+    try:
+        gainlims=camera.picam2.camera_controls["AnalogueGain"]
+
+        info['gainlimits']=gainlims,
+    except:
+        pass
     return render_template(
         "index.html",
         notebook=notebook,
         form=form,
         model=camera.cam_info["Model"],
-        caminfo=camera.sensor_modes[int(camera.controls.mode)],
+        caminfo=info
     )
 
 
