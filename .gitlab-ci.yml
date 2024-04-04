@@ -1,0 +1,21 @@
+stages:
+    - test
+
+before_script:
+    - $ErrorActionPreference = "Continue" # This will be set to 'Stop' when targetting PowerShell Core
+    - echo "Running on $([Environment]::MachineName)..."
+    - $env:Path += ";C:\Anaconda3;C:\Anaconda3\Scripts;C:\Anaconda3\Library\bin"
+    - echo $env:Path     
+    - conda init powershell
+    # see this stackoverflow for reference on next line:
+    # https://stackoverflow.com/questions/57754356/activating-conda-environment-during-gitlab-ci#:~:text=%23%20To%20activate%20this%20environment%2C%20use%20%23%20%23,initialize%20your%20shell%2C%20run%20%24%20conda%20init%20%3CSHELL_NAME%3E
+    - "if (test-path $PROFILE.CurrentUserAllHosts) { & $PROFILE.CurrentUserAllHosts}"
+    - conda env list
+    - conda activate snrcalcr-1
+
+characterization_tests:
+    stage: test
+    tags:
+        - cis_characterization
+    script:  
+        - python.exe -m pytest -v tests # only works once environment selected

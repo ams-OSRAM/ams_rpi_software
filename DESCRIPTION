@@ -1,0 +1,6 @@
+Characterization_ams is a package built for measuring image sensor performance.
+Calculations are based on the latest emva spec (v4).
+
+https://www.emva.org/standards-technology/emva-1288/
+
+Many useful functions are included for dark and PTC measurements.

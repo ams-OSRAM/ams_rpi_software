@@ -1,0 +1,47 @@
+
+[project]
+name = "ams_characterization"
+version = "1.0.3.2"
+description = "Package for ams characterization."
+authors = [
+{name="Denver Lloyd", email= "denver.lloyd@ams-osram.com"}
+]
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+requires-python = "~=3.10"
+
+dependencies = [
+"numpy>=1.4.1",
+"pandas",
+"scipy",
+"collections-extended",
+"pillow",
+"lxml",
+"matplotlib",
+"PyYAML",
+"sympy",
+"imageio>=2.21.1",
+"flask",
+"scandir",
+"pywebify @ git+https://github.com/endangeredoxen/pywebify.git@6fb6317e6a33b86b20c018df202c11746767d73b"
+]
+
+
+[tool.pdm.dev-dependencies]
+test = ["pytest"]
+
+[build-system]
+requires = ["pdm-pep517>=1.0.0"]
+build-backend = "pdm.pep517.api"
+
+[tool.versioneer]
+VCS = "git"
+style = "pep517"
+versionfile_source = "characterization_ams/_version.py"
+versionfile_build = "characterization_ams/_version.py"
+tag_prefix = ""
+parentdir_prefix = "characterization_ams-"

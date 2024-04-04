@@ -1,0 +1,182 @@
+tot_var: Tot Var [DN^2]
+col_var: Col Var [DN^2]
+row_var: Row Var [DN^2]
+pix_var: Pix Var [DN^2]
+tot_var_temp: Tot Temp Var [DN^2]
+col_var_temp: Col Temp Var [DN^2]
+row_var_temp: Row Temp Var [DN^2]
+pix_var_temp: Pix Temp Var [DN^2]
+tot_var_e^2: Tot Var [e^2]
+col_var_e^2: Col Var [e^2]
+row_var_e^2: Row Var [e^2]
+pix_var_e^2: Pix Var [e^2]
+tot_var_temp_e^2: Tot Temp Var [e^2]
+col_var_temp_e^2: Col Temp Var [e^2]
+row_var_temp_e^2: Row Temp Var [e^2]
+pix_var_temp_e^2: Pix Temp Var [e^2]
+mean: Mean Signal [DN]
+mean_e: Mean Signal [e]
+tot_var_black_subtracted: Tot Var - Tot Dark Var [DN^2]
+col_var_black_subtracted: Col Var - Col Dark Var [DN^2]
+row_var_black_subtracted: Row Var - Row Dark Var [DN^2]
+pix_var_black_subtracted: Pix Var - Pix Dark Var [DN^2]
+tot_var_temp_black_subtracted: Tot Temp Var - Tot Dark Temp Var [DN^2]
+col_var_temp_black_subtracted: Col Temp Var - Col Dark Temp Var [DN^2]
+row_var_temp_black_subtracted: Row Temp Var - Row Dark Temp Var [DN^2]
+pix_var_temp_black_subtracted: Pix Temp Var - Pix Dark Temp Var [DN^2]
+tot_var_black_subtracted_e^2: Tot Var - Tot Dark Var [e^2]
+col_var_black_subtracted_e^2: Col Var - Col Dark Var [e^2]
+row_var_black_subtracted_e^2: Row Var - Row Dark Var [e^2]
+pix_var_black_subtracted_e^2: Pix Var - Pix Dark Var [e^2]
+tot_var_temp_black_subtracted_e^2: Tot Temp Var - Tot Dark Temp Var [e^2]
+col_var_temp_black_subtracted_e^2: Col Temp Var - Col Dark Temp Var [e^2]
+row_var_temp_black_subtracted_e^2: Row Temp Var - Row Dark Temp Var [e^2]
+pix_var_temp_black_subtracted_e^2: Pix Temp Var - Pix Dark Temp Var [e^2]
+tot_std: Total FPN [DN]
+col_std: Col FPN [DN]
+row_std: Row FPN [DN]
+pix_std: Pix FPN [DN]
+tot_std_temp: Total Temp Noise [DN]
+col_std_temp: Col Temp Noise [DN]
+row_std_temp: Row Temp Noise [DN]
+pix_std_temp: Pix Temp Noise [DN]
+tot_std_e: Total FPN [e]
+col_std_e: Col FPN [e]
+row_std_e: Row FPN [e]
+pix_std_e: Pix FPN [e]
+tot_std_temp_e: Total Temp Noise [e]
+col_std_temp_e: Col Temp Noise [e]
+row_std_temp_e: Row Temp Noise [e]
+pix_std_temp_e: Pix Temp Noise [e]
+tot_std_black_subtracted: Tot FPN - Tot Dark FPN [DN]
+col_std_black_subtracted: Col FPN - Col Dark FPN [DN]
+row_std_black_subtracted: Row FPN - Row Dark FPN [DN]
+pix_std_black_subtracted: Pix FPN - Pix Dark FPN [DN]
+tot_std_temp_black_subtracted: Tot Temp Noise - Tot Dark Temp Noise [DN]
+col_std_temp_black_subtracted: Col Temp Noise - Col Dark Temp Noise [DN]
+row_std_temp_black_subtracted: Row Temp Noise - Row Dark Temp Noise [DN]
+pix_std_temp_black_subtracted: Pix Temp Noise - Pix Dark Temp Noise [DN]
+tot_std_black_subtracted_e: Tot FPN - Tot Dark FPN [e]
+col_std_black_subtracted_e: Col FPN - Col Dark FPN [e]
+row_std_black_subtracted_e: Row FPN - Row Dark FPN [e]
+pix_std_black_subtracted_e: Pix FPN - Pix Dark FPN [e]
+tot_std_temp_black_subtracted_e: Tot Temp Noise - Tot Dark Temp Noise [e]
+col_std_temp_black_subtracted_e: Col Temp Noise - Col Dark Temp Noise [e]
+row_std_temp_black_subtracted_e: Row Temp Noise - Row Dark Temp Noise [e]
+pix_std_temp_black_subtracted_e: Pix Temp Noise - Pix Dark Temp Noise [e]
+cfpn_ratio: CFPN Ratio
+ctn_ratio: CTN Ratio
+rfpn_ratio: RFPN Ratio
+rtn_ratio: RTN Ratio
+stn_ratio: STN Ratio
+tot_fpn_%: Total FPN [%]
+pix_fpn_%: Pix FPN [%]
+row_fpn_%: Row FPN [%]
+col_fpn_%: Col FPN [%]
+mean_black_subtracted: Signal - Dark [DN]
+mean_black_subtracted_e: Signal - Dark [e]
+total_dsnu_DN: Total DSNU [DN]
+row_dsnu_DN: Row DSNU [DN]
+col_dsnu_DN: Col DSNU [DN]
+pix_dsnu_DN: Pix DSNU [DN]
+total_dsnu_e: Total DSNU [e]
+row_dsnu_e: Row DSNU [e]
+col_dsnu_e: Col DSNU [e]
+pix_dsnu_e: Pix DSNU [e]
+linearity_error_max_%: Linearity Error Max [%]
+linearity_error_min_%: Linearity Error Min [%]
+linearity_error_max_DN: Linearity Error Max [DN]
+linearity_error_min_DN: Linearity Error Min [DN]
+linearity_fit_DN: Linearity Fit [DN]
+linearity_error_DN: Linearity Error [DN]
+linearity_error_%: Linearity Error [%]
+snr_dB: SNR [dB]
+snr_ratio: SNR [ratio]
+snr_ideal_dB: SNR Ideal [dB]
+snr_ideal_ratio: SNR Ideal [ratio]
+snr_theoretical_dB: SNR Theoretical [dB]
+snr_theoretical_ratio: SNR Theoretical [ratio]
+tot_prnu1288_%: Total PRNU1288 [%]
+row_prnu1288_%: Row PRNU1288 [%]
+col_prnu1288_%: Col PRNU1288 [%]
+pix_prnu1288_%: Pix PRNU1288 [%]
+sat_capacity_e: Saturation Capacity [e]
+sat_capacity_p: Saturation Capacity [p]
+sat_capacity_DN: Saturation Capacity [DN]
+sensitivity_threshold_e: Sensitivity Threshold [e]
+sensitivity_threshold_p: Sensitivity Threshold [p]
+sensitivity_threshold_DN: Sensitivity Threshold [DN]
+dynamic_range_ratio: Dynamic Range [ratio]
+dynamic_range_db: Dynamic Range [dB]
+dynamic_range_bits: Dynamic Range [bits]
+prnu_values: PRNU1288 Deviation from Mean [DN]
+prnu_bins: PRNU1288 Number of Pixels/Bin
+prnu_model: PRNU1288 Model
+prnu_accumulated_model: PRNU1288 Accumulated Model
+prnu_accumulated_values: PRNU1288 Percentage of Pixels/Bin
+prnu_accumulated_bins: PRNU1288 Accumulated Deviation from Mean [DN]
+dsnu_values: DSNU1288 Deviation from Mean [DN]
+dsnu_bins: DSNU1288 Number of Pixels/Bin
+dsnu_model: DSNU1288 Model
+dsnu_accumulated_model: DSNU1288 Accumulated Model
+dsnu_accumulated_values: DSNU1288 Percentage of Pixels/Bin
+dsnu_accumulated_bins:  DSNU1288 Accumulated Deviation from Mean [DN]
+dsnu_index_horizontal: DSNU1288 Index Horizontal
+dsnu_middle_horizontal: DSNU1288 Middle Horizontal
+dsnu_mean_horizontal: DSNU1288 Mean Horizontal
+dsnu_max_horizontal: DSNU1288 Max Horizontal
+dsnu_min_horizontal: DSNU1288 Min Horizontal
+dsnu_index_vertical: DSNU1288 Index Vertical
+dsnu_middle_vertical: DSNU1288 Middle Vertical
+dsnu_mean_vertical: DSNU1288 Mean Vertical
+dsnu_max_vertical: DSNU1288 Max Vertical
+dsnu_min_vertical: DSNU1288 Min Vertical
+prnu_index_horizontal: PRNU1288 Index Horizontal
+prnu_middle_horizontal: PRNU1288 Middle Horizontal
+prnu_mean_horizontal: PRNU1288 Mean Horizontal
+prnu_max_horizontal: PRNU1288 Max Horizontal
+prnu_min_horizontal: PRNU1288 Min Horizontal
+prnu_index_vertical: PRNU1288 Index Vertical
+prnu_middle_vertical: PRNU1288 Middle Vertical
+prnu_mean_vertical: PRNU1288 Mean Vertical
+prnu_max_vertical: PRNU1288 Max Vertical
+prnu_min_vertical: PRNU1288 Min Vertical
+dsnu_cycles_horizontal: DSNU1288 Horizontal Cycles [periods/pixel]
+dsnu_cycles_vertical: DSNU1288 Vertical Cycles [periods/pixel]
+prnu_cycles_horizontal: PRNU1288 Horizontal Cycles [periods/pixel]
+prnu_cycles_vertical: PRNU1288 Vertical Cycles [periods/pixel]
+dsnu_power_spectrum_horizontal: DSNU1288 Horizontal Power Spectrum
+dsnu_power_spectrum_vertical: DSNU1288 Vertical Power Spectrum
+prnu_power_spectrum_horizontal: PRNU1288 Horizontal Power Spectrum
+prnu_power_spectrum_vertical: PRNU1288 Vertical Power Spectrum
+pix_temp_noise_e: Pix Dark Temporal Noise [e]
+dark_temporal_noise_DN: Total Dark Temporal Noise [DN]
+dark_temporal_noise_e: Total Dark Temporal Noise [e]
+col_temp_noise_e: Col Dark Temporal Noise [e]
+row_temp_noise_e: Row Dark Temporal Noise [e]
+system_gain: System Gain [DN/e]
+conversion_factor: Conversion Factor [e/DN]
+responsivity_fit: Responsivity Fit
+dc_mean_DN: Mean Dark Current [DN/s]
+dc_std_DN: Standard Deviation [DN/s]
+dc_median_DN: Median Dark Current [DN/s]
+dc_min_DN: Min Dark Current [DN/s]
+dc_max_DN: Max Dark Current [DN/s]
+dc_25%_DN: 25% Quantile [DN/s]
+dc_50%_DN: 50% Quantile [DN/s]
+dc_75%_DN: 75% Quantile [DN/s]
+dc_mean_DN: Mean Dark Current [DN/s]
+dc_mean_e: Mean Dark Current [e/s]
+dc_std_e: Standard Deviation [e/s]
+dc_median_e: Median Dark Current [e/s]
+dc_min_e: Min Dark Current [e/s]
+dc_max_e: Max Dark Current [e/s]
+dc_25%_e: 25% Quantile [e/s]
+dc_50%_e: 50% Quantile [e/s]
+dc_75%_e: 75% Quantile [e/s]
+mean_shading_pp: Mean 2D Shading [DN]
+median_shading_pp: Median 2D Shading [DN]
+mean_shading_min: Min Shading (Mean) [DN]
+median_shading_min: Min Shading (Median) [DN]
+mean_shading_max: Max Shading (Mean) [DN]
+median_shading_max: Max Shading (Median) [DN]
