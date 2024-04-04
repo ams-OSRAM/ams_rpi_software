@@ -1,0 +1,352 @@
+\documentclass[a4paper,twoside,12pt,american,hidelinks]{article}
+\usepackage[T1]{fontenc}
+\usepackage[cp1257]{inputenc}
+\usepackage{lmodern}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+\usepackage{emvadatasheet}
+\usepackage{lastpage}
+\usepackage[printwatermark]{xwatermark}
+\usepackage{tikz}
+\usepackage{multicol}
+\title{}
+\author{}
+\date{}
+\begin{document}
+
+\newcommand{\TheReportSection}{}
+\newcommand{\ReportSection}[1]{\renewcommand{\TheReportSection}{#1}}
+
+
+\newsavebox\wtmkbox
+\savebox\wtmkbox{\tikz[color=red,opacity=0.3]\node{Example};}
+\newwatermark*[
+allpages, angle=45.0, scale=8.0, xpos=-20, ypos=15
+]{\usebox\wtmkbox}
+
+
+%First marketing cover page
+
+
+%Cover preamble
+\ReportSection{EMVA\,1288 Datasheet}
+\pagestyle{fancy}
+\scriptsize
+%Cover header
+\textbf{EMVA\,1288 Datasheet}
+\vspace*{5mm}
+
+\begin{minipage}[t]{0.975\linewidth}
+This datasheet describes the specification according to the standard 1288
+Standard for Characterization and Presentation of Specification Data for
+Image Sensors and Cameras of European Machine Vision Association (EMVA)
+(See www.standard1288.org).
+\end{minipage}
+\vspace*{5mm}
+
+\begin{minipage}[t]{0.975\linewidth}
+\begin{multicols}{2}
+\textsl{Vendor} \hfill Simulation
+\\[1mm]
+\textsl{Model} \hfill Simulated camera
+\\[1mm]
+\textsl{Data type} \hfill Single
+\\[1mm]
+\textsl{Sensor type} \hfill simulated sensor
+\\[1mm]
+\textsl{Diagonal} \hfill -
+\\[1mm]
+\textsl{Lens category} \hfill -
+\\[1mm]
+\textsl{Resolution} \hfill 640x480 pixels
+\\[1mm]
+\textsl{Pixel size} \hfill - $\mu m$
+\\[1mm]\textsl{Maximum readout rate} \hfill  -
+\\[1mm]
+\textsl{Dark current compensation} \hfill   -
+\\[1mm]
+\textsl{Interface type} \hfill  -
+\\[1mm]
+%%%%%%%%%% SETUP
+\textsl{Light source} \hfill -
+\\[1mm]
+\textsl{Light source non uniformity} \hfill -
+\\[1mm]
+\textsl{Irradiation calibration accuracy} \hfill -
+\\[1mm]
+\textsl{Irradiation measurement error} \hfill -
+\\[1mm]
+\textsl{Standard version} \hfill 3.1
+\\[1mm]
+\end{multicols}
+\end{minipage}
+\\[5mm]
+
+	\underline{\textsl{Operation Point: \textbf{OP1} (Page \pageref{OP1})}}
+
+ 	\begin{minipage}[t]{0.975\linewidth}
+\begin{multicols}{2}
+\textbf{Camera setting} \hfill
+\\[1mm]
+\textsl{Gain} \hfill 0.1
+\\[1mm]
+\textsl{Black level} \hfill 29.4
+\\[1mm]
+\textsl{Bit depth} \hfill 12 bits
+\\[1mm]
+\textbf{Operation point parameters}
+\\[1mm]
+\textsl{Illumination} \hfill Variable with constant exposure time
+\\[1mm]
+\textsl{Irradiation steps} \hfill 50
+\\[1mm]
+\end{multicols}
+\end{minipage}
+\\[5mm]
+
+
+\vfill
+\begin{center}
+\includegraphics[height=100mm,keepaspectratio]{files/missingplot.pdf}
+\end{center}
+
+ 	\newpage
+\ReportSection{Operation Point: \textbf{OP1} (@)}
+
+\underline{\textsl{Summary sheet for Operation Point: \textbf{OP1}\label{OP1}} (@ wavelength)}
+
+\begin{minipage}[t]{0.975\linewidth}
+\begin{multicols}{2}
+\textbf{Camera setting} \hfill
+\\[1mm]
+\textsl{Gain} \hfill 0.1
+\\[1mm]
+\textsl{Black level} \hfill 29.4
+\\[1mm]
+\textsl{Bit depth} \hfill 12 bits
+\\[1mm]
+\textbf{Operation point parameters}
+\\[1mm]
+\textsl{Illumination} \hfill Variable with constant exposure time
+\\[1mm]
+\textsl{Irradiation steps} \hfill 50
+\\[1mm]
+\end{multicols}
+\end{minipage}
+\\[10mm]
+%Plots
+\begin{minipage}[t]{0.690\linewidth}
+
+\includegraphics[width=0.95\linewidth,keepaspectratio]{OP1/PlotPTC.pdf}
+
+\includegraphics[width=0.95\linewidth,keepaspectratio]{OP1/PlotSNR.pdf}
+\end{minipage}
+%Results
+\begin{minipage}[t]{0.290\linewidth}
+
+\begin{tabular}{lr@{\hspace{1.4mm}}l}
+\multicolumn{3}{c}{\textbf{Performance}} \\[2mm]
+
+\multicolumn{3}{l}{\textbf{Quantum efficiency }} \\
+
+$\eta$ &
+42.36 &
+\% \\[5mm]
+
+\multicolumn{3}{l}{\textbf{System gain}} \\
+
+K &
+0.100 &
+$DN/e^-$ \\
+
+1/K &
+9.983 &
+$e^-/DN$ \\[5mm]
+
+\multicolumn{3}{l}{\textbf{Temporal dark noise}} \\
+
+$\sigma_d$ &
+4.159 &
+$e^-$ \\
+
+$\sigma_{y.dark}$ &
+0.507 &
+DN \\[5mm]
+
+\multicolumn{3}{l}{\textbf{Signal-to-Noise Ratio}} \\
+
+$SNR_{max}$ &
+190 \\
+
+& % $SNR_{max.dB}$ &
+45.59 &
+dB \\
+
+& % $SNR_{max.bit}$ &
+7.6 &
+bit \\
+
+$SNR_{max}^{-1}$ &
+0.525 &
+\% \\[5mm]
+
+\multicolumn{3}{l}{\textbf{Absolute sensitivity threshold}} \\
+
+$\mu_{p.min}$  &
+13.126 &
+$p$ \\
+
+$\mu_{p.min.area}$  &
+- &
+$p/\mu m^2$ \\
+
+$\mu_{e.min}$ &
+5.560 &
+$e^-$ \\
+
+$\mu_{e.min.area}$ &
+- &
+$e^-/\mu m^2$ \\[5mm]
+
+
+\multicolumn{3}{l}{\textbf{Saturation Capacity}} \\
+
+$\mu_{p.sat}$  &
+85613 &
+$p$ \\
+
+$\mu_{p.sat.area}$  &
+- &
+$p/\mu m^2$ \\
+
+$\mu_{e.sat}$ &
+36263 &
+$e^-$ \\
+
+$\mu_{e.sat.area}$ &
+- &
+$e^-/\mu m^2$ \\[5mm]
+
+
+\multicolumn{3}{l}{\textbf{Dynamic Range}} \\
+
+DR &
+6522 \\
+
+& % $DR_{dB}$ &
+76.3 &
+dB \\
+
+& % $DR_{bit}$ &
+12.7 &
+bit \\[5mm]
+
+\multicolumn{3}{l}{\textbf{Spatial Nonuniformities}} \\
+
+$DSNU_{1288}$ &
+0.0 &
+$e^-$ \\
+
+& % $DSNU_{1288.DN}$ &
+0.0 &
+DN \\
+
+$PRNU_{1288}$ &
+0.0 &
+\% \\[5mm]
+
+\multicolumn{3}{l}{\textbf{Linearity error}} \\
+
+$LE_{min}$ &
+-0.003 &
+\% \\
+
+$LE_{max}$ &
+0.004 &
+\% \\[5mm]
+
+\multicolumn{3}{l}{\textbf{Dark current}} \\
+
+$\mu_{I.mean}$ &
+- &
+$e^-/s$ \\
+&
+- &
+$DN/s$ \\
+
+$\mu_{I.var}$ &
+- &
+$e^-/s$ \\
+&
+- &
+$DN/s$  \\[5mm]
+
+\end{tabular}
+\end{minipage}
+
+
+
+
+%Extra plots
+\newpage
+\begin{center}
+\includegraphics[height=0.45\textheight,keepaspectratio]{OP1/PlotSensitivity.pdf}
+\end{center}
+\begin{center}
+\includegraphics[height=0.45\textheight,keepaspectratio]{OP1/PlotUyDark.pdf}
+\end{center}
+\vfill
+\newpage
+\begin{center}
+\includegraphics[height=0.45\textheight,keepaspectratio]{OP1/PlotLinearity.pdf}
+\end{center}
+\begin{center}
+\includegraphics[height=0.45\textheight,keepaspectratio]{OP1/PlotDeviationLinearity.pdf}
+\end{center}
+\vfill
+\newpage
+\begin{center}
+\includegraphics[height=0.45\textheight,keepaspectratio]{OP1/PlotHorizontalSpectrogramPRNU.pdf}
+\end{center}
+\begin{center}
+\includegraphics[height=0.45\textheight,keepaspectratio]{OP1/PlotHorizontalSpectrogramDSNU.pdf}
+\end{center}
+\vfill
+\newpage
+\begin{center}
+\includegraphics[height=0.45\textheight,keepaspectratio]{OP1/PlotVerticalSpectrogramPRNU.pdf}
+\end{center}
+\begin{center}
+\includegraphics[height=0.45\textheight,keepaspectratio]{OP1/PlotVerticalSpectrogramDSNU.pdf}
+\end{center}
+\vfill
+\newpage
+\begin{center}
+\includegraphics[height=0.45\textheight,keepaspectratio]{OP1/PlotLogarithmicHistogramDSNU.pdf}
+\end{center}
+\begin{center}
+\includegraphics[height=0.45\textheight,keepaspectratio]{OP1/PlotLogarithmicHistogramPRNU.pdf}
+\end{center}
+\vfill
+\newpage
+\begin{center}
+\includegraphics[height=0.45\textheight,keepaspectratio]{OP1/PlotAccumulatedLogHistogramDSNU.pdf}
+\end{center}
+\begin{center}
+\includegraphics[height=0.45\textheight,keepaspectratio]{OP1/PlotAccumulatedLogHistogramPRNU.pdf}
+\end{center}
+\vfill
+\newpage
+\begin{center}
+\includegraphics[height=0.45\textheight,keepaspectratio]{OP1/PlotHorizontalProfile.pdf}
+\end{center}
+\begin{center}
+\includegraphics[height=0.45\textheight,keepaspectratio]{OP1/PlotVerticalProfile.pdf}
+\end{center}
+\vfill
+
+
+
+
+\end{document}
