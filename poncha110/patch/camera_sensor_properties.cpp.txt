@@ -1,0 +1,20 @@
+		{ "mira050", {
+                        .unitCellSize = { 600, 800 },
+                        .testPatternModes = {
+                                { controls::draft::TestPatternModeOff, 0 },
+                                { controls::draft::TestPatternModeColorBars, 1 },
+                                { controls::draft::TestPatternModeSolidColor, 2 },
+                                { controls::draft::TestPatternModeColorBarsFadeToGray, 3 },
+                                { controls::draft::TestPatternModePn9, 4 },
+                        },
+                } },
+		{ "mira050", {
+                        .unitCellSize = { 400, 400 },
+                        .testPatternModes = {
+                                { controls::draft::TestPatternModeOff, 0 },
+                                { controls::draft::TestPatternModeColorBars, 1 },
+                                { controls::draft::TestPatternModeSolidColor, 2 },
+                                { controls::draft::TestPatternModeColorBarsFadeToGray, 3 },
+                                { controls::draft::TestPatternModePn9, 4 },
+                        },
+                } },
