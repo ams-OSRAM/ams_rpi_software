@@ -274,6 +274,7 @@ class AdminForm(Form):
             "mira220",
             "mira220color",
             "mira016",
+            "poncha110",
         ],
     )
     apply = SubmitField(label="Apply settings and reboot")
