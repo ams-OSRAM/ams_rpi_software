@@ -81,14 +81,20 @@ CamHelperPoncha110::CamHelperPoncha110()
 {
 }
 
+
 uint32_t CamHelperPoncha110::gainCode(double gain) const
 {
-	return (uint32_t)(gain);
+
+		return (uint32_t)(gain-1);
+
 }
 
 double CamHelperPoncha110::gain(uint32_t gainCode) const
 {
-	return (double)(gainCode);
+	// All 8, 10, 12 bit are coarse gain
+	{
+		return (double)(gainCode+1);
+	}
 }
 
 // uint32_t CamHelperPoncha110::exposureLines(const Duration exposure,
@@ -156,7 +162,7 @@ void CamHelperPoncha110::getDelays(int &exposureDelay, int &gainDelay,
 {
 	/* The driver appears to behave as follows: */
 	exposureDelay = 1;
-	gainDelay = 1;
+	gainDelay = 2;
 	vblankDelay = 1;
 	hblankDelay = 1;
 }
