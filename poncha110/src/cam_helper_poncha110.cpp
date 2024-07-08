@@ -161,7 +161,7 @@ void CamHelperPoncha110::getDelays(int &exposureDelay, int &gainDelay,
 								 int &vblankDelay, int &hblankDelay) const
 {
 	/* The driver appears to behave as follows: */
-	exposureDelay = 1;
+	exposureDelay = 2;
 	gainDelay = 2;
 	vblankDelay = 1;
 	hblankDelay = 1;
