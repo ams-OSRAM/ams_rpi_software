@@ -60,7 +60,7 @@ sudo apt install -y libavcodec-dev libavdevice-dev libavformat-dev libswresample
 #################################
 sudo apt install -y python3-kms++
 sudo apt install -y python3-pyqt5 python3-prctl libatlas-base-dev ffmpeg python3-pip
-pip3 install numpy --upgrade
+pip3 install "numpy<2.0.0"
 
 #################################
 # libcamera optional components
@@ -75,7 +75,7 @@ sudo apt install -y qtbase5-dev libqt5core5a libqt5gui5 libqt5widgets5 qttools5-
 ##############################
 sudo pip3 install rawpy
 sudo pip3 install imageio
-pip3 install scipy
+pip3 install "scipy<1.12.5"
 ################################
 # Uninstall apt and pip packages
 # Use self-built ones instead

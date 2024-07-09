@@ -10,3 +10,4 @@ matplotlib
 ipywidgets
 jupyterlab_widgets 
 pandas
+numpy<2.0.0
