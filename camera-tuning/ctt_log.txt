@@ -1,0 +1,173 @@
+Log created : Wed Jul 31 14:48:34 2024
+
+----------------------------------------------------------------------
+User Arguments
+----------------------------------------------------------------------
+
+Json file output: ponchacolor.json
+Calibration images directory: ./
+Configuration file: cct_config_example.json
+No log file path input... using default: ctt_log.txt
+
+----------------------------------------------------------------------
+Image Loading
+----------------------------------------------------------------------
+
+Directory: ./
+Files found: 4
+
+Image: poncha110_4500k_1000l.dng
+Identified as macbeth chart image
+Locating macbeth chart
+Macbeth chart located successfully
+Macbeth chart vertices:
+[[ 246.  252.]
+ [ 144.  792.]
+ [1060.  860.]
+ [1042.  290.]]
+Confidence: 0.867
+Colour temperature: 4500 K
+Lux value: 1000 lx
+
+Image: poncha110_4500k_1000l.jpg
+Identified as macbeth chart image
+WARNING: No Broadcom header found!
+Image discarded!
+
+Image: poncha110_6000k_100l.dng
+Identified as macbeth chart image
+Locating macbeth chart
+Macbeth chart located successfully
+Macbeth chart vertices:
+[[ 246.  246.]
+ [ 150.  788.]
+ [1056.  862.]
+ [1044.  284.]]
+Confidence: 0.854
+Colour temperature: 6000 K
+Lux value: 100 lx
+
+Image: poncha110_6000k_100l.jpg
+Identified as macbeth chart image
+WARNING: No Broadcom header found!
+Image discarded!
+
+Images found:
+Macbeth : 2
+ALSC : 0 
+
+Camera metadata
+Name: /base/soc/i2c0mux/i2c@1/poncha110@36
+Bayer pattern case: 2
+Significant bits: 10
+Blacklevel: 2048
+Image size: w = 1080 h = 1082
+
+----------------------------------------------------------------------
+Disabling Options
+----------------------------------------------------------------------
+
+ERROR: rpi.aslc not found!
+
+----------------------------------------------------------------------
+ALSC Calibration
+----------------------------------------------------------------------
+
+ERROR: No ALSC calibration images found!
+ALSC calibration aborted!
+
+----------------------------------------------------------------------
+GEQ Calibration
+----------------------------------------------------------------------
+
+Processing image poncha110_4500k_1000l.dng
+
+Processing image poncha110_6000k_100l.dng
+
+Processed all images
+Fit result: slope = 0.00651 offset = 9
+Fit after correction factors: slope = 0.00976 offset = 210
+GEQ calibrations written to json file
+
+----------------------------------------------------------------------
+LUX Calibration
+----------------------------------------------------------------------
+
+Lux found closest to 1000: 1000 lx
+Image used: poncha110_4500k_1000l.dng
+Shutter speed = 589
+Gain = 1.0
+Aperture = 1
+Average channel values on grey patches:
+Red = 12731 Green = 6318 Blue = 11589
+Channel gains: Red = 0.910 Blue = 1.834
+Average channel values over entire image scaled by channel gains:
+Red = 5494 Green = 6318 Blue = 5233
+Y value calculated: 5434
+LUX calibrations written to json file
+
+----------------------------------------------------------------------
+NOISE Calibration
+----------------------------------------------------------------------
+
+Processing image: poncha110_4500k_1000l.dng
+Black level = 2048
+Noise profile: offset = -7 slope = 4.237
+Offset below zero. Fit recalculated with zero offset
+Noise profile: offset = 0 slope = 4.114
+
+Processing image: poncha110_6000k_100l.dng
+Black level = 2048
+Noise profile: offset = -42 slope = 4.516
+Offset below zero. Fit recalculated with zero offset
+Noise profile: offset = 0 slope = 3.944
+
+Finished processing images
+Average noise profile: constant = 0 slope = 4.029
+NOISE calibrations written to json
+
+----------------------------------------------------------------------
+AWB Calibration
+----------------------------------------------------------------------
+
+Greyworld set
+WARNING: No ALSC tables found.
+AWB calibration performed without ALSC correction...
+Processing poncha110_4500k_1000l.dng
+       r : 1.1099       b : 0.4516
+   r_hat : 0.4333   b_hat : 0.1763
+
+Processing poncha110_6000k_100l.dng
+       r : 0.7034       b : 0.6221
+   r_hat : 0.3025   b_hat : 0.2675
+
+Finished processing images
+Fit quadratic curve in hatspace
+Found closest point on fit line to each point in dehatspace
+Transverse pos : 0.00000
+Transverse neg : 0.00000
+Forced transverse pos to 0.01
+Forced transverse neg to 0.01
+Final CT curve:
+  ct: 4500.0    r: 1.1099    b: 0.4516  
+  ct: 6000.0    r: 0.7034    b: 0.6221  
+AWB calibration written to json file
+
+----------------------------------------------------------------------
+CCM Calibration
+----------------------------------------------------------------------
+
+WARNING: No ALSC tables found.
+CCM calibration performed without ALSC correction...
+Processing image: poncha110_4500k_1000l.dng
+Gain with respect to standard colours: 3.197
+
+Processing image: poncha110_6000k_100l.dng
+Gain with respect to standard colours: 2.094
+
+Finished processing images
+Matrix calculated for colour temperature of 4500 K
+Matrix calculated for colour temperature of 6000 K
+CCM calibration written to json file
+
+----------------------------------------------------------------------
