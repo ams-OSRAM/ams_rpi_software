@@ -1,10 +1,10 @@
-Log created : Wed Jul 31 14:48:34 2024
+Log created : Wed Jul 31 16:48:19 2024
 
 ----------------------------------------------------------------------
 User Arguments
 ----------------------------------------------------------------------
 
-Json file output: ponchacolor.json
+Json file output: poncha110color_2.json
 Calibration images directory: ./
 Configuration file: cct_config_example.json
 No log file path input... using default: ctt_log.txt
@@ -130,7 +130,6 @@ NOISE calibrations written to json
 AWB Calibration
 ----------------------------------------------------------------------
 
-Greyworld set
 WARNING: No ALSC tables found.
 AWB calibration performed without ALSC correction...
 Processing poncha110_4500k_1000l.dng

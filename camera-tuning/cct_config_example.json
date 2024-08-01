@@ -2,11 +2,11 @@
     "disable": ["rpi.aslc" ],
     "plot": [ "rpi.awb","rpi.geq", "rpi.sdn", "rpi.agc", "rpi.contrast", "rpi.ccm", "rpi.sharpen" ],
     "alsc": {
-      "do_alsc_colour": 0,
+      "do_alsc_colour": 1,
       "luminance_strength": 0.5
     },
     "awb": {
-      "greyworld": 1
+      "greyworld": 0
     },
     "blacklevel": 2048,
     "macbeth": {
