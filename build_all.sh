@@ -16,9 +16,9 @@ sh $PWD/install_requirements.sh
 # https://github.com/raspberrypi/libcamera.git
 #########################################
 # Latest commit, Raspberry Pi ONLY, fixed app_full.py
-LIBCAMERA_COMMIT=923f5d707bb760bd3e724b3373568fa88c68454f
-
-#########################################
+# LIBCAMERA_COMMIT=923f5d707bb760bd3e724b3373568fa88c68454f
+LIBCAMERA_COMMIT=main
+########################################
 # Old way: official up-stream libcamera
 # https://git.libcamera.org/libcamera/libcamera.git
 #########################################
@@ -66,7 +66,7 @@ echo "Inside libcamera dir, configure the build with meson"
 # The meson build options are from raspberry pi doc on libcamera
 # ref https://www.raspberrypi.com/documentation/accessories/camera.html
 # Optional: use --libdir="lib" to change install dir from the default "lib/aarch64-linux-gnu" 
-(cd $PWD/libcamera && meson build --buildtype=release -Dpipelines=raspberrypi -Dipas=raspberrypi -Dv4l2=true -Dgstreamer=enabled -Dtest=false -Dlc-compliance=disabled -Dcam=disabled -Dqcam=disabled -Ddocumentation=disabled -Dpycamera=enabled)
+(cd $PWD/libcamera && meson build --buildtype=release -Dpipelines=rpi/vc4,rpi/pisp -Dipas=rpi/vc4,rpi/pisp -Dv4l2=true -Dgstreamer=enabled -Dtest=false -Dlc-compliance=disabled -Dcam=disabled -Dqcam=disabled -Ddocumentation=disabled -Dpycamera=enabled)
 echo "Inside libcamera dir, build and install with ninja"
 (cd $PWD/libcamera && ninja -C build -j 2 )
 (cd $PWD/libcamera && sudo ninja -C build install )
@@ -89,36 +89,35 @@ fi
 echo "Inside libepoxy dir, create a _build dir"
 (cd $PWD/libepoxy && mkdir -p _build)
 echo "Inside libepoxy/_build dir, build and install"
-(cd $PWD/libepoxy/_build && meson)  # use -j1 on Raspberry Pi 3 or earlier devices
+(cd $PWD/libepoxy/_build && meson setup --wipe)  # use -j1 on Raspberry Pi 3 or earlier devices
+# (cd $PWD/libepoxy/_build && meson )  # use -j1 on Raspberry Pi 3 or earlier devices
 (cd $PWD/libepoxy/_build && ninja -j 2)
 (cd $PWD/libepoxy/_build && sudo ninja install) # this is only necessary on the first build
-
-# clone libcamera-apps source, and checkout a proved commit
+# clone rpicam-apps source, and checkout a proved commit
 # Latest tested commit is on 2022 Dec 1st.
 LIBCAMERA_APPS_COMMIT=v1.0.2
+LIBCAMERA_APPS_COMMIT=main
+
 # Previous tested commit is on 2022 August 30th.
 # LIBCAMERA_APPS_COMMIT=1bf0cca
 # Previous tested commit is on 2022 August 10th.
 # LIBCAMERA_APPS_COMMIT=e1beb45
-if [[ ! -d $PWD/libcamera-apps ]]
+if [[ ! -d $PWD/rpicam-apps ]]
 then
-        echo "Clone libcamera-apps source and checkout commit id ${LIBCAMERA_APPS_COMMIT}"
-        git clone https://github.com/raspberrypi/libcamera-apps.git
-	(cd $PWD/libcamera-apps && git checkout $LIBCAMERA_APPS_COMMIT)
+        echo "Clone rpicam-apps source and checkout commit id ${LIBCAMERA_APPS_COMMIT}"
+        git clone https://github.com/raspberrypi/rpicam-apps.git
+	(cd $PWD/rpicam-apps && git checkout $LIBCAMERA_APPS_COMMIT)
 fi
 
-echo "Inside libcamera-apps dir, create a build dir"
-(cd $PWD/libcamera-apps && mkdir -p build)
-echo "Inside libcamera-apps/build dir, use cmake to configure the build"
-(cd $PWD/libcamera-apps/build && cmake .. -DENABLE_DRM=1 -DENABLE_X11=1 -DENABLE_QT=1 -DENABLE_OPENCV=0 -DENABLE_TFLITE=0)
-echo "Inside libcamera-apps/build dir, build and install"
-(cd $PWD/libcamera-apps/build && make -j2)  # use -j1 on Raspberry Pi 3 or earlier devices
-(cd $PWD/libcamera-apps/build && sudo make install)
-(cd $PWD/libcamera-apps/build && sudo ldconfig) # this is only necessary on the first build
-
+echo "Inside rpicam-apps dir, create a build dir"
+(cd $PWD/rpicam-apps && meson setup build -Denable_libav=enabled -Denable_drm=enabled -Denable_egl=enabled -Denable_qt=enabled -Denable_opencv=disabled -Denable_tflite=disabled)
+echo "Inside rpicam-apps dir, use meson to configure the build"
+(cd $PWD/rpicam-apps && meson compile -C build)
+(cd $PWD/rpicam-apps && sudo meson install -C build)
 # clone picamera2 source, and checkout a proved commit
 # Latest tested commit is on 2022 Dec 1st
-PICAMERA2_COMMIT=v0.3.7
+PICAMERA2_COMMIT=main
+#v0.3.7
 # Previous tested commit is on 2022 August 31st, tag v0.3.3
 # PICAMERA2_COMMIT=017cbd7
 # Previous tested commit is on 2022 August 22th.

@@ -11,7 +11,7 @@ echo "Inside libcamera dir, configure the build with meson"
 # The meson build options are from raspberry pi doc on libcamera
 # ref https://www.raspberrypi.com/documentation/accessories/camera.html
 # Optional: use --libdir="lib" to change install dir from the default "lib/aarch64-linux-gnu" 
-(cd $PWD/libcamera && meson build --buildtype=release -Dpipelines=raspberrypi -Dipas=raspberrypi -Dv4l2=true -Dgstreamer=enabled -Dtest=false -Dlc-compliance=disabled -Dcam=disabled -Dqcam=disabled -Ddocumentation=disabled -Dpycamera=enabled)
+(cd $PWD/libcamera && meson build --buildtype=release -Dpipelines=rpi/vc4,rpi/pisp -Dipas=rpi/vc4,rpi/pisp -Dv4l2=true -Dgstreamer=enabled -Dtest=false -Dlc-compliance=disabled -Dcam=disabled -Dqcam=disabled -Ddocumentation=disabled -Dpycamera=enabled)
 echo "Inside libcamera dir, build and install with ninja"
 (cd $PWD/libcamera && ninja -C build -j 2 )
 (cd $PWD/libcamera && sudo ninja -C build install )

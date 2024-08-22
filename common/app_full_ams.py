@@ -474,6 +474,8 @@ class controlSlider(QWidget):
 
     def setValue(self, val, emit=False):
         self.blockAllSignals(True)
+        if val is None:
+            val = 0
         self.box.setValue(val)
         self.slider.setValue(int(val / self.precision))
         self.blockAllSignals(False)
@@ -524,7 +526,8 @@ class panZoomDisplay(QWidget):
     def __init__(self):
         super().__init__()
         self.setMinimumSize(201, 151)
-        self.scale = 200 / picam2.camera_properties["ScalerCropMaximum"][2]
+        _, full_img, _ = picam2.camera_controls['ScalerCrop']
+        self.scale = 200 / full_img[2]
         self.zoom_level_ = 1.0
         self.max_zoom = 7.0
         self.zoom_step = 0.1
@@ -833,11 +836,11 @@ class otherTab(QWidget):
         self.layout = QFormLayout()
         self.setLayout(self.layout)
 
-        global implemented_controls
+        global implemented_controls, ignore_controls
         all_controls = picam2.camera_controls.keys()
         other_controls = []
         for control in all_controls:
-            if control not in implemented_controls:
+            if control not in implemented_controls and control not in ignore_controls:
                 other_controls.append(control)
         self.fields = {}
         for control in other_controls:
@@ -1131,7 +1134,7 @@ class picTab(QWidget):
         picam2.still_configuration = picam2.create_still_configuration(
             main={"size": (self.resolution_w.value(), self.resolution_h.value())},
             **still_kwargs,
-            raw=self.sensor_mode
+            raw=self.sensor_mode,
         )
         picam2.preview_configuration = picam2.create_preview_configuration(
             main={"size": (
@@ -1144,9 +1147,10 @@ class picTab(QWidget):
         # Finally set the modes and check sensor crop
         if self.preview_check.isChecked():
             switch_config("still")
-            current_crop = picam2.camera_properties["ScalerCropMaximum"]
+            _, current_crop, _ = picam2.camera_controls['ScalerCrop']
             switch_config("preview")
-            if current_crop != picam2.camera_properties["ScalerCropMaximum"]:
+            _, preview_crop, _ = picam2.camera_controls['ScalerCrop']
+            if current_crop != preview_crop:
                 print("Preview and Still configs have different aspect ratios")
                 self.preview_warning.show()
             else:
@@ -1185,6 +1189,16 @@ implemented_controls = [
     "FrameDurationLimits"
 ]
 
+ignore_controls = {
+    # It is not helpful to try to drive AF with simple slider controls, so ignore them.
+    "AfMode",
+    "AfTrigger",
+    "AfSpeed",
+    "AfRange",
+    "AfWindows",
+    "AfPause",
+    "AfMetering",
+}
 
 # Main widgets
 window = QWidget()
@@ -1214,7 +1228,7 @@ mode_tabs.currentChanged.connect(on_mode_change)
 # Final setup
 window.setWindowTitle("Qt Picamera2 App")
 recording = False
-scaler_crop = picam2.camera_properties["ScalerCropMaximum"]
+_, scaler_crop, _ = picam2.camera_controls['ScalerCrop']
 hdr_imgs = {"exposures": None}
 pic_tab.apply_settings()
 
@@ -1223,6 +1237,8 @@ mode_tabs.setFixedWidth(400)
 layout_h = QHBoxLayout()
 layout_v = QVBoxLayout()
 
+tabs.addTab(img_tab, "Image Tuning")
+tabs.addTab(pan_tab, "Pan/Zoom")
 tabs.addTab(aec_tab, "AEC/AWB")
 tabs.addTab(pan_tab, "Pan/Zoom")
 tabs.addTab(img_tab, "Image Tuning")

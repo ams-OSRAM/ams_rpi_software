@@ -20,24 +20,25 @@ insert_file_A_into_file_B_before_pattern_C_if_pattern_D_does_not_exist () {
 # Patch camera_sensor_properties.cpp
 
 INSERT_FILE=$PATCH_PATH/camera_sensor_properties.cpp.txt
-TARGET_FILE=$LIBCAMERA_PATH/src/libcamera/camera_sensor_properties.cpp
+TARGET_FILE=$LIBCAMERA_PATH/src/libcamera/sensor/camera_sensor_properties.cpp
 INSERT_BEFORE="imx219"
 INSERT_IF_NOT_EXIST="mira130"
 insert_file_A_into_file_B_before_pattern_C_if_pattern_D_does_not_exist "$INSERT_FILE" "$TARGET_FILE" "$INSERT_BEFORE" "$INSERT_IF_NOT_EXIST" 
 
-# Patch rpi data meson.build
+# Patch rpi data meson.build     'mira130.json',   'mira130color.json',
 
 INSERT_FILE=$PATCH_PATH/rpi_data_meson.build.txt
-TARGET_FILE=$LIBCAMERA_PATH/src/ipa/raspberrypi/data/meson.build
+TARGET_FILE=$LIBCAMERA_PATH/src/ipa/rpi/vc4/data/meson.build
 INSERT_BEFORE="imx219.json"
 INSERT_IF_NOT_EXIST="mira130.json"
 insert_file_A_into_file_B_before_pattern_C_if_pattern_D_does_not_exist "$INSERT_FILE" "$TARGET_FILE" "$INSERT_BEFORE" "$INSERT_IF_NOT_EXIST" 
 
-# Patch rpi meson.build
+# Patch rpi meson.build     'cam_helper_mira130.cpp',
 
 INSERT_FILE=$PATCH_PATH/rpi_meson.build.txt
-TARGET_FILE=$LIBCAMERA_PATH/src/ipa/raspberrypi/meson.build
-INSERT_BEFORE="cam_helper_imx219.cpp"
+TARGET_FILE=$LIBCAMERA_PATH/src/ipa/rpi/cam_helper/meson.build
+INSERT_BEFORE='])'
 INSERT_IF_NOT_EXIST="cam_helper_mira130.cpp"
 insert_file_A_into_file_B_before_pattern_C_if_pattern_D_does_not_exist "$INSERT_FILE" "$TARGET_FILE" "$INSERT_BEFORE" "$INSERT_IF_NOT_EXIST" 
+
 

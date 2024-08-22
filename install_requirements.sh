@@ -4,19 +4,24 @@
 # [ref](https://www.raspberrypi.com/documentation/computers/camera_software.html)
 #################################
 sudo apt install -y python3-pip git
-sudo pip3 install jinja2
-sudo apt install -y libboost-dev
-sudo apt install -y libgnutls28-dev openssl libtiff5-dev
-sudo apt install -y qtbase5-dev libqt5core5a libqt5gui5 libqt5widgets5
-sudo apt install -y meson
-sudo pip3 install pyyaml ply
-sudo pip3 install --upgrade meson
-sudo apt install -y libglib2.0-dev libgstreamer-plugins-base1.0-dev
+# sudo pip3 install jinja2
+# sudo apt install -y libboost-dev
+# sudo apt install -y libgnutls28-dev openssl libtiff5-dev
+# sudo apt install -y qtbase5-dev libqt5core5a libqt5gui5 libqt5widgets5
+# sudo apt install -y meson
+# sudo pip3 install pyyaml ply
+# sudo pip3 install --upgrade meson
+# sudo apt install -y libglib2.0-dev libgstreamer-plugins-base1.0-dev
 # python3-dev needed for python binding of pycamera
 sudo apt install -y python3-dev
 # opencv is needed for some mira sensor scripts
 sudo apt install -y python3-opencv
-
+sudo apt install -y libboost-dev
+sudo apt install -y libgnutls28-dev openssl libtiff5-dev pybind11-dev
+sudo apt install -y qtbase5-dev libqt5core5a libqt5gui5 libqt5widgets5
+sudo apt install -y meson cmake
+sudo apt install -y python3-yaml python3-ply
+sudo apt install -y libglib2.0-dev libgstreamer-plugins-base1.0-dev
 ###############################
 # Linux kernel prerequisites
 # [ref](https://www.raspberrypi.com/documentation/computers/linux_kernel.html)
@@ -61,7 +66,8 @@ sudo apt install -y libavcodec-dev libavdevice-dev libavformat-dev libswresample
 sudo apt install -y python3-kms++
 sudo apt install -y python3-pyqt5 python3-prctl libatlas-base-dev ffmpeg python3-pip
 pip3 install "numpy<2.0.0"
-
+sudo apt uninstall python3-v4l2
+pip3 install v4l2-python3
 #################################
 # libcamera optional components
 # [ref](https://libcamera.org/getting-started.html)
@@ -87,7 +93,7 @@ sudo apt remove -y libepoxy-dev
 # USB and WEB functionality
 #
 ################################
-sudo pip3 install pyro5
+#sudo pip3 install pyro5
 ################################
 # Nginx forwards port 80 to 8000
 ################################
