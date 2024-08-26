@@ -34,6 +34,14 @@ INSERT_BEFORE="imx219.json"
 INSERT_IF_NOT_EXIST="mira050.json"
 insert_file_A_into_file_B_before_pattern_C_if_pattern_D_does_not_exist "$INSERT_FILE" "$TARGET_FILE" "$INSERT_BEFORE" "$INSERT_IF_NOT_EXIST" 
 
+INSERT_FILE=$PATCH_PATH/rpi_data_meson.build.txt
+TARGET_FILE=$LIBCAMERA_PATH/src/ipa/rpi/pisp/data/meson.build
+INSERT_BEFORE="imx219.json"
+INSERT_IF_NOT_EXIST="mira050.json"
+insert_file_A_into_file_B_before_pattern_C_if_pattern_D_does_not_exist "$INSERT_FILE" "$TARGET_FILE" "$INSERT_BEFORE" "$INSERT_IF_NOT_EXIST" 
+
+
+
 # Patch rpi meson.build     'cam_helper_mira050.cpp',
 
 INSERT_FILE=$PATCH_PATH/rpi_meson.build.txt
