@@ -51,8 +51,8 @@ public:
 	CamHelperMira050();
 	uint32_t gainCode(double gain) const override;
 	double gain(uint32_t code) const override;
-	// uint32_t exposureLines(const Duration exposure, const Duration lineLength) const override;
-	// Duration exposure(uint32_t exposureLines, const Duration lineLength) const override;
+	uint32_t exposureLines(const Duration exposure, const Duration lineLength) const override;
+	Duration exposure(uint32_t exposureLines, const Duration lineLength) const override;
 	// unsigned int mistrustFramesModeSwitch() const override;
 	// bool sensorEmbeddedDataPresent() const override;
 	void getDelays(int &exposureDelay, int &gainDelay,
@@ -60,7 +60,7 @@ public:
 
 
 private:
-	static constexpr uint32_t minExposureLines = 60;
+	static constexpr uint32_t minExposureLines = 1;
 	/*
 	 * Smallest difference between the frame length and integration time,
 	 * in units of lines.
@@ -69,7 +69,7 @@ private:
 	/* ROW_LENGTH is microseconds is (ROW_LENGTH * 8 / MIRA_DATA_RATE) */
 	// #define MIRA050_DATA_RATE			1000 // Mbit/s
 	// #define MIRA050_MIN_ROW_LENGTH			1842
-	static constexpr Duration timePerLine = 1000ns; // time unit is 1 us
+	static constexpr Duration timePerLine = 10000ns; // time unit is 1 us
 
 	// static constexpr Duration timePerLine = (MIRA050_MIN_ROW_LENGTH * 8.0 / MIRA050_DATA_RATE) / 1.0e6 * 1.0s;
 	static constexpr float gainLut8bit[] = 
@@ -297,18 +297,18 @@ double CamHelperMira050::gain(uint32_t gainCode) const
 	}
 }
 
-// uint32_t CamHelperMira050::exposureLines(const Duration exposure,
-// 					[[maybe_unused]] const Duration lineLength) const
-// {
-// 	return std::max<uint32_t>(minExposureLines, exposure / timePerLine);
-// }
+uint32_t CamHelperMira050::exposureLines(const Duration exposure,
+					[[maybe_unused]] const Duration lineLength) const
+{
+	return std::max<uint32_t>(minExposureLines, exposure / timePerLine);
+}
 
 
-// Duration CamHelperMira050::exposure(uint32_t exposureLines,
-// 				   [[maybe_unused]] const Duration lineLength) const
-// {
-// 	return std::max<uint32_t>(minExposureLines, exposureLines) * timePerLine;
-// }
+Duration CamHelperMira050::exposure(uint32_t exposureLines,
+				   [[maybe_unused]] const Duration lineLength) const
+{
+	return std::max<uint32_t>(minExposureLines, exposureLines) * timePerLine;
+}
 
 
 // unsigned int CamHelperMira050::mistrustFramesModeSwitch() const
