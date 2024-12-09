@@ -66,7 +66,8 @@ echo "Inside libcamera dir, configure the build with meson"
 # The meson build options are from raspberry pi doc on libcamera
 # ref https://www.raspberrypi.com/documentation/accessories/camera.html
 # Optional: use --libdir="lib" to change install dir from the default "lib/aarch64-linux-gnu" 
-(cd $PWD/libcamera && meson build --buildtype=release -Dpipelines=rpi/vc4,rpi/pisp -Dipas=rpi/vc4,rpi/pisp -Dv4l2=true -Dgstreamer=enabled -Dtest=false -Dlc-compliance=disabled -Dcam=disabled -Dqcam=disabled -Ddocumentation=disabled -Dpycamera=enabled)
+(cd $PWD/libcamera && meson setup build --buildtype=release -Dpipelines=rpi/vc4 -Dipas=rpi/vc4 -Dv4l2=true -Dgstreamer=enabled -Dtest=false -Dlc-compliance=disabled -Dcam=disabled -Dqcam=disabled -Ddocumentation=disabled -Dpycamera=enabled)
+
 echo "Inside libcamera dir, build and install with ninja"
 (cd $PWD/libcamera && ninja -C build -j 2 )
 (cd $PWD/libcamera && sudo ninja -C build install )
@@ -95,7 +96,7 @@ echo "Inside libepoxy/_build dir, build and install"
 (cd $PWD/libepoxy/_build && sudo ninja install) # this is only necessary on the first build
 # clone rpicam-apps source, and checkout a proved commit
 # Latest tested commit is on 2022 Dec 1st.
-LIBCAMERA_APPS_COMMIT=v1.0.2
+#LIBCAMERA_APPS_COMMIT=v1.0.2
 LIBCAMERA_APPS_COMMIT=main
 
 # Previous tested commit is on 2022 August 30th.
@@ -112,8 +113,8 @@ fi
 echo "Inside rpicam-apps dir, create a build dir"
 (cd $PWD/rpicam-apps && meson setup build -Denable_libav=enabled -Denable_drm=enabled -Denable_egl=enabled -Denable_qt=enabled -Denable_opencv=disabled -Denable_tflite=disabled)
 echo "Inside rpicam-apps dir, use meson to configure the build"
-(cd $PWD/rpicam-apps && meson compile -C build)
-(cd $PWD/rpicam-apps && sudo meson install -C build)
+(cd $PWD/rpicam-apps && meson compile -C build -j 2)
+(cd $PWD/rpicam-apps && sudo meson install -C build )
 # clone picamera2 source, and checkout a proved commit
 # Latest tested commit is on 2022 Dec 1st
 PICAMERA2_COMMIT=main
