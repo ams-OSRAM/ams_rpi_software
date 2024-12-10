@@ -2,7 +2,7 @@
 set -e
 
 cd "$( dirname "${BASH_SOURCE[0]}" )"
-
+TOPDIR=${PWD}
 echo "${PWD}"
 echo "Install requirements using install_requirements.sh"
 sh $PWD/install_requirements.sh
