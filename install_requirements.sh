@@ -67,7 +67,7 @@ sudo apt install -y python3-kms++
 sudo apt install -y python3-pyqt5 python3-prctl libatlas-base-dev ffmpeg python3-pip
 pip3 install "numpy<2.0.0"
 sudo apt uninstall python3-v4l2
-pip3 install v4l2-python3
+pip3 install v4l2-python3 --force
 #################################
 # libcamera optional components
 # [ref](https://libcamera.org/getting-started.html)
