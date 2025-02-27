@@ -66,7 +66,7 @@ picam2 = Picamera2()
 picam2.post_callback = post_callback
 lores_size = picam2.sensor_resolution
 print(f'{lores_size=}')
-while lores_size[0] > 1200:
+while lores_size[0] > 1000:
     lores_size = (lores_size[0] // 4 & ~1, lores_size[1] // 4 & ~1)
 still_kwargs = {"lores": {"size": lores_size}, "display": "lores", "encode": "lores", "buffer_count": 1}
 picam2.still_configuration = picam2.create_still_configuration(
