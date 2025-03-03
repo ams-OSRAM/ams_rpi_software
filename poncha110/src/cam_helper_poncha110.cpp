@@ -46,8 +46,8 @@ public:
 	CamHelperPoncha110();
 	uint32_t gainCode(double gain) const override;
 	double gain(uint32_t gain_code) const override;
-	void getDelays(int &exposureDelay, int &gainDelay,
-				int &vblankDelay, int &hblankDelay) const override;
+	// void getDelays(int &exposureDelay, int &gainDelay,
+	// 			int &vblankDelay, int &hblankDelay) const override;
 
 	// uint32_t exposureLines(const Duration exposure, const Duration lineLength) const override;
 	// Duration exposure(uint32_t exposureLines, const Duration lineLength) const override;
@@ -157,15 +157,15 @@ double CamHelperPoncha110::gain(uint32_t gainCode) const
 // }
 
 
-void CamHelperPoncha110::getDelays(int &exposureDelay, int &gainDelay,
-								 int &vblankDelay, int &hblankDelay) const
-{
-	/* The driver appears to behave as follows: */
-	exposureDelay = 2;
-	gainDelay = 2;
-	vblankDelay = 1;
-	hblankDelay = 1;
-}
+// void CamHelperPoncha110::getDelays(int &exposureDelay, int &gainDelay,
+// 								 int &vblankDelay, int &hblankDelay) const
+// {
+// 	/* The driver appears to behave as follows: */
+// 	exposureDelay = 2;
+// 	gainDelay = 2;
+// 	vblankDelay = 1;
+// 	hblankDelay = 1;
+// }
 
 
 static CamHelper *create()

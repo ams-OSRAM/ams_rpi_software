@@ -50,8 +50,8 @@ public:
 	double gain(uint32_t code) const override;
 	//uint32_t exposureLines(const Duration exposure, const Duration lineLength) const override;
 	//Duration exposure(uint32_t exposureLines, const Duration lineLength) const override;
-	void getDelays(int &exposureDelay, int &gainDelay,
-				   int &vblankDelay, int &hblankDelay) const override;
+	// void getDelays(int &exposureDelay, int &gainDelay,
+	// 			   int &vblankDelay, int &hblankDelay) const override;
 
 private:
 	static constexpr uint32_t minExposureLines = 60; // in us
@@ -123,15 +123,15 @@ double CamHelperMira016::gain(uint32_t gainCode) const
 // 	return std::max<uint32_t>(minExposureLines, exposureLines) * timePerLine;
 // }
 
-void CamHelperMira016::getDelays(int &exposureDelay, int &gainDelay,
-								 int &vblankDelay, int &hblankDelay) const
-{
-	/* The driver appears to behave as follows: */
-	exposureDelay = 1;
-	gainDelay = 2;
-	vblankDelay = 1;
-	hblankDelay = 1;
-}
+// void CamHelperMira016::getDelays(int &exposureDelay, int &gainDelay,
+// 								 int &vblankDelay, int &hblankDelay) const
+// {
+// 	/* The driver appears to behave as follows: */
+// 	exposureDelay = 1;
+// 	gainDelay = 2;
+// 	vblankDelay = 1;
+// 	hblankDelay = 1;
+// }
 
 static CamHelper *create()
 {

@@ -1,20 +1,17 @@
-		{ "poncha110", {
-                        .unitCellSize = { 1080, 1082 },
-                        .testPatternModes = {
-                                { controls::draft::TestPatternModeOff, 0 },
-                                { controls::draft::TestPatternModeColorBars, 1 },
-                                { controls::draft::TestPatternModeSolidColor, 2 },
-                                { controls::draft::TestPatternModeColorBarsFadeToGray, 3 },
-                                { controls::draft::TestPatternModePn9, 4 },
+        { "poncha110", {
+                .unitCellSize = { 1080, 1082 },
+                .testPatternModes = {
+                        { controls::draft::TestPatternModeOff, 0 },
+                        { controls::draft::TestPatternModeColorBars, 1 },
+                        { controls::draft::TestPatternModeSolidColor, 2 },
+                        { controls::draft::TestPatternModeColorBarsFadeToGray, 3 },
+                        { controls::draft::TestPatternModePn9, 4 },
                         },
-                } },
-		{ "poncha110color", {
-                        .unitCellSize = { 1080, 1082 },
-                        .testPatternModes = {
-                                { controls::draft::TestPatternModeOff, 0 },
-                                { controls::draft::TestPatternModeColorBars, 1 },
-                                { controls::draft::TestPatternModeSolidColor, 2 },
-                                { controls::draft::TestPatternModeColorBarsFadeToGray, 3 },
-                                { controls::draft::TestPatternModePn9, 4 },
-                        },
-                } },
+
+                .sensorDelays = {
+                        .exposureDelay = 2,
+                        .gainDelay = 2,
+                        .vblankDelay = 2,
+                        .hblankDelay = 2
+                },
+        } },

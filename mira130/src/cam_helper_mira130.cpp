@@ -206,8 +206,7 @@ private:
 	28.094,
 	28.547,
 	};
-	void populateMetadata(const MdParser::RegisterMap &registers,
-			      Metadata &metadata) const override;
+
 };
 
 CamHelperMira130::CamHelperMira130()
@@ -263,17 +262,17 @@ bool CamHelperMira130::sensorEmbeddedDataPresent() const
 	return ENABLE_EMBEDDED_DATA;
 }
 
-void CamHelperMira130::populateMetadata(const MdParser::RegisterMap &registers,
-				       Metadata &metadata) const
-{
-	DeviceStatus deviceStatus;
+// void CamHelperMira130::populateMetadata(const MdParser::RegisterMap &registers,
+// 				       Metadata &metadata) const
+// {
+// 	DeviceStatus deviceStatus;
 
-	deviceStatus.shutterSpeed = exposure(registers.at(expHiReg) * 256 + registers.at(expLoReg), deviceStatus.lineLength);
-	deviceStatus.analogueGain = gain(registers.at(gainReg));
-	deviceStatus.frameLength = registers.at(frameLengthHiReg) * 256 + registers.at(frameLengthLoReg);
+// 	deviceStatus.shutterSpeed = exposure(registers.at(expHiReg) * 256 + registers.at(expLoReg), deviceStatus.lineLength);
+// 	deviceStatus.analogueGain = gain(registers.at(gainReg));
+// 	deviceStatus.frameLength = registers.at(frameLengthHiReg) * 256 + registers.at(frameLengthLoReg);
 
-	metadata.set("device.status", deviceStatus);
-}
+// 	metadata.set("device.status", deviceStatus);
+// }
 
 static CamHelper *create()
 {

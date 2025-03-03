@@ -55,8 +55,8 @@ public:
 	Duration exposure(uint32_t exposureLines, const Duration lineLength) const override;
 	// unsigned int mistrustFramesModeSwitch() const override;
 	// bool sensorEmbeddedDataPresent() const override;
-	void getDelays(int &exposureDelay, int &gainDelay,
-				   int &vblankDelay, int &hblankDelay) const override;
+	// void getDelays(int &exposureDelay, int &gainDelay,
+	// 			   int &vblankDelay, int &hblankDelay) const override;
 
 
 private:
@@ -337,15 +337,15 @@ Duration CamHelperMira050::exposure(uint32_t exposureLines,
 // 	metadata.set("device.status", deviceStatus);
 // }
 
-void CamHelperMira050::getDelays(int &exposureDelay, int &gainDelay,
-								 int &vblankDelay, int &hblankDelay) const
-{
-	/* The driver appears to behave as follows: */
-	exposureDelay = 1;
-	gainDelay = 1;
-	vblankDelay = 1;
-	hblankDelay = 1;
-}
+// void CamHelperMira050::getDelays(int &exposureDelay, int &gainDelay,
+// 								 int &vblankDelay, int &hblankDelay) const
+// {
+// 	/* The driver appears to behave as follows: */
+// 	exposureDelay = 1;
+// 	gainDelay = 1;
+// 	vblankDelay = 1;
+// 	hblankDelay = 1;
+// }
 
 
 static CamHelper *create()
