@@ -5,7 +5,7 @@ import os
 import time
 import numpy as np
 from PIL import Image
-
+from pathlib import Path
 def convert(input, output, w, h, bpp, s):
     # Open input file for reading
     with open(input, "rb") as f:
@@ -92,11 +92,11 @@ def convert(input, output, w, h, bpp, s):
     #     f.write(container)
     newarr = container.reshape(h,w)
 
-    with open(output, 'ab') as f:
-        np.save(f, newarr, allow_pickle=False)
-        print(f"Output converted image to file {output}.");
-    pillow_image = Image.fromarray(newarr)
-    pillow_image.save('hello.tiff')
+    #with open(output, 'ab') as f:
+    #    np.save(f, newarr, allow_pickle=False)
+    #    print(f"Output converted image to file {output}.");
+    pillow_image = Image.fromarray(newarr<<(16-bpp))
+    pillow_image.save(output)
 
 if __name__ == "__main__":
     # Argument handling
@@ -108,19 +108,18 @@ if __name__ == "__main__":
  
     args = vars(ap.parse_args())
     # Process -input
-    arg_input = args['input'] 
-    if not os.path.exists(arg_input) :
+    arg_input = Path(args['input'])
+    if not Path.exists(arg_input) :
         print(f"ERROR: -input does not exist ({arg_input})")
         exit(-1)
-    # Process -width
+            
+# Process -width
     arg_width = args['width']
     # Process -height
     arg_height = args['height']
     # Process -height
     arg_bpp = args['bpp']
 
-    input = arg_input
-    output = arg_input+".tiff"
     w = arg_width
     h = arg_height
     bpp = arg_bpp
@@ -136,5 +135,20 @@ if __name__ == "__main__":
     else:
         exit(-1);
     print(f"Input image stride is configured to be {s}")
-    convert(input, output, w, h, bpp, s)
+    
+    if arg_input.is_dir():
+        for file in arg_input.iterdir():
+            print(f'file: {file} found in dir {arg_input}')
+            if file.suffix=='.raw':
+            # loop over each file and convert
+                input = file
+                print(f'convert dir {arg_input} with files {file}')
+                output = file.with_suffix(".tiff")
+                convert(input, output, w, h, bpp, s)
+    else:
+        #only take input
+
+        input = arg_input
+        output = arg_input.with_suffix(".tiff")
+        convert(input, output, w, h, bpp, s)
 
