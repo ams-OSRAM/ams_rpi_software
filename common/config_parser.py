@@ -1,4 +1,5 @@
 import pathlib
+import csv
 
 class ConfigParser:
     def __init__(self):
@@ -34,4 +35,23 @@ class ConfigParser:
                     pass
         self.reg_seq=reg_seq
         return reg_seq
-
+        
+    def parse_csv(self, filepath):
+        reg_seq = []
+        with open(filepath,newline='') as csvfile:
+            spamreader = csv.reader(csvfile, delimiter=',')
+            for values in spamreader:
+                val_index =  1
+                addr_index = 0
+                if ('x' in values[addr_index]) or ('X' in values[addr_index]):
+                    addr =  (int(values[addr_index],16))
+                else:
+                    addr = (int(values[addr_index],10))
+                if ('x' in values[val_index]) or ('X' in values[val_index]):
+                    val =  (int(values[val_index],16))
+                else:
+                    val =  (int(values[val_index],10))
+                reg_seq.append((addr, val))
+               
+        self.reg_seq=reg_seq
+        return reg_seq
