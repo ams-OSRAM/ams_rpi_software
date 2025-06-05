@@ -1,18 +1,20 @@
 #!/usr/bin/python3
 
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QPushButton,
+from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QMainWindow, QLabel, QPushButton,
                              QVBoxLayout, QWidget, QTabWidget, QSlider,
-                             QFormLayout, QSpinBox, QLineEdit, QCheckBox, QComboBox,
+                             QFormLayout, QSpinBox, QStyleFactory, QLineEdit, QCheckBox, QComboBox,
                              QDoubleSpinBox)
-from PyQt5.QtGui import QPainter, QPalette
+from PyQt5.QtGui import QFont, QFontDatabase, QIcon, QPainter, QPalette
 
 from picamera2 import Picamera2
 from picamera2.encoders import H264Encoder, Quality
 from picamera2.outputs import FfmpegOutput, FileOutput
 from picamera2.previews.qt import QGlPicamera2
-import rawpy
+from style import Style
 import imageio
+import logging
+import rawpy
 try:
     import cv2
     cv_present = True
@@ -78,6 +80,24 @@ picam2.configure("still")
 _ = picam2.sensor_modes
 
 app = QApplication([])
+
+# Apply styling
+QApplication.setStyle(QStyleFactory.create(Style.STYLE_NAME))
+
+# Apply font (install if not yet available)
+if not Style.FONT_NAME in QFontDatabase().families():
+    logging.info(f'Font {Style.FONT_NAME} not found, so installing')
+    fontId = QFontDatabase.addApplicationFont(os.path.dirname(__file__) + Style.FONT_FILE)
+    if fontId < 0:
+        logging.warning(f'Failed to install font :{Style.FONT_NAME, Style.FONT_FILE}')
+    else:
+        logging.info(f'Font {Style.FONT_NAME} successfully installed')
+font = QFontDatabase().font("Lexend", "Light", 12)
+font.setHintingPreference(QFont.PreferNoHinting)
+QApplication.setFont(font)
+
+# Apply default palette
+QApplication.setPalette(Style.default_palette)
 
 
 def switch_config(new_config):
@@ -1202,7 +1222,11 @@ ignore_controls = {
 }
 
 # Main widgets
+main_window = QMainWindow()
+# It seems to be needed to explicitly set the font on the main_window
+main_window.setFont(font)
 window = QWidget()
+main_window.setCentralWidget(window)
 bg_colour = window.palette().color(QPalette.Background).getRgb()[:3]
 qpicamera2 = QGlPicamera2(picam2, width=800, height=600, keep_ar=True, bg_colour=bg_colour)
 rec_button = QPushButton("Take Photo")
@@ -1227,7 +1251,7 @@ vid_tab = vidTab()
 mode_tabs.currentChanged.connect(on_mode_change)
 
 # Final setup
-window.setWindowTitle("Qt Picamera2 App")
+main_window.setWindowTitle("Qt Picamera2 App")
 recording = False
 _, scaler_crop, _ = picam2.camera_controls['ScalerCrop']
 hdr_imgs = {"exposures": None}
@@ -1257,13 +1281,20 @@ layout_h.addWidget(qpicamera2)
 layout_h.addWidget(hide_button)
 layout_h.addWidget(tabs)
 
-window.resize(1600, 600)
+main_window.resize(1600, 600)
 window.setLayout(layout_h)
+
+# Set window icon
+app.setWindowIcon(QIcon(os.path.dirname(__file__) + '/artwork/favicon.ico'))
+
+# Status bar
+status_bar = Style.create_status_bar("v1.0.0")
+main_window.setStatusBar(status_bar)
 
 if __name__ == "__main__":
     # import subprocess
     # subprocess.call(['sh', 'sudo systemctl stop picamera2-flask.service'])
 
-    window.show()
+    main_window.show()
     app.exec()
     os.system("sudo systemctl start picamera2-flask")
