@@ -107,7 +107,7 @@ cd $TOPDIR
 # clone rpicam-apps source, and checkout a proved commit
 # Latest tested commit is on 2022 Dec 1st.
 #LIBCAMERA_APPS_COMMIT=v1.0.2
-LIBCAMERA_APPS_COMMIT=main
+LIBCAMERA_APPS_COMMIT=1a64a19
 
 # Previous tested commit is on 2022 August 30th.
 # LIBCAMERA_APPS_COMMIT=1bf0cca
