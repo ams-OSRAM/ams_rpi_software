@@ -28,6 +28,12 @@ insert_file_A_into_file_B_before_pattern_C_if_pattern_D_does_not_exist "$INSERT_
 # Patch rpi data meson.build     'mira130.json',   'mira130color.json',
 
 INSERT_FILE=$PATCH_PATH/rpi_data_meson.build.txt
+TARGET_FILE=$LIBCAMERA_PATH/src/ipa/rpi/pisp/data/meson.build
+INSERT_BEFORE="imx219.json"
+INSERT_IF_NOT_EXIST="mira130.json"
+insert_file_A_into_file_B_before_pattern_C_if_pattern_D_does_not_exist "$INSERT_FILE" "$TARGET_FILE" "$INSERT_BEFORE" "$INSERT_IF_NOT_EXIST" 
+
+INSERT_FILE=$PATCH_PATH/rpi_data_meson.build.txt
 TARGET_FILE=$LIBCAMERA_PATH/src/ipa/rpi/vc4/data/meson.build
 INSERT_BEFORE="imx219.json"
 INSERT_IF_NOT_EXIST="mira130.json"
@@ -37,7 +43,7 @@ insert_file_A_into_file_B_before_pattern_C_if_pattern_D_does_not_exist "$INSERT_
 
 INSERT_FILE=$PATCH_PATH/rpi_meson.build.txt
 TARGET_FILE=$LIBCAMERA_PATH/src/ipa/rpi/cam_helper/meson.build
-INSERT_BEFORE='])'
+INSERT_BEFORE="cam_helper_imx219.cpp"
 INSERT_IF_NOT_EXIST="cam_helper_mira130.cpp"
 insert_file_A_into_file_B_before_pattern_C_if_pattern_D_does_not_exist "$INSERT_FILE" "$TARGET_FILE" "$INSERT_BEFORE" "$INSERT_IF_NOT_EXIST" 
 

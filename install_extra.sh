@@ -1,8 +1,9 @@
-sudo pip3 install setuptools
-sudo apt install libffi-dev
-sudo pip3 install cffi
-sudo pip3 install jupyterlab
-pip3 install packages/char/. --ignore-requires-python
+sudo pip3 install --break-system-packages setuptools
+sudo apt install -y libffi-dev
+sudo pip3 install --break-system-packages cffi
+# Install jupyterlab via pip
+sudo pip3 install --break-system-packages jupyterlab
+
 sudo cp jupyter.service /etc/systemd/system
 
 #adjust this so it is not dubplicated when running twice.
@@ -11,8 +12,8 @@ sed -i "2i127.0.0.1  jupyter.localhost jupyter.raspberrypi.local" /etc/hosts
 
 
 
-pip install -r common/picamera2-flask/requirements.txt
-#pip3 install pyro5
+sudo pip install --break-system-packages -r common/picamera2-flask/requirements.txt
+#sudo pip3 install --break-system-packages pyro5
 sudo cp common/picamera2-flask/picamera2-flask.service /etc/systemd/system
 
 sudo systemctl daemon-reload
@@ -40,4 +41,6 @@ sudo chmod 644 /etc/nginx/sites-available/ams_nginx_config
 # Remove the default enabled config
 sudo rm -f /etc/nginx/sites-enabled/default
 # Create a symbolic link at sites-enabled that points to sites-available/ams_nginx_config
-sudo ln -s /etc/nginx/sites-available/ams_nginx_config /etc/nginx/sites-enabled/ams_nginx_config
+sudo ln -fs /etc/nginx/sites-available/ams_nginx_config /etc/nginx/sites-enabled/ams_nginx_config
+
+

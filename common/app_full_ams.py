@@ -15,15 +15,19 @@ from style import Style
 import imageio
 import logging
 import rawpy
-try:
-    import cv2
-    cv_present = True
-except ImportError:
-    cv_present = False
-    print("OpenCV not found - HDR not available")
-import numpy as np
+# try:
+#     import cv2
+#     cv_present = True
+# except ImportError:
+#     cv_present = False
+#     print("OpenCV not found - HDR not available")
+cv_present = False
+
 import threading
 from PIL import Image
+
+import numpy as np
+
 
 def post_callback(request):
     # Read the metadata we get back from every request
@@ -63,6 +67,7 @@ def post_callback(request):
 
 import os
 os.system("sudo systemctl stop picamera2-flask")
+
 # Set up camera and application
 picam2 = Picamera2()
 picam2.post_callback = post_callback
@@ -73,7 +78,7 @@ while lores_size[0] > 1000:
     lores_size = (lores_size[0] // 4 & ~1, lores_size[1] // 4 & ~1)
 still_kwargs = {"lores": {"size": lores_size}, "display": "lores", "encode": "lores", "buffer_count": 1}
 picam2.still_configuration = picam2.create_still_configuration(
-    **still_kwargs
+    **still_kwargs,
 )
 picam2.configure("still")
 # Read the sensor modes
@@ -114,7 +119,7 @@ def update_controls():
     global scaler_crop
 
     # Fix aspect ratio of the pan/zoom
-    full_img = picam2.camera_properties["ScalerCropMaximum"]
+    _, full_img, _ = picam2.camera_controls['ScalerCrop']
     ar = full_img[2] / full_img[3]
     new_scaler_crop = list(scaler_crop)
     new_scaler_crop[3] = int(new_scaler_crop[2] / ar)
@@ -218,7 +223,6 @@ def capture_done(job):
             request.save_dng(
                 f"{pic_tab.filename.text() if pic_tab.filename.text() else 'test'}.dng"
             )
-
         elif pic_tab.filetype.currentText() == "dng+tiff (raw)":
             path=f"{pic_tab.filename.text() if pic_tab.filename.text() else 'test'}.dng"
             request.save_dng(path)
@@ -226,8 +230,6 @@ def capture_done(job):
                 im = raw.raw_image
                 pilim = Image.fromarray(im)
                 pilim.save(f"{pic_tab.filename.text() if pic_tab.filename.text() else 'test'}.tiff")
-                
-                
         else:
             request.save(
                 "main", f"{pic_tab.filename.text() if pic_tab.filename.text() else 'test'}.{pic_tab.filetype.currentText()}"
@@ -270,7 +272,7 @@ def capture_done(job):
             hdr_imgs["exposures"]["number"] = 0
             print("Picked exposures", hdr_imgs)
             # Disable aec so it doesn't adjust gains
-            aec_tab.aec_check.setChecked(False)
+            aec_tab.aec_check.setChecked(True)
             # Save first image
             cv2.imwrite(
                 f"{pic_tab.filename.text() if pic_tab.filename.text() else 'test'}_base.{pic_tab.filetype.currentText()}",
@@ -533,7 +535,8 @@ class panTab(QWidget):
             alignment=Qt.AlignCenter)
         self.zoom_text = QLabel("Current Zoom Level: 1.0", alignment=Qt.AlignCenter)
         self.pan_display = panZoomDisplay()
-        self.pan_display.updated.connect(lambda: self.zoom_text.setText(f"Current Zoom Level: {self.pan_display.zoom_level:.1f}x"))
+        self.pan_display.updated.connect(lambda: self.zoom_text.setText(
+            f"Current Zoom Level: {self.pan_display.zoom_level:.1f}x"))
 
         self.layout.addRow(self.label)
         self.layout.addRow(self.zoom_text)
@@ -569,7 +572,7 @@ class panZoomDisplay(QWidget):
     def paintEvent(self, event):
         painter = QPainter()
         painter.begin(self)
-        full_img = picam2.camera_properties["ScalerCropMaximum"]
+        _, full_img, _ = picam2.camera_controls['ScalerCrop']
         self.scale = 200 / full_img[2]
         # Whole frame
         scaled_full_img = [int(i * self.scale) for i in full_img]
@@ -587,11 +590,11 @@ class panZoomDisplay(QWidget):
     def draw_centered(self, pos):
         global scaler_crop
         center = [int(i / self.scale) for i in pos]
-        full_img = picam2.camera_properties["ScalerCropMaximum"]
+        _, full_img, _ = picam2.camera_controls['ScalerCrop']
         w = scaler_crop[2]
         h = scaler_crop[3]
-        x = center[0] - w // 2 + picam2.camera_properties["ScalerCropMaximum"][0]
-        y = center[1] - h // 2 + picam2.camera_properties["ScalerCropMaximum"][1]
+        x = center[0] - w // 2 + full_img[0]
+        y = center[1] - h // 2 + full_img[1]
         new_scaler_crop = [x, y, w, h]
 
         # Check still within bounds
@@ -615,7 +618,7 @@ class panZoomDisplay(QWidget):
         if self.zoom_level > self.max_zoom:
             self.zoom_level = self.max_zoom
         factor = 1.0 / self.zoom_level
-        full_img = picam2.camera_properties["ScalerCropMaximum"]
+        _, full_img, _ = picam2.camera_controls['ScalerCrop']
         current_center = (scaler_crop[0] + scaler_crop[2] // 2, scaler_crop[1] + scaler_crop[3] // 2)
         w = int(factor * full_img[2])
         h = int(factor * full_img[3])
@@ -671,7 +674,7 @@ class AECTab(QWidget):
         self.analogue_gain.valueChanged.connect(lambda: self.aec_apply.setEnabled(self.exposure_time.isEnabled()))
 
         self.awb_check = QCheckBox("AWB")
-        self.awb_check.setChecked(False)
+        self.awb_check.setChecked(True)
         self.awb_check.stateChanged.connect(self.awb_update)
         self.awb_mode = QComboBox()
         self.awb_mode.addItems([
@@ -707,8 +710,8 @@ class AECTab(QWidget):
         self.layout.addRow("Blue Gain", self.colour_gain_b)
 
     def reset(self):
-        self.aec_check.setChecked(False)
-        self.awb_check.setChecked(False)
+        self.aec_check.setChecked(True)
+        self.awb_check.setChecked(True)
         self.exposure_time.setValue(10000)
         self.analogue_gain.setValue(1.0)
         self.colour_gain_r.setValue(1.0)
@@ -908,7 +911,6 @@ class vidTab(QWidget):
         self.resolution_h = QSpinBox()
         # Max height is 1080 for the encoder to still work
         self.resolution_h.setMaximum(min(picam2.sensor_resolution[1], 1080))
-        
         self.raw_format = QComboBox()
         self.raw_format.addItem("Default")
         self.raw_format.addItems([f'{x["format"].format} {x["size"]}, {x["fps"]:.0f}fps' for x in picam2.sensor_modes])
@@ -1001,9 +1003,8 @@ class picTab(QWidget):
         self.layout = QFormLayout()
         self.setLayout(self.layout)
         self.label = QLabel((
-        "Use TIFF for raw capture. \n \
-        ImageJ viewer is recommended. \n \
-        outp: ~/ams_rpi_software/common "))
+        "Use TIFF/DNG for raw capture. \n \
+        Imgs save to home folder "))
         self.layout.addRow(self.label)
         self.filename = QLineEdit()
         self.filetype = QComboBox()
@@ -1070,8 +1071,8 @@ class picTab(QWidget):
             self.layout.addRow("Number of HDR stops above", self.stops_hdr_above)
             self.layout.addRow("Number of HDR stops below", self.stops_hdr_below)
             self.layout.addRow("HDR Gamma Setting", self.hdr_gamma)
-        else:
-            self.layout.addRow(QLabel("HDR unavailable - install opencv to try it out"))
+        # else:
+            # self.layout.addRow(QLabel("HDR unavailable - install opencv to try it out"))
 
         self.layout.addRow(self.apply_button)
 
@@ -1114,7 +1115,7 @@ class picTab(QWidget):
         picam2.still_configuration = picam2.create_still_configuration(
             main={"size": (self.resolution_w.value(), self.resolution_h.value())},
             **still_kwargs,
-            raw=self.sensor_mode
+            raw=self.sensor_mode,
         )
 
     def update_options(self):
@@ -1138,7 +1139,6 @@ class picTab(QWidget):
         self.preview_format.clear()
         self.preview_format.addItem("Same as capture")
         self.preview_modes = []
-        print(f'crop limits: {crop_limits}')
         for mode in picam2.sensor_modes:
             if mode["crop_limits"] == crop_limits:
                 self.preview_format.addItem(f'{mode["format"].format} {mode["size"]}')
@@ -1268,7 +1268,7 @@ tabs.addTab(aec_tab, "AEC/AWB")
 tabs.addTab(pan_tab, "Pan/Zoom")
 tabs.addTab(img_tab, "Image Tuning")
 tabs.addTab(info_tab, "Info")
-tabs.addTab(other_tab, "Other")
+# tabs.addTab(other_tab, "Other") #dont want this here.
 
 mode_tabs.addTab(pic_tab, "Still Capture")
 mode_tabs.addTab(vid_tab, "Video")
@@ -1281,7 +1281,7 @@ layout_h.addWidget(qpicamera2)
 layout_h.addWidget(hide_button)
 layout_h.addWidget(tabs)
 
-main_window.resize(1600, 600)
+main_window.resize(1400, 600)
 window.setLayout(layout_h)
 
 # Set window icon
@@ -1298,3 +1298,4 @@ if __name__ == "__main__":
     main_window.show()
     app.exec()
     os.system("sudo systemctl start picamera2-flask")
+

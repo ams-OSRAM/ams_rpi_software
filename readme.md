@@ -1,13 +1,13 @@
 
 # Prerequisites:
 - Raspberry Pi 4 (RPI4). It is tested on RPI4, but should also support Raspberry Pi Compute Module 4 or Raspberry Pi 3.
-- Raspberry Pi OS Bullseye 64bit (recommended) or 32bit.
+- Raspberry Pi OS Bookworm 64bit.
 - Mira220 CSP sensor board V3.0 or Mira050 CSP sensor board V1.0
 - Mira220 or Mira050 driver (provided in a separate repo) installed on RPI.
 - Raspberry Pi has the required tools to compile libcamera. Refer to [Raspberry Pi doc](https://www.raspberrypi.com/documentation/accessories/camera.html#building-libcamera-and-libcamera-apps) on the required tools. It is recommended to test that all required tools are installed by compiling the standard libcamera as mentioned in the Raspberry Pi doc.
 
 ## Configure RPI:
-- In the RPI, add a new line to `/boot/config.txt`, either specifying `dtoverlay=mira220` for Mira220 mono, or `dtoverlay=mira220color` for Mira220 color, or `dtoverlay=mira050` for Mira050 mono (pick one and only one!), depending on whether Mira220 mono or Mira220 color or Mira050 mono is conencted. If a standard RPI camera (such as SONY IMX219 or OVT OV5647) is connected instead, comment out or remove `dtoverlay=mira...` to avoid conflicts.
+- In the RPI, add a new line to `/boot/formware/config.txt`, either specifying `dtoverlay=mira220` for Mira220 mono, or `dtoverlay=mira220color` for Mira220 color, or `dtoverlay=mira050` for Mira050 mono (pick one and only one!), depending on whether Mira220 mono or Mira220 color or Mira050 mono is conencted. If a standard RPI camera (such as SONY IMX219 or OVT OV5647) is connected instead, comment out or remove `dtoverlay=mira...` to avoid conflicts.
 
 ## Installing prerequisite tools on RPI:
 ```

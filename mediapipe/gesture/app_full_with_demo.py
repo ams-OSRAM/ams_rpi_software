@@ -10,6 +10,7 @@ from PyQt5.QtGui import QPainter, QPalette
 from picamera2.encoders import H264Encoder, Quality
 from picamera2.outputs import FfmpegOutput, FileOutput
 from picamera2.previews.qt import QGlPicamera2
+from typing import Union, Tuple
 import rawpy
 import imageio
 try:
@@ -21,11 +22,12 @@ except ImportError:
 import numpy as np
 import threading
 from PIL import Image
-
+from enum import Enum
 from picamera2 import Picamera2, MappedArray
 from picamera2.previews.qt import QGlPicamera2
 import cv2
 import time
+import math
 
 # mediapipe imports
 import mediapipe as mp
@@ -34,6 +36,29 @@ from mediapipe.tasks.python import vision
 
 from mediapipe import solutions
 from mediapipe.framework.formats import landmark_pb2
+
+import argparse
+
+msg = "demo app for mira with AI. Provide arg for cam: 0/1 \n"
+
+# Initialize parser
+parser = argparse.ArgumentParser(description = msg)
+# Adding optional argument
+parser.add_argument("-c", "--cam",  default = "0", help = "0 or 1")
+parser.add_argument("-v", "--verbose", action = "count", help = "verbose")
+parsed = parser.parse_args()
+print(f"argument parser: {parsed.cam}")
+
+class DemoType(Enum):
+    """Enum type to describe the quality wanted from an encoder.
+
+    This may be passed if a specific value (such as bitrate) has not been set.
+    """
+
+    NOTHING = 0
+    HAND_GESTURE = 1
+    FACE_DETECTION = 2
+    OBJECT_DETECTION = 3
 
 def post_callback(request):
     # Read the metadata we get back from every request
@@ -81,7 +106,6 @@ os.system("sudo systemctl stop picamera2-flask")
 
 # detection_result_async = None
 framecount = 0
-callstack = 0
 show_hand = False
 colour = (0, 255, 0)
 origin = (0, 30)
@@ -94,63 +118,104 @@ thickness = 2
 def _normalized_to_pixel_coordinates(
     normalized_x: float, normalized_y: float, image_width: int,
     image_height: int) -> Union[None, Tuple[int, int]]:
-  """Converts normalized value pair to pixel coordinates."""
+    """Converts normalized value pair to pixel coordinates."""
 
-  # Checks if the float value is between 0 and 1.
-  def is_valid_normalized_value(value: float) -> bool:
-    return (value > 0 or math.isclose(0, value)) and (value < 1 or
-                                                      math.isclose(1, value))
+    # Checks if the float value is between 0 and 1.
+    def is_valid_normalized_value(value: float) -> bool:
+        return (value > 0 or math.isclose(0, value)) and (value < 1 or
+                                                        math.isclose(1, value))
 
-  if not (is_valid_normalized_value(normalized_x) and
-          is_valid_normalized_value(normalized_y)):
-    # TODO: Draw coordinates even if it's outside of the image bounds.
-    return None
-  x_px = min(math.floor(normalized_x * image_width), image_width - 1)
-  y_px = min(math.floor(normalized_y * image_height), image_height - 1)
-  return x_px, y_px
+    if not (is_valid_normalized_value(normalized_x) and
+            is_valid_normalized_value(normalized_y)):
+        # TODO: Draw coordinates even if it's outside of the image bounds.
+        return None
+    x_px = min(math.floor(normalized_x * image_width), image_width - 1)
+    y_px = min(math.floor(normalized_y * image_height), image_height - 1)
+    return x_px, y_px
 
 
-def visualize(
+def visualize_object(
     image,
     detection_result
-) -> np.ndarray:
-  """Draws bounding boxes and keypoints on the input image and return it.
-  Args:
-    image: The input RGB image.
-    detection_result: The list of all "Detection" entities to be visualize.
-  Returns:
-    Image with bounding boxes.
-  """
-  annotated_image = image.copy()
-  height, width, _ = image.shape
+    ) -> np.ndarray:
+    """Draws bounding boxes and keypoints on the input image and return it.
+    Args:
+        image: The input RGB image.
+        detection_result: The list of all "Detection" entities to be visualize.
+    Returns:
+        Image with bounding boxes.
+    """
+    MARGIN = 10  # pixels
+    ROW_SIZE = 10  # pixels
+    FONT_SIZE = 1
+    FONT_THICKNESS = 1
+    TEXT_COLOR = (255, 0, 0)  # red
 
-  for detection in detection_result.detections:
-    # Draw bounding_box
-    bbox = detection.bounding_box
-    start_point = bbox.origin_x, bbox.origin_y
-    end_point = bbox.origin_x + bbox.width, bbox.origin_y + bbox.height
-    cv2.rectangle(annotated_image, start_point, end_point, TEXT_COLOR, 3)
+    annotated_image = image.copy()
+    height, width, _ = image.shape
 
-    # Draw keypoints
-    for keypoint in detection.keypoints:
-      keypoint_px = _normalized_to_pixel_coordinates(keypoint.x, keypoint.y,
-                                                     width, height)
-      color, thickness, radius = (0, 255, 0), 2, 2
-      cv2.circle(annotated_image, keypoint_px, thickness, color, radius)
+    for detection in detection_result.detections:
+        # Draw bounding_box
+        bbox = detection.bounding_box
+        start_point = bbox.origin_x, bbox.origin_y
+        end_point = bbox.origin_x + bbox.width, bbox.origin_y + bbox.height
+        cv2.rectangle(annotated_image, start_point, end_point, TEXT_COLOR, 3)
 
-    # Draw label and score
-    category = detection.categories[0]
-    category_name = category.category_name
-    category_name = '' if category_name is None else category_name
-    probability = round(category.score, 2)
-    result_text = category_name + ' (' + str(probability) + ')'
-    text_location = (MARGIN + bbox.origin_x,
-                     MARGIN + ROW_SIZE + bbox.origin_y)
-    cv2.putText(annotated_image, result_text, text_location, cv2.FONT_HERSHEY_PLAIN,
-                FONT_SIZE, TEXT_COLOR, FONT_THICKNESS)
+        # Draw keypoints
+        for keypoint in detection.keypoints:
+            keypoint_px = _normalized_to_pixel_coordinates(keypoint.x, keypoint.y,
+                                                            width, height)
+            color, thickness, radius = (0, 255, 0), 2, 2
+            cv2.circle(annotated_image, keypoint_px, thickness, color, radius)
 
-  return annotated_image
+        # Draw label and score
+        category = detection.categories[0]
+        category_name = category.category_name
+        category_name = '' if category_name is None else category_name
+        probability = round(category.score, 2)
+        result_text = category_name + ' (' + str(probability) + ')'
+        text_location = (MARGIN + bbox.origin_x,
+                        MARGIN + ROW_SIZE + bbox.origin_y)
+        cv2.putText(annotated_image, result_text, text_location, cv2.FONT_HERSHEY_PLAIN,
+                    FONT_SIZE, TEXT_COLOR, FONT_THICKNESS)
 
+    return annotated_image
+MARGIN = 10  # pixels
+ROW_SIZE = 10  # pixels
+FONT_SIZE = 1
+FONT_THICKNESS = 1
+TEXT_COLOR = (255, 0, 0)  # red
+
+
+def visualize_face(
+    image,
+    detection_result
+    ) -> np.ndarray:
+    """Draws bounding boxes on the input image and return it.
+    Args:
+        image: The input RGB image.
+        detection_result: The list of all "Detection" entities to be visualize.
+    Returns:
+        Image with bounding boxes.
+    """
+    for detection in detection_result.detections:
+        # Draw bounding_box
+        bbox = detection.bounding_box
+        start_point = bbox.origin_x, bbox.origin_y
+        end_point = bbox.origin_x + bbox.width, bbox.origin_y + bbox.height
+        cv2.rectangle(image, start_point, end_point, TEXT_COLOR, 3)
+
+        # Draw label and score
+        category = detection.categories[0]
+        category_name = category.category_name
+        probability = round(category.score, 2)
+        result_text = category_name + ' (' + str(probability) + ')'
+        text_location = (MARGIN + bbox.origin_x,
+                        MARGIN + ROW_SIZE + bbox.origin_y)
+        cv2.putText(image, result_text, text_location, cv2.FONT_HERSHEY_PLAIN,
+                    FONT_SIZE, TEXT_COLOR, FONT_THICKNESS)
+
+    return image
 
 
 MARGIN = 10  # pixels
@@ -227,18 +292,80 @@ def draw_landmarks_on_image(rgb_image, detection_result):
 
 
 
+def obj_detect(request):
+    timestamp = time.strftime("%Y-%m-%d %X")
+    print(f"obj_detect called {timestamp}")
+    ms = time.time_ns() // 1_000_000
+    with MappedArray(request, "main") as m:
+        # cv2.putText(m.array, timestamp, origin, font, scale, colour, thickness)
+        im = m.array  # RGBA
+        rgb = cv2.cvtColor(im, cv2.COLOR_RGBA2RGB)
+        image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb.copy())
+        # # STEP 4: Detect hand landmarks from the input image.
+        before = time.time_ns()
+        detection_result = objdetector.detect_for_video(image, ms)
 
+        after = time.time_ns()
+        diff = after - before
+        print(f"took {diff} ns to run recognize_async")
+        # print(detection_result_async)
+        # print(detection_result_async)
+
+        # # STEP 5: Process the classification result. In this case, visualize it.
+        if detection_result is not None:
+            # print('we have results')
+            try:
+                annotated_image = visualize_object(image.numpy_view(), detection_result)
+                # # Convert the annotated image back to RGBA format for display
+                annotated_image_rgba = cv2.cvtColor(annotated_image, cv2.COLOR_RGB2RGBA)
+                # # Update the MappedArray with the annotated image
+                m.array[:] = annotated_image_rgba
+            except Exception as e:
+                print(f"Error processing detection result: {e}")
+                # If there's an error, just put the original image back
+    return 0
+
+def face_detect(request):
+    timestamp = time.strftime("%Y-%m-%d %X")
+    print(f"face_detect called {timestamp}")
+    ms = time.time_ns() // 1_000_000
+    with MappedArray(request, "main") as m:
+        # cv2.putText(m.array, timestamp, origin, font, scale, colour, thickness)
+        im = m.array  # RGBA
+        rgb = cv2.cvtColor(im, cv2.COLOR_RGBA2RGB)
+        image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb.copy())
+        # # STEP 4: Detect hand landmarks from the input image.
+        before = time.time_ns()
+        detection_result = detector.detect_for_video(image, ms)
+
+        after = time.time_ns()
+        diff = after - before
+        print(f"took {diff} ns to run recognize_async")
+        # print(detection_result_async)
+        # print(detection_result_async)
+
+        # # STEP 5: Process the classification result. In this case, visualize it.
+        if detection_result is not None:
+            # print('we have results')
+            try:
+                annotated_image = visualize_object(image.numpy_view(), detection_result)
+                # # Convert the annotated image back to RGBA format for display
+                annotated_image_rgba = cv2.cvtColor(annotated_image, cv2.COLOR_RGB2RGBA)
+                # # Update the MappedArray with the annotated image
+                m.array[:] = annotated_image_rgba
+            except Exception as e:
+                print(f"Error processing detection result: {e}")
+                # If there's an error, just put the original image back
+    return 0
 
 
 def hand_detect(request):
     timestamp = time.strftime("%Y-%m-%d %X")
+    ms = time.time_ns() // 1_000_000
+
     global show_hand
     print(f"hand_detect checked {show_hand} called {timestamp}")
-    ms = time.time_ns() // 1_000_000
-    global callstack
     with MappedArray(request, "main") as m:
-        callstack += 1
-
         # cv2.putText(m.array, timestamp, origin, font, scale, colour, thickness)
         im = m.array  # RGBA
         rgb = cv2.cvtColor(im, cv2.COLOR_RGBA2RGB)
@@ -246,7 +373,7 @@ def hand_detect(request):
         # # STEP 4: Detect hand landmarks from the input image.
         before = time.time_ns()
         detection_result = recognizer.recognize_for_video(image,ms)
-        
+
         after = time.time_ns()
         diff = after - before
         print(f"took {diff} ns to run recognize_async")
@@ -265,9 +392,8 @@ def hand_detect(request):
             except Exception as e:
                 print(f"Error processing detection result: {e}")
                 # If there's an error, just put the original image back
-    callstack -= 1
     return 0
-                
+
 
 def request_callback(request):
     global framecount
@@ -275,14 +401,15 @@ def request_callback(request):
     # label.setText("".join(f"{k}: {v}\n" for k, v in request.get_metadata().items()))
     # label2.setText(f"frame count: {framecount}")
     framecount += 1
-    if demo_tab.demotype.currentText() == "Hand gesture":
-        # print("show hand is checked")
-        # print("request callback called")
-        # print("request", request)
-        # print("picam2", picam2)
-        # print("recognizer", recognizer)
-        # print("detection_result_async", detection_result_async)
+    if demo_tab.demotype == DemoType.HAND_GESTURE:
+        print("show hand is checked")
         hand_detect(request)
+    if demo_tab.demotype == DemoType.FACE_DETECTION:
+        print("face detect is checked.")
+        face_detect(request)
+    if demo_tab.demotype == DemoType.OBJECT_DETECTION:
+        print("face detect is checked.")
+        obj_detect(request)
     # else:
     #     time.sleep(1)
 
@@ -311,10 +438,26 @@ optionsq = vision.GestureRecognizerOptions(
 )
 recognizer = vision.GestureRecognizer.create_from_options(optionsq)
 
+# face detector:
+base_options = python.BaseOptions(model_asset_path='detector.tflite')
+options = vision.FaceDetectorOptions(base_options=base_options,   
+    running_mode=vision.RunningMode.VIDEO
+)
+detector = vision.FaceDetector.create_from_options(options)
+
+#object detection:
+
+# STEP 2: Create an ObjectDetector object.
+obj_base_options = python.BaseOptions(model_asset_path='efficientdet_lite0.tflite')
+obj_options = vision.ObjectDetectorOptions(base_options=obj_base_options,
+                    running_mode=vision.RunningMode.VIDEO,
+                                       score_threshold=0.5)
+objdetector = vision.ObjectDetector.create_from_options(obj_options)
+
 #start of picam app.
 
 # Set up camera and application
-picam2 = Picamera2()
+picam2 = Picamera2(int(parsed.cam))
 picam2.post_callback = post_callback
 lores_size = picam2.sensor_resolution
 print(f'{lores_size=}')
@@ -462,8 +605,8 @@ def capture_done(job):
                 im = raw.raw_image
                 pilim = Image.fromarray(im)
                 pilim.save(f"{pic_tab.filename.text() if pic_tab.filename.text() else 'test'}.tiff")
-                
-                
+
+
         else:
             request.save(
                 "main", f"{pic_tab.filename.text() if pic_tab.filename.text() else 'test'}.{pic_tab.filetype.currentText()}"
@@ -1129,8 +1272,8 @@ class demoTab(QWidget):
         self.layout = QFormLayout()
         self.setLayout(self.layout)
         self.filename = QLineEdit()
-        self.demotype = QComboBox()
-        self.demotype.addItems(["Nothing", "Hand gesture: rock/paper/scissor", "Face detection", "Object detection"])
+        self.demotype_box = QComboBox()
+        self.demotype_box.addItems(["Nothing", "Hand gesture", "Face detection", "Object detection"])
         # self.quality_box = QComboBox()
         # self.quality_box.addItems(["Very Low", "Low", "Medium", "High", "Very High"])
         self.framerate = QSpinBox()
@@ -1143,7 +1286,7 @@ class demoTab(QWidget):
         self.resolution_h = QSpinBox()
         # Max height is 1080 for the encoder to still work
         self.resolution_h.setMaximum(min(picam2.sensor_resolution[1], 1080))
-        
+
         self.raw_format = QComboBox()
         self.raw_format.addItem("Default")
         self.raw_format.addItems([f'{x["format"].format} {x["size"]}, {x["fps"]:.0f}fps' for x in picam2.sensor_modes])
@@ -1160,7 +1303,7 @@ class demoTab(QWidget):
 
         # Add the rows
         # self.layout.addRow("Name", self.filename)
-        self.layout.addRow("Demo type", self.demotype)
+        self.layout.addRow("Demo type", self.demotype_box)
         # self.layout.addRow("Quality", self.quality_box)
         self.layout.addRow("Frame Rate", self.framerate)
         self.layout.addRow(self.actual_framerate)
@@ -1171,6 +1314,15 @@ class demoTab(QWidget):
 
         self.reset()
 
+    @property
+    def demotype(self):
+        demo_types = {
+            "Nothing": DemoType.NOTHING,
+            "Hand gesture": DemoType.HAND_GESTURE,
+            "Face detection": DemoType.FACE_DETECTION,
+            "Object detection": DemoType.OBJECT_DETECTION
+        }
+        return demo_types[self.demotype_box.currentText()]
     # @property
     # def quality(self):
     #     qualities = {
@@ -1251,7 +1403,7 @@ class vidTab(QWidget):
         self.resolution_h = QSpinBox()
         # Max height is 1080 for the encoder to still work
         self.resolution_h.setMaximum(min(picam2.sensor_resolution[1], 1080))
-        
+
         self.raw_format = QComboBox()
         self.raw_format.addItem("Default")
         self.raw_format.addItems([f'{x["format"].format} {x["size"]}, {x["fps"]:.0f}fps' for x in picam2.sensor_modes])
@@ -1567,7 +1719,7 @@ ignore_controls = {
 # Main widgets
 window = QWidget()
 bg_colour = window.palette().color(QPalette.Background).getRgb()[:3]
-qpicamera2 = QGlPicamera2(picam2, width=800, height=600, keep_ar=True, bg_colour=bg_colour)
+qpicamera2 = QGlPicamera2(picam2, width=400, height=400, keep_ar=True, bg_colour=bg_colour)
 rec_button = QPushButton("Take Photo")
 rec_button.clicked.connect(on_rec_button_clicked)
 qpicamera2.done_signal.connect(capture_done)
@@ -1598,8 +1750,8 @@ _, scaler_crop, _ = picam2.camera_controls['ScalerCrop']
 hdr_imgs = {"exposures": None}
 pic_tab.apply_settings()
 
-tabs.setFixedWidth(400)
-mode_tabs.setFixedWidth(400)
+tabs.setFixedWidth(300)
+mode_tabs.setFixedWidth(300)
 layout_h = QHBoxLayout()
 layout_v = QVBoxLayout()
 
@@ -1623,7 +1775,7 @@ layout_h.addWidget(qpicamera2)
 layout_h.addWidget(hide_button)
 layout_h.addWidget(tabs)
 
-window.resize(1600, 600)
+window.resize(1000, 600)
 window.setLayout(layout_h)
 
 if __name__ == "__main__":

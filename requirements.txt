@@ -1,0 +1,6 @@
+numpy<2.0.0
+v4l2-python3
+rawpy
+imageio
+scipy
+pillow

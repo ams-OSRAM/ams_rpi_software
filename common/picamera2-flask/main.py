@@ -635,7 +635,7 @@ def admin():
             import os
 
             sp = os.popen(
-                'echo {} | sudo -S sed -i "s/^dtoverlay=mira.*$\|^dtoverlay=poncha.*$/dtoverlay={}/" /boot/config.txt'.format(
+                'echo {} | sudo -S sed -i "s/^dtoverlay=mira.*$/dtoverlay={}/" /boot/firmware/config.txt'.format(
                     "pi", form.data["sensor"]
                 )
             )
