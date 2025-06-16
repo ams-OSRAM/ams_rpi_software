@@ -85,7 +85,7 @@ echo "Post-installation update"
 sudo ldconfig
 
 # clone picamera2 source, not for installation, but for apps etc.
-PICAMERA2_COMMIT=main
+PICAMERA2_COMMIT=16d52aec
 # Preivous tested commit is on 2022 Dec 1st
 # PICAMERA2_COMMIT=v0.3.7
 

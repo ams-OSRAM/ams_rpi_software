@@ -633,12 +633,18 @@ def admin():
         if form.data["sensor"]:
             log.debug("download button pressed")
             import os
-
             sp = os.popen(
-                'echo {} | sudo -S sed -i "s/^dtoverlay=mira.*$/dtoverlay={}/" /boot/firmware/config.txt'.format(
+
+                'echo {} | sudo -S sed -i "s/^dtoverlay=mira.*$\|^dtoverlay=poncha.*$/dtoverlay={}/" /boot/firmware/config.txt'.format(
+                                        "pi", form.data["sensor"]
+                )
+            )
+            sp = os.popen(
+                'echo {} | sudo -S sed -i "s/^dtoverlay=mira.*$\|^dtoverlay=poncha.*$/dtoverlay={}/" /boot/config.txt'.format(
                     "pi", form.data["sensor"]
                 )
             )
+
             result = sp.read()
             sp = os.popen("echo {} | sudo reboot".format("pi"))
             result = sp.read()

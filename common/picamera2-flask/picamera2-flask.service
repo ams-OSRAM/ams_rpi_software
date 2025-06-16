@@ -8,6 +8,6 @@ Group=pi
 WorkingDirectory=/home/pi/ams_rpi_software/common/picamera2-flask
 #Environment="PATH=/home/pi/git/picamera2/myprojectenv/bin"
 #ExecStart=gunicorn --workers 3 --bind 0.0.0.0:8000 wsgi:app
-ExecStart=python main.py
+ExecStart=/home/pi/venv/bin/python main.py
 [Install]
 WantedBy=multi-user.target

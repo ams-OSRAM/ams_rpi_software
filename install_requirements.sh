@@ -1,4 +1,17 @@
 #!/usr/bin/env bash
+################################
+# Uninstall apt and pip packages
+# Use self-built ones instead
+################################
+sudo apt remove -y rpicam-apps libcamera-dev libcamera-tools libcamera0 python3-libcamera python3-picamera2 || true
+sudo apt remove -y libepoxy-dev || true
+
+################################
+# Nginx forwards port 80 to 8000
+################################
+sudo apt install -y nginx
+
+
 #################################
 # libcamera prerequisites
 # [ref](https://www.raspberrypi.com/documentation/computers/camera_software.html)
@@ -61,16 +74,4 @@ sudo apt install -y git bc bison flex libssl-dev make
 # sudo apt install -y libevent-dev
 # install dependencies for Dqcam=enabled
 # sudo apt install -y qtbase5-dev libqt5core5a libqt5gui5 libqt5widgets5 qttools5-dev-tools libtiff-dev
-
-################################
-# Uninstall apt and pip packages
-# Use self-built ones instead
-################################
-sudo apt remove -y rpicam-apps libcamera-dev libcamera-tools libcamera0 python3-libcamera python3-picamera2
-sudo apt remove -y libepoxy-dev
-
-################################
-# Nginx forwards port 80 to 8000
-################################
-sudo apt install -y nginx
 
