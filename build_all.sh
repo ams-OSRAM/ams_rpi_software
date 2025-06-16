@@ -10,7 +10,7 @@ echo "Install requirements using install_requirements.sh"
 version=$( cat /etc/os-release | grep -oP "[0-9]+" | head -1 )
 
 # !!!!!!!!!!!!!! UNCOMMENT THIS LINE IF YOU WANT TO INSTALL REQUIREMENTS !!!!!!!!!!!!!!
-# . $TOPDIR/install_requirements.sh
+. $TOPDIR/install_requirements.sh
 
 # clone libcamera source, and checkout a proved commit
 
@@ -18,11 +18,6 @@ version=$( cat /etc/os-release | grep -oP "[0-9]+" | head -1 )
 # New way: RPI down-stream libcamera
 # https://github.com/raspberrypi/libcamera.git
 #########################################
-
-LIBCAMERA_APPS_COMMIT=1a64a19
-
-
-
 
 if [[ ! -d $TOPDIR/libcamera ]]
 then
@@ -154,4 +149,4 @@ sudo chown ${FIRST_USER_NAME}:${FIRST_USER_NAME} /home/${FIRST_USER_NAME}/Deskto
 # Explicitly set environemtn variable if not exist
 # grep -q '^export GST_PLUGIN_PATH' /home/${FIRST_USER_NAME}/.bashrc || echo "export GST_PLUGIN_PATH=/home/${FIRST_USER_NAME}/ams_rpi_software/libcamera/build/src/gstreamer" >> /home/${FIRST_USER_NAME}/.bashrc
 
-#. $TOPDIR/install_extra.sh
+. $TOPDIR/install_extra.sh
