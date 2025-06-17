@@ -30,7 +30,7 @@ sudo apt install -y libglib2.0-dev libgstreamer-plugins-base1.0-dev
 #################################
 sudo apt install -y cmake libboost-program-options-dev libdrm-dev libexif-dev
 sudo apt install -y meson ninja-build
-
+sudo apt install -y libavcodec-dev libavdevice-dev libavformat-dev libswresample-dev
 ###############################
 # Linux kernel prerequisites
 # [ref](https://www.raspberrypi.com/documentation/computers/linux_kernel.html)
