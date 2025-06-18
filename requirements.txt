@@ -1,6 +1,5 @@
 numpy<2.0.0
 v4l2-python3>0.3.3
-opencv-python
 rawpy
 imageio
 scipy
@@ -18,4 +17,3 @@ matplotlib
 ipywidgets
 jupyterlab_widgets 
 pandas
-numpy<2.0.0

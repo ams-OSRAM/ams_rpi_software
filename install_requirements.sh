@@ -5,7 +5,7 @@
 ################################
 sudo apt remove -y rpicam-apps libcamera-dev libcamera-tools libcamera0 python3-libcamera python3-picamera2 || true
 sudo apt remove -y libepoxy-dev || true
-
+sudo apt install -y python3-opencv
 ################################
 # Nginx forwards port 80 to 8000
 ################################
