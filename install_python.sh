@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+sudo apt-get -y install python3-venv
 python -m venv venv --system-site-packages
 source venv/bin/activate
 pip3 install -r requirements.txt

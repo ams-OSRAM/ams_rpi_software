@@ -4,7 +4,7 @@ Description=Jupyter Lab
 [Service]
 Type=simple
 PIDFile=/run/jupyter.pid
-ExecStart=/bin/bash -c "/home/pi/ams_rpi_software/venv/bin/python -m jupyter-lab --ServerApp.disable_check_xsrf=True --LabApp.token="" --allow_origin="*" --ip="0.0.0.0" --no-browser --notebook-dir=/home/pi/ams_rpi_software/notebooks"
+ExecStart=/bin/bash -c "/home/pi/ams_rpi_software/venv/bin/python -m jupyterlab --ServerApp.disable_check_xsrf=True --LabApp.token="" --allow_origin="*" --ip="0.0.0.0" --no-browser --notebook-dir=/home/pi/ams_rpi_software/notebooks"
 User=pi
 Group=pi
 WorkingDirectory=/home/pi/ams_rpi_software/notebooks

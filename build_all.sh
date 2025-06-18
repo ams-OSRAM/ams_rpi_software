@@ -59,7 +59,7 @@ echo "rpicam_apps"
 # clone rpicam-apps source, and checkout a proved commit
 
 # Bookworm release
-RPICAM_APPS_COMMIT="main"
+RPICAM_APPS_COMMIT="1a64a19"
 if [[ ! -d $TOPDIR/rpicam-apps ]]
 then
         echo "Clone rpicam-apps source and checkout commit id ${RPICAM_APPS_COMMIT}"
@@ -77,7 +77,7 @@ meson setup build -Denable_libav=enabled -Denable_drm=enabled -Denable_egl=enabl
 
 #meson setup build -Denable_libav=true -Denable_drm=true -Denable_egl=true -Denable_qt=true -Denable_opencv=false -Denable_tflite=false
 echo "Inside rpicam-apps dir, build and install with ninja"
-meson compile -C build
+meson compile -C build -j 2
 sudo meson install -C build
 #sudo ninja -C build install
 cd $TOPDIR
