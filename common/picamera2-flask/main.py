@@ -533,8 +533,9 @@ def index():
         form.analog_gain.validators[0] = validators.NumberRange(min=1, max=16)
 
     elif camera.cam_info["Model"] == "mira016":
-        form.analog_gain.validators[0] = validators.NumberRange(min=1, max=2)
-
+        form.analog_gain.validators[0] = validators.NumberRange(min=1, max=16)
+    else:
+        form.analog_gain.validators[0] = validators.NumberRange(min=1, max=16)
     # form.bitmode.choices = [8,10]
     if request.method == "POST" and form.validate():
         form.populate_obj(camera.controls)
