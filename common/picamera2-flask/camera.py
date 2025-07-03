@@ -270,8 +270,8 @@ class Camera:
     def update_controls(self):
         if not self.is_opened:
             self.open()
-        print("setting controls")
-        print(self.controls.exposure_us)
+        log.debug(f"update_ctrl {self.controls.exposure_us} {self.controls.analog_gain} {self.controls.framerate}")
+
         # fps=self.sensor_modes[int(self.controls.mode)]['fps']
         # if 1/fps > exposure
         # fps = 1/exposure

@@ -73,7 +73,7 @@ echo "Inside rpicam-apps dir, configure the build with meson"
 $TOPDIR/build_rpicamapps.sh
 
 # clone picamera2 source, not for installation, but for apps etc.
-PICAMERA2_COMMIT=16d52aec
+PICAMERA2_COMMIT="main"
 # Preivous tested commit is on 2022 Dec 1st
 # PICAMERA2_COMMIT=v0.3.7
 
