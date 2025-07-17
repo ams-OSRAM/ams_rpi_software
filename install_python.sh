@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 sudo apt-get -y install python3-venv
 python -m venv venv --system-site-packages
+sudo apt -y remove python3-pidng
 source venv/bin/activate
 pip3 install -r requirements.txt
 #cp setup_picamera2.py ./picamera2/setup.py

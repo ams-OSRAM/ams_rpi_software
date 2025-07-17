@@ -1,4 +1,5 @@
 numpy<2.0.0
+pidng @ git+https://github.com/schoolpost/PiDNG.git@master
 v4l2-python3>0.3.3
 rawpy
 imageio
@@ -17,3 +18,4 @@ matplotlib
 ipywidgets
 jupyterlab_widgets 
 pandas
+./packages/char
