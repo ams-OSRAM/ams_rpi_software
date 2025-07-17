@@ -22,6 +22,7 @@ import rawpy
 #     cv_present = False
 #     print("OpenCV not found - HDR not available")
 cv_present = False
+multi_capture = True
 
 import threading
 from PIL import Image
@@ -216,24 +217,44 @@ def on_mode_change(i):
 
 def capture_done(job):
     # Here's the request we captured. But we must always release it when we're done with it!
-    if not pic_tab.hdr.isChecked():
+    
+    if False:
+        global multi_imgs
+        request = picam2.wait(job)
+        for i in range(0,pic_tab.num_img.value()):
+            print(f'capture img{i}')
+            request.save_dng(
+                f"{pic_tab.filename.text() if pic_tab.filename.text() else 'test'}{i}.dng"
+            )
+        request.release()
+        rec_button.setEnabled(True)
+        mode_tabs.setEnabled(True)
+        if pic_tab.preview_check.isChecked():
+            switch_config("preview")
+    elif not pic_tab.hdr.isChecked():
         # Save the normal image
         request = picam2.wait(job)
-        if pic_tab.filetype.currentText() == "dng (raw)":
-            request.save_dng(
-                f"{pic_tab.filename.text() if pic_tab.filename.text() else 'test'}.dng"
-            )
-        elif pic_tab.filetype.currentText() == "dng+tiff (raw)":
-            path=f"{pic_tab.filename.text() if pic_tab.filename.text() else 'test'}.dng"
-            request.save_dng(path)
-            with rawpy.imread(path) as raw:
-                im = raw.raw_image
-                pilim = Image.fromarray(im)
-                pilim.save(f"{pic_tab.filename.text() if pic_tab.filename.text() else 'test'}.tiff")
-        else:
-            request.save(
-                "main", f"{pic_tab.filename.text() if pic_tab.filename.text() else 'test'}.{pic_tab.filetype.currentText()}"
-            )
+        for i in range(0,pic_tab.num_img.value()):
+            if not pic_tab.multi.isChecked():
+                i=''
+            if pic_tab.filetype.currentText() == "dng (raw)":
+                request.save_dng(
+                    f"{pic_tab.filename.text() if pic_tab.filename.text() else 'test'}{i}.dng"
+                )
+            elif pic_tab.filetype.currentText() == "dng+tiff (raw)":
+                path=f"{pic_tab.filename.text() if pic_tab.filename.text() else 'test'}{i}.dng"
+                request.save_dng(path)
+                with rawpy.imread(path) as raw:
+                    im = raw.raw_image
+                    pilim = Image.fromarray(im)
+                    pilim.save(f"{pic_tab.filename.text() if pic_tab.filename.text() else 'test'}{i}.tiff")
+            else:
+                
+                request.save(
+                    "main", f"{pic_tab.filename.text() if pic_tab.filename.text() else 'test'}{i}.{pic_tab.filetype.currentText()}"
+                )
+            if not pic_tab.multi.isChecked():
+                break
         request.release()
         rec_button.setEnabled(True)
         mode_tabs.setEnabled(True)
@@ -1008,7 +1029,7 @@ class picTab(QWidget):
         self.layout.addRow(self.label)
         self.filename = QLineEdit()
         self.filetype = QComboBox()
-        self.filetype.addItems(["dng+tiff (raw)","jpg", "png", "bmp", "gif", "dng (raw)" ])
+        self.filetype.addItems(["dng+tiff (raw)", "png", "bmp", "gif", "dng (raw)" ])
         self.resolution_w = QSpinBox()
         self.resolution_w.setMaximum(picam2.sensor_resolution[0])
         self.resolution_w.valueChanged.connect(lambda: self.apply_button.setEnabled(True))
@@ -1027,6 +1048,16 @@ class picTab(QWidget):
         self.preview_warning = QLabel("WARNING: Preview and Capture modes have different fields of view")
         self.preview_warning.setWordWrap(True)
         self.preview_warning.hide()
+        self.multi_label = QLabel("MultiCapture")
+        self.multi = QCheckBox()
+        self.multi.setChecked(False)
+        self.multi.setEnabled(multi_capture)
+        if multi_capture:
+            self.multi.stateChanged.connect(self.pic_update)
+            self.num_img = QSpinBox()
+            self.num_img.setRange(1, 80)
+
+
         self.hdr_label = QLabel("HDR")
         self.hdr = QCheckBox()
         self.hdr.setChecked(False)
@@ -1065,6 +1096,12 @@ class picTab(QWidget):
         self.layout.addRow("Enable Preview Mode", self.preview_check)
         self.layout.addRow(self.preview_warning)
         self.layout.addRow("Preview Mode", self.preview_format)
+        
+        self.layout.addRow(self.apply_button)
+
+        if multi_capture:
+            self.layout.addRow(self.multi_label,self.multi)
+            self.layout.addRow('number of images',self.num_img)
         if cv_present:
             self.layout.addRow(self.hdr_label, self.hdr)
             self.layout.addRow("Number of HDR frames", self.num_hdr)
@@ -1074,7 +1111,6 @@ class picTab(QWidget):
         # else:
             # self.layout.addRow(QLabel("HDR unavailable - install opencv to try it out"))
 
-        self.layout.addRow(self.apply_button)
 
     @property
     def sensor_mode(self):
@@ -1097,10 +1133,12 @@ class picTab(QWidget):
         }
 
     def pic_update(self):
+        if multi_capture:
+            self.num_img.setEnabled(self.multi.isChecked())
         if cv_present:
             self.stops_hdr_above.setEnabled(self.hdr.isChecked())
             self.stops_hdr_below.setEnabled(self.hdr.isChecked())
-            self.num_hdr.setEnabled(self.hdr.isChecked())
+            self.num_hdr.setEnabled(self.hdr.isChecked())	
             self.hdr_gamma.setEnabled(self.hdr.isChecked())
         if self.isVisible():
             picam2.set_controls(self.pic_dict)
