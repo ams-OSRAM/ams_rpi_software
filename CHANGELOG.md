@@ -8,7 +8,6 @@ All changes to this project will be documented here.
 
 - gui: multicapture implemented in the GUI
 - gui: ams osram theme
-
 - mira016: fine gain 10b 1-4x implemented. 
 - mira050: hflip vflip 
 
