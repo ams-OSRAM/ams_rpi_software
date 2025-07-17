@@ -1029,7 +1029,7 @@ class picTab(QWidget):
         self.layout.addRow(self.label)
         self.filename = QLineEdit()
         self.filetype = QComboBox()
-        self.filetype.addItems(["dng+tiff (raw)", "png", "bmp", "gif", "dng (raw)" ])
+        self.filetype.addItems(["dng+tiff (raw)", "png", "jpg", "bmp", "gif", "dng (raw)" ])
         self.resolution_w = QSpinBox()
         self.resolution_w.setMaximum(picam2.sensor_resolution[0])
         self.resolution_w.valueChanged.connect(lambda: self.apply_button.setEnabled(True))

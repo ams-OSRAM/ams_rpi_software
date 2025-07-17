@@ -1,5 +1,6 @@
 numpy<2.0.0
 pidng @ git+https://github.com/schoolpost/PiDNG.git@master
+simplejpeg>1.8.0
 v4l2-python3>0.3.3
 rawpy
 imageio
