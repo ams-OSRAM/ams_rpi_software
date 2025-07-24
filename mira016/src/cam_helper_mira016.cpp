@@ -71,20 +71,6 @@ CamHelperMira016::CamHelperMira016()
 
 uint32_t CamHelperMira016::gainCode(double gain) const
 {
-	// All 8, 10, 12 bit are coarse gain
-	if (mode_.bitdepth == 8)
-	{
-		return std::log2(gain);
-	}
-	else if (mode_.bitdepth == 10)
-	{
-		return std::log2(gain);
-	}
-	else if (mode_.bitdepth == 12)
-	{
-		return std::log2(gain);
-	}
-	else
 	{
 		return (uint32_t)(gain);
 	}
@@ -92,23 +78,9 @@ uint32_t CamHelperMira016::gainCode(double gain) const
 
 double CamHelperMira016::gain(uint32_t gainCode) const
 {
-	// All 8, 10, 12 bit are coarse gain
-	if (mode_.bitdepth == 8)
-	{
-		return std::exp2(gainCode);
-	}
-	else if (mode_.bitdepth == 10)
-	{
-		return std::exp2(gainCode);
-	}
-	else if (mode_.bitdepth == 12)
-	{
-		return std::exp2(gainCode);
-	}
-	else
-	{
+
 		return (double)(gainCode);
-	}
+	
 }
 
 // uint32_t CamHelperMira016::exposureLines(const Duration exposure,
