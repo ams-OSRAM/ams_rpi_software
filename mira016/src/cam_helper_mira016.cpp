@@ -235,66 +235,28 @@ CamHelperMira016::CamHelperMira016()
 
 uint32_t CamHelperMira016::gainCode(double gain) const
 {
-	if (mode_.bitdepth == 12) {
-		return std::log2(gain);
-	} else if (mode_.bitdepth == 10) {
-		uint32_t sizeLut = sizeof(gainLut10bit) / sizeof(gainLut10bit[0]);
-		uint32_t gainCode = 0;
-		if (gain <= gainLut10bit[0]) {
-			gainCode = 0;
-		} else if (gain >= gainLut10bit[sizeLut - 1]) {
-			gainCode = (sizeLut - 1);
-		} else {
-			while (gainCode < sizeLut - 1) {
-				if (gain >= gainLut10bit[gainCode] && gain < gainLut10bit[gainCode+1]) {
-					break;
-				}
-				gainCode++;
-			}
-		}
-		LOG(IPARPI, Debug) << "gain: " << gain << " gainCode: " << gainCode;
-		return gainCode;
-	} else if (mode_.bitdepth == 8) {
 		uint32_t sizeLut = sizeof(gainLut8bit) / sizeof(gainLut8bit[0]);
 		uint32_t gainCode = 0;
-		if (gain <= gainLut8bit[0]) {
-			gainCode = 0;
-		} else if (gain >= gainLut8bit[sizeLut - 1]) {
-			gainCode = (sizeLut - 1);
-		} else {
-			while (gainCode < sizeLut - 1) {
-				if (gain >= gainLut8bit[gainCode] && gain < gainLut8bit[gainCode+1]) {
-					break;
-				}
-				gainCode++;
+
+		while (gainCode < sizeLut - 1) {
+			if ( gain < gainLut8bit[gainCode+1]) {
+				break;
 			}
+			gainCode++;
 		}
+	
 		LOG(IPARPI, Debug) << "gain: " << gain << " gainCode: " << gainCode;
 		return gainCode;
-	} else {
-		return (uint32_t)(gain);
-	}
+	
 }
 
 double CamHelperMira016::gain(uint32_t gainCode) const
 {
-	if (mode_.bitdepth == 12) {
-		return std::exp2(gainCode);
-	} else if (mode_.bitdepth == 10){
-		uint32_t sizeLut = sizeof(gainLut10bit) / sizeof(gainLut10bit[0]);
-		if (gainCode >= sizeLut) {
-			gainCode = sizeLut - 1;
-		}
-		return (double)(gainLut10bit[gainCode]);
-	} else if (mode_.bitdepth == 8){
-		uint32_t sizeLut = sizeof(gainLut8bit) / sizeof(gainLut8bit[0]);
-		if (gainCode >= sizeLut) {
-			gainCode = sizeLut - 1;
-		}
-		return (double)(gainLut8bit[gainCode]);
-	} else {
-		return (double)(gainCode);
+	uint32_t sizeLut = sizeof(gainLut8bit) / sizeof(gainLut8bit[0]);
+	if (gainCode >= sizeLut) {
+		gainCode = sizeLut - 1;
 	}
+	return (double)(gainLut8bit[gainCode]);
 }
 
 uint32_t CamHelperMira016::exposureLines(const Duration exposure,
@@ -309,7 +271,6 @@ Duration CamHelperMira016::exposure(uint32_t exposureLines,
 {
 	return std::max<uint32_t>(minExposureLines, exposureLines) * timePerLine;
 }
-
 
 // unsigned int CamHelperMira016::mistrustFramesModeSwitch() const
 // {
