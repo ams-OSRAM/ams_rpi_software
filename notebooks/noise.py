@@ -54,6 +54,11 @@ def main():
         help="Set the number of images to capture per setting. Default is 20."
     )
     parser.add_argument(
+        "--mode",
+        type=int,
+        help="Set the sensor mode. this is an optional override."
+    )
+    parser.add_argument(
         "--save_images",
         action='store_true',
         help="Specify whether to save captured images. Use '--save_images' to save images, or do not use it to skip saving. Default is 'no'."
@@ -79,6 +84,7 @@ def main():
     args = parser.parse_args()
 
     print(f"Gain: {args.gain}")
+    print(f"Mode: {args.mode}")
     print(f"Exposure: {args.exposure} us")
     print(f"Bit Mode: {args.bitmode} bits")
     print(f"Save Images: {args.save_images} Save CSV: {args.save_csv} Save NPZ: {args.save_npz}")
@@ -91,6 +97,7 @@ def main():
 
 
     #settings
+    mode_override = args.mode
     amount = args.amount #numbers of pictures to capture per setting
     bit_mode = args.bitmode
     analog_gain = args.gain
@@ -102,12 +109,25 @@ def main():
     #print all sensor modes
     with Picamera2() as picam2:
         modes = picam2.sensor_modes
-        #pprint.pprint(picam2.sensor_modes)
-
-    for mode in modes:
-        if mode['bit_depth']==bit_mode:
-            break
+        pprint.pprint(picam2.sensor_modes)
+    if mode_override is not None:
+        print('override mode')
+        mode =modes[mode_override]
+    else:
+        print('no override mode')
+        for mode in modes:
+            if mode['bit_depth']==bit_mode:
+                break
     selected_mode=mode
+    time.sleep(1)
+
+    with Picamera2() as picam2:
+        preview_config = picam2.create_preview_configuration(main={"size": selected_mode["size"]},
+            raw={"format": selected_mode["unpacked"],
+                "size": selected_mode["size"],
+            })
+        picam2.configure(preview_config)
+    
     with Picamera2() as picam2:
         preview_config = picam2.create_preview_configuration(main={"size": selected_mode["size"]},
             raw={"format": selected_mode["unpacked"],
@@ -115,8 +135,15 @@ def main():
             })
         picam2.configure(preview_config)
 
+        with picam2.controls as ctrl:
+            ctrl.AeEnable = False
+            ctrl.AwbEnable = False
+            ctrl.AnalogueGain = analog_gain
+            ctrl.ExposureTime = exposure
+            ctrl.ColourGains = (1.0, 1.0)
+        
         picam2.start()
-
+        print(picam2.camera_controls)
 
 
         picam2.set_controls({"ExposureTime": exposure , "AnalogueGain": analog_gain})
@@ -138,7 +165,7 @@ def main():
             im_stack.append(image[0:height, 0:width])
             if args.save_images:
                 # save images    
-                pilim = Image.fromarray(image)
+                pilim = Image.fromarray(im_stack[-1])
                 tiffname = str(f"{foldername}/img_exposure{exposure}_gain{analog_gain}{i}.tiff")
                 pilim.save(tiffname)
             
@@ -154,7 +181,12 @@ def main():
         print(results.T)
         if args.save_csv:
             results.to_csv(foldername/filename)
-
+    
+        metadata=picam2.capture_metadata()
+        print(metadata["ExposureTime"], metadata["AnalogueGain"])
+        if abs(metadata["AnalogueGain"]-analog_gain)>0.1:
+            raise ValueError(f"expected {metadata['AnalogueGain']} but configured {analog_gain}")
+            
 
 if __name__ == "__main__":
     main()
